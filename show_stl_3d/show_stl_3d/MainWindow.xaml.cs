@@ -36,7 +36,7 @@ namespace try_2
             // Add to view port
             my_3d_view.Children.Add(device3D);
         }
-
+		 
         /// <summary>
         /// Display 3D Model
         /// </summary>
