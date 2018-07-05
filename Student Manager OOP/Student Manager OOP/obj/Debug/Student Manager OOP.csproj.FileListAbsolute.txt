@@ -1,0 +1,7 @@
+C:\Users\Itamar\source\repos\Student Manager OOP\Student Manager OOP\bin\Debug\Student Manager OOP.exe.config
+C:\Users\Itamar\source\repos\Student Manager OOP\Student Manager OOP\bin\Debug\Student Manager OOP.exe
+C:\Users\Itamar\source\repos\Student Manager OOP\Student Manager OOP\bin\Debug\Student Manager OOP.pdb
+C:\Users\Itamar\source\repos\Student Manager OOP\Student Manager OOP\obj\Debug\Student Manager OOP.csprojAssemblyReference.cache
+C:\Users\Itamar\source\repos\Student Manager OOP\Student Manager OOP\obj\Debug\Student Manager OOP.csproj.CoreCompileInputs.cache
+C:\Users\Itamar\source\repos\Student Manager OOP\Student Manager OOP\obj\Debug\Student Manager OOP.exe
+C:\Users\Itamar\source\repos\Student Manager OOP\Student Manager OOP\obj\Debug\Student Manager OOP.pdb

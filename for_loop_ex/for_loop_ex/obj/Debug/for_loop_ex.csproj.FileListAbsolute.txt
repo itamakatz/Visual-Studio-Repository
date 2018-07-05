@@ -1,0 +1,6 @@
+C:\Users\Itamar\source\repos\for_loop_ex\for_loop_ex\bin\Debug\for_loop_ex.exe.config
+C:\Users\Itamar\source\repos\for_loop_ex\for_loop_ex\bin\Debug\for_loop_ex.exe
+C:\Users\Itamar\source\repos\for_loop_ex\for_loop_ex\bin\Debug\for_loop_ex.pdb
+C:\Users\Itamar\source\repos\for_loop_ex\for_loop_ex\obj\Debug\for_loop_ex.csproj.CoreCompileInputs.cache
+C:\Users\Itamar\source\repos\for_loop_ex\for_loop_ex\obj\Debug\for_loop_ex.exe
+C:\Users\Itamar\source\repos\for_loop_ex\for_loop_ex\obj\Debug\for_loop_ex.pdb
