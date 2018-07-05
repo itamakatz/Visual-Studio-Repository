@@ -15,7 +15,7 @@ using System.Windows.Input;
 using System.Windows.Media.Media3D;
 using HelixToolkit.Wpf;
 
-namespace try_2
+namespace show_stl_3d
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -33,23 +33,35 @@ namespace try_2
 		public MainWindow()
         {
             InitializeComponent();
-			CurrentModel = import_2.Load(MODEL_PATH);
-			modelgroupobjects.Children.Add(CurrentModel);
-			ModelVisualObjects.Content = modelgroupobjects;
-			GeometryModel3D gm3d = ModelVisualObjects.Content as GeometryModel3D;
-			MeshGeometry3D mesh = gm3d.Geometry as MeshGeometry3D;
-			my_3d_view.Children.Add(ModelVisualObjects);
-			my_3d_view.RotateGesture = new MouseGesture(MouseAction.LeftClick);
+			//CurrentModel = import_2.Load(MODEL_PATH);
+			//modelgroupobjects.Children.Add(CurrentModel);
+			//ModelVisualObjects.Content = modelgroupobjects;
+			////GeometryModel3D gm3d = ModelVisualObjects.Content as GeometryModel3D;
+			////MeshGeometry3D mesh = gm3d.Geometry as MeshGeometry3D;
+			//my_3d_view.RotateGesture = new MouseGesture(MouseAction.LeftClick);
+			//my_3d_view.Children.Add(ModelVisualObjects);
 
 			// *********** Original (and working) code: ***********
 
-			//ModelVisual3D device3D = new ModelVisual3D();
-			//device3D.Content = Create_3D_from_stl(MODEL_PATH);
-   //         //Adding a gesture here
-   //         my_3d_view.RotateGesture = new MouseGesture(MouseAction.LeftClick);
-   //         // Add to view port
-   //         my_3d_view.Children.Add(device3D);
-        }
+			ModelVisual3D device3D = new ModelVisual3D();
+			Model3D my_Model3D = Create_3D_from_stl(MODEL_PATH);
+			device3D.Content = my_Model3D;
+			GeometryModel3D gm3d = my_Model3D as GeometryModel3D;
+			try
+			{
+				//MeshGeometry3D modelGeometry = (MeshGeometry3D)gm3d.Geometry;
+			}
+			catch (Exception e)
+			{
+				MessageBox.Show("Exception Error : " + e.StackTrace);
+			}
+
+			//MeshGeometry3D mesh = gm3d.Geometry as MeshGeometry3D;
+			//Adding a gesture here
+			my_3d_view.RotateGesture = new MouseGesture(MouseAction.LeftClick);
+			// Add to view port
+			my_3d_view.Children.Add(device3D);
+		}
 		 
         /// <summary>
         /// Display 3D Model
