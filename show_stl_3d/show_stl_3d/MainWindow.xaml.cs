@@ -25,16 +25,30 @@ namespace try_2
         //Path to the model file
         private const string MODEL_PATH = @"C:\Users\Itamar\Desktop\CorvinCastle.stl";
 
-        public MainWindow()
+		Model3D CurrentModel;
+		Model3DGroup modelgroupobjects = new Model3DGroup();
+		ModelVisual3D ModelVisualObjects = new ModelVisual3D();
+		ModelImporter import_2 = new ModelImporter();
+
+		public MainWindow()
         {
             InitializeComponent();
+			CurrentModel = import_2.Load(MODEL_PATH);
+			modelgroupobjects.Children.Add(CurrentModel);
+			ModelVisualObjects.Content = modelgroupobjects;
+			GeometryModel3D gm3d = ModelVisualObjects.Content as GeometryModel3D;
+			MeshGeometry3D mesh = gm3d.Geometry as MeshGeometry3D;
+			my_3d_view.Children.Add(ModelVisualObjects);
+			my_3d_view.RotateGesture = new MouseGesture(MouseAction.LeftClick);
 
-            ModelVisual3D device3D = new ModelVisual3D();
-            device3D.Content = Create_3D_from_stl(MODEL_PATH);
-            //Adding a gesture here
-            my_3d_view.RotateGesture = new MouseGesture(MouseAction.LeftClick);
-            // Add to view port
-            my_3d_view.Children.Add(device3D);
+			// *********** Original (and working) code: ***********
+
+			//ModelVisual3D device3D = new ModelVisual3D();
+			//device3D.Content = Create_3D_from_stl(MODEL_PATH);
+   //         //Adding a gesture here
+   //         my_3d_view.RotateGesture = new MouseGesture(MouseAction.LeftClick);
+   //         // Add to view port
+   //         my_3d_view.Children.Add(device3D);
         }
 		 
         /// <summary>
@@ -50,8 +64,9 @@ namespace try_2
                 //Import 3D model file
                 ModelImporter import = new ModelImporter();
 
-                //Load the 3D model file
+				//Load the 3D model file
                 device = import.Load(model);
+
 			}
             catch (Exception e)
             {
