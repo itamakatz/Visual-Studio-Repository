@@ -42,22 +42,29 @@ namespace try_geometry3Sharp
 			double plane_origine = meshes[0].CachedBounds.MaxDim / 2;
 			MeshPlaneCut first_plane_cut = new MeshPlaneCut(meshes[0], new Vector3d(0, 0, 0), new Vector3d(0, -1, 0));
 			first_plane_cut.Cut();
+			
 			List<EdgeLoop> cutLoops = first_plane_cut.CutLoops;
 			AxisAlignedBox3d cutLoops_bounds = cutLoops[0].GetBounds();
 			List<EdgeSpan> cutSpans = first_plane_cut.CutSpans;
-			first_plane_cut.FillHoles();
-			MeshPlaneCut second_plane_cut = new MeshPlaneCut(first_plane_cut.Mesh, new Vector3d(1, 1, 1), new Vector3d(0, 1, 0));
-			second_plane_cut.Cut();
-			second_plane_cut.FillHoles();
+
+			//first_plane_cut.FillHoles();
+			//MeshPlaneCut second_plane_cut = new MeshPlaneCut(first_plane_cut.Mesh, new Vector3d(1, 1, 1), new Vector3d(0, 1, 0));
+			//second_plane_cut.Cut();
+			//second_plane_cut.FillHoles();
+
+			//PolyLine2d BitmapExporter EdgeLoopRemesher
+			
 			//IOWriteResult result =
-			StandardMeshWriter.WriteFile(MODEL_OUT_PATH, new List<WriteMesh>() { new WriteMesh(second_plane_cut.Mesh) }, WriteOptions.Defaults);
+			//StandardMeshWriter.WriteFile(MODEL_OUT_PATH, new List<WriteMesh>() { new WriteMesh(second_plane_cut.Mesh) }, WriteOptions.Defaults);
+			StandardMeshWriter.WriteFile(MODEL_OUT_PATH, new List<WriteMesh>() { new WriteMesh(cutLoops[0].Mesh) }, WriteOptions.Defaults);
 			//StandardMeshWriter.WriteFile(MODEL_OUT_PATH, new List<WriteMesh>() { new WriteMesh(meshes[0]) }, WriteOptions.Defaults);
 			//foreach (var item in meshes[0].VertexIndices())
 			//foreach (var my_DMesh3 in meshes[0].Vertices())
 			//{
 			//	//item.z
 			//}
-
+			
+			Visual3D
 			ModelVisual3D device3D = new ModelVisual3D();
 			Model3D my_Model3D = Create_3D_from_stl(MODEL_OUT_PATH);
 			device3D.Content = my_Model3D;
