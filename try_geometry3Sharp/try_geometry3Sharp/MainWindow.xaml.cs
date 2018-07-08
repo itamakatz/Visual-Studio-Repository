@@ -60,11 +60,21 @@ namespace try_geometry3Sharp
 				cutLoops_DGraph2.AppendVertex(item.xz);
 			}
 
+			for (int i = 0; i < cutLoops_DCurve3.VertexCount; i++)
+			{
+				cutLoops_DGraph2.AppendEdge(i, (i + 1) % cutLoops_DCurve3.VertexCount);
+			}
+
+			//cutLoops_DGraph2.AppendEdge(v_Index2i.array[0], 0);
+
+			//cutLoops_DGraph2.AllocateEdgeGroup();
+			//cutLoops_DGraph2.AppendVertex(new Vector2d(0, 0));
+			//cutLoops_DGraph2.AppendVertex(new Vector2d(50, 50));
 			SVGWriter my_SVGWriter = new SVGWriter();
 			my_SVGWriter.AddGraph(cutLoops_DGraph2);
 
-			Arc2d my_Arc2d = new Arc2d(new Vector2d(0, 0), 10.0, 0, 90);
-			my_SVGWriter.AddArc(my_Arc2d);
+			//Arc2d my_Arc2d = new Arc2d(new Vector2d(0, 0), 10.0, 0, 90);
+			//my_SVGWriter.AddArc(my_Arc2d);
 			//var fileStream = File.Create();
 			my_SVGWriter.Write(SVG_PATH);
 
@@ -72,7 +82,7 @@ namespace try_geometry3Sharp
 			//MeshPlaneCut second_plane_cut = new MeshPlaneCut(first_plane_cut.Mesh, new Vector3d(1, 1, 1), new Vector3d(0, 1, 0));
 			//second_plane_cut.Cut();
 			//second_plane_cut.FillHoles();
-
+			
 			//PolyLine2d BitmapExporter EdgeLoopRemesher
 
 			//IOWriteResult result =
