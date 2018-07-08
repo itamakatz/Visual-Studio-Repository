@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Media.Media3D;
 using HelixToolkit.Wpf;
+using System.IO;
 
 namespace try_geometry3Sharp
 {
@@ -25,7 +26,8 @@ namespace try_geometry3Sharp
 	{
 		private const string MODEL_IN_PATH = @"C:\Users\Itamar\Desktop\CorvinCastle.stl";
 		private const string MODEL_OUT_PATH = @"C:\Users\Itamar\Desktop\CorvinCastle_new.stl";
-
+		private const string SVG_PATH = @"C:\Users\Itamar\Desktop\bitmap.svg";
+		private const string PNG_PATH = @"C:\Users\Itamar\Desktop\bitmap.Png";
 		List<DMesh3> meshes;
 
 		public MainWindow()
@@ -46,6 +48,25 @@ namespace try_geometry3Sharp
 			List<EdgeLoop> cutLoops = first_plane_cut.CutLoops;
 			AxisAlignedBox3d cutLoops_bounds = cutLoops[0].GetBounds();
 			List<EdgeSpan> cutSpans = first_plane_cut.CutSpans;
+			//EdgeLoopRemesher
+
+			DCurve3 cutLoops_DCurve3 = cutLoops[0].ToCurve();
+			List<Vector2d> cutLoops_Vector2d = new List<Vector2d>();
+			DGraph2 cutLoops_DGraph2 = new DGraph2();
+
+			foreach (var item in cutLoops_DCurve3.Vertices)
+			{
+				cutLoops_Vector2d.Add(item.xz);
+				cutLoops_DGraph2.AppendVertex(item.xz);
+			}
+
+			SVGWriter my_SVGWriter = new SVGWriter();
+			my_SVGWriter.AddGraph(cutLoops_DGraph2);
+
+			Arc2d my_Arc2d = new Arc2d(new Vector2d(0, 0), 10.0, 0, 90);
+			my_SVGWriter.AddArc(my_Arc2d);
+			//var fileStream = File.Create();
+			my_SVGWriter.Write(SVG_PATH);
 
 			//first_plane_cut.FillHoles();
 			//MeshPlaneCut second_plane_cut = new MeshPlaneCut(first_plane_cut.Mesh, new Vector3d(1, 1, 1), new Vector3d(0, 1, 0));
@@ -53,7 +74,7 @@ namespace try_geometry3Sharp
 			//second_plane_cut.FillHoles();
 
 			//PolyLine2d BitmapExporter EdgeLoopRemesher
-			
+
 			//IOWriteResult result =
 			//StandardMeshWriter.WriteFile(MODEL_OUT_PATH, new List<WriteMesh>() { new WriteMesh(second_plane_cut.Mesh) }, WriteOptions.Defaults);
 			StandardMeshWriter.WriteFile(MODEL_OUT_PATH, new List<WriteMesh>() { new WriteMesh(cutLoops[0].Mesh) }, WriteOptions.Defaults);
@@ -64,10 +85,16 @@ namespace try_geometry3Sharp
 			//	//item.z
 			//}
 			
-			Visual3D
 			ModelVisual3D device3D = new ModelVisual3D();
 			Model3D my_Model3D = Create_3D_from_stl(MODEL_OUT_PATH);
 			device3D.Content = my_Model3D;
+
+			Viewport3D my_Viewport3D = my_3d_view.Viewport;
+			var fileStream = File.Create(PNG_PATH);
+			BitmapExporter my_BitmapExporter = new BitmapExporter();
+			//my_BitmapExporter.Export(my_Viewport3D, fileStream);
+			fileStream.Close();
+			
 			my_3d_view.RotateGesture = new MouseGesture(MouseAction.LeftClick);
 			my_3d_view.Children.Add(device3D);
 		}
