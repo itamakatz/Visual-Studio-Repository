@@ -29,14 +29,21 @@ namespace IOTech_BitMap_Slicer
 	{
 		enum Axis { X, Y, Z };
 
+		// ****
 		// should chane all paths to be relative using:
-		//string filePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\sample.svg");
+		// string filePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\sample.svg");
 
+		private const bool RUN_VISUAL = false;
 
 		private const string MODEL_IN_PATH = @"C:\Users\Itamar\Desktop\CorvinCastle.stl";
 		private const string MODEL_OUT_PATH = @"C:\Users\Itamar\Desktop\CorvinCastle_new.stl";
+
 		private const string SVG_PATH_PREFIX = @"C:\Users\Itamar\Desktop\SVG_slice";
 		private const string SVG_PATH_SUFIX = @".SVG";
+
+		private const string BITMAP_PATH_PREFIX = @"C:\Users\Itamar\Desktop\BITMAP_slice";
+		private const string BITMAP_PATH_SUFIX = @".png";
+
 		private const string PNG_PATH = @"C:\Users\Itamar\Desktop\bitmap.Png";
 		private const string TMP_PATH = @"C:\Users\Itamar\Desktop\TMP Directory";
 		private const float SVG_WIDTH = 0.1f;
@@ -45,7 +52,6 @@ namespace IOTech_BitMap_Slicer
 		private const double NUM_OF_SLICES = 20;
 		private Vector3d SLICING_NORMAL;
 		private Vector3d SLICING_ORIGIN;
-		private List<double> Slice_Increment;
 		private IEnumerable<double> Slice_Enumerator;
 
 		DMesh3 Imported_STL_mesh;
@@ -67,10 +73,6 @@ namespace IOTech_BitMap_Slicer
 			}
 
 			Vector3d STL_mesh_Diagonal = Imported_STL_mesh.CachedBounds.Diagonal;
-
-			Slice_Increment = Range_Increment(Imported_STL_mesh.CachedBounds.Min[(int)SLICING_AXIS],
-												Imported_STL_mesh.CachedBounds.Max[(int)SLICING_AXIS],
-												STL_mesh_Diagonal[(int)SLICING_AXIS] / NUM_OF_SLICES);
 
 			Slice_Enumerator = Range_Enumerator(Imported_STL_mesh.CachedBounds.Min[(int)SLICING_AXIS],
 									Imported_STL_mesh.CachedBounds.Max[(int)SLICING_AXIS],
@@ -109,26 +111,28 @@ namespace IOTech_BitMap_Slicer
 
 			//second_cross_section = new MeshPlaneCut(main_cross_section.Mesh, plane_origine - SLICING_WIDTH, SLICING_NORMAL * -1);
 			//second_cross_section.Cut();
-
-			StandardMeshWriter.WriteFile(MODEL_OUT_PATH, new List<WriteMesh>() { new WriteMesh(main_cross_section.Mesh) }, WriteOptions.Defaults);
-
-			// Using HelixToolkit show 3D object on GUI
-			ModelVisual3D device3D = new ModelVisual3D();
-			try
+			if (RUN_VISUAL)
 			{
-				ModelImporter import = new ModelImporter();
-				HelixToolkit_Model3D = import.Load(MODEL_OUT_PATH);
-			}
-			catch (Exception e)
-			{
-				MessageBox.Show("Exception Error : " + e.StackTrace);
-			}
+				StandardMeshWriter.WriteFile(MODEL_OUT_PATH, new List<WriteMesh>() { new WriteMesh(main_cross_section.Mesh) }, WriteOptions.Defaults);
 
-			device3D.Content = HelixToolkit_Model3D;
+				// Using HelixToolkit show 3D object on GUI
+				ModelVisual3D device3D = new ModelVisual3D();
+				try
+				{
+					ModelImporter import = new ModelImporter();
+					HelixToolkit_Model3D = import.Load(MODEL_OUT_PATH);
+				}
+				catch (Exception e)
+				{
+					MessageBox.Show("Exception Error : " + e.StackTrace);
+				}
 
-			// Set GUI properties
-			my_3d_view.RotateGesture = new MouseGesture(MouseAction.LeftClick);
-			my_3d_view.Children.Add(device3D);
+				device3D.Content = HelixToolkit_Model3D;
+
+				// Set GUI properties
+				my_3d_view.RotateGesture = new MouseGesture(MouseAction.LeftClick);
+				my_3d_view.Children.Add(device3D);
+			}
 		}
 
 
@@ -162,45 +166,58 @@ namespace IOTech_BitMap_Slicer
 				my_SVGWriter.AddGraph(cutLoop_DGraph2);
 			}
 
-			my_SVGWriter.Write(SVG_PATH_PREFIX + @"\" + (SVG_Count++) + SVG_PATH_SUFIX);
+			my_SVGWriter.Write(SVG_PATH_PREFIX + @"\" + (SVG_Count) + SVG_PATH_SUFIX);
+			SVG_to_PNG(SVG_PATH_PREFIX + @"\" + (SVG_Count) + SVG_PATH_SUFIX, 
+				BITMAP_PATH_PREFIX + @"\" + (SVG_Count) + BITMAP_PATH_SUFIX);
+
+			SVG_Count++;
 		}
 
-		public void SVG_to_PNG(String svg_path)
+		public void SVG_to_PNG(String svg_path, String png_path)
 		{
 
-			string filePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\sample.svg");
+			//string filePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\sample.svg");
 
-			SvgDocument sampleDoc = SvgDocument.Open<SvgDocument>(filePath, new Dictionary<string, string>
-				{
-					{"entity1", "fill:red" },
-					{"entity2", "fill:yellow" }
-				});
+			//SvgDocument sampleDoc = SvgDocument.Open<SvgDocument>(filePath, new Dictionary<string, string>
+			//	{
+			//		{"entity1", "fill:red" },
+			//		{"entity2", "fill:yellow" }
+			//	});
 
-			SvgDocument sampleDoc2 = new SvgDocument();
-			sampleDoc2.Draw(1000, 1000).Save(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\sample.png"));
+			//sampleDoc.Draw(1000, 1000).Save(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\sample.png"));
 
+			//string _byteOrderMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
+			//if (xml.StartsWith(_byteOrderMarkUtf8))
+			//{
+			//	xml = xml.Remove(0, _byteOrderMarkUtf8.Length);
+			//}
+
+			SvgDocument svgDoc = SvgDocument.Open(svg_path);
+			Bitmap bitmap = svgDoc.Draw(100,50);
+			bitmap.Save(png_path, System.Drawing.Imaging.ImageFormat.Png);
+			//RenderSvg(svgDoc);
+
+			//var byteArray = UTF8Encoding.Default.GetBytes(svg_path);
 			//var byteArray = Encoding.ASCII.GetBytes(svg_path);
+
+			//using (var s = new MemoryStream(UTF8Encoding.Default.GetBytes(svg_path)))
+			//{
+			//	SvgDocument svgDoc = SvgDocument.Open<SvgDocument>(s, null);
+			//	//RenderSvg(svgDoc);
+			//}
+
 			//using (var stream = new MemoryStream(byteArray))
 			//{
-			//	SvgDocument svgDocument = new SvgDocument();
-			//	svgDocument = SvgDocument.Open<SvgDocument>(stream);
-			//	//SvgDocument svgDocument = SvgDocument.Open(svg_path);
+			//	SvgDocument svgDocument = SvgDocument.Open<SvgDocument>(stream);
 			//	Bitmap bitmap = svgDocument.Draw();
-			//	bitmap.Save(path, ImageFormat.Png);
+			//	//bitmap.Save(png_path, System.Drawing.Imaging.ImageFormat.Bmp);
+			//	bitmap.Save(png_path, System.Drawing.Imaging.ImageFormat.Png);
 			//}
-		}
-
-		public static List<double> Range_Increment(double start, double end, double increment)
-		{
-			return Enumerable
-				.Repeat(start, (int)((end - start) / increment) + 1)
-				.Select((tr, ti) => tr + (increment * ti))
-				.ToList();
 		}
 
 		public IEnumerable<double> Range_Enumerator(double start, double end, double increment)
 		{
-			for (double i = start; i <= end; i += increment)
+			for (double i = start + increment; i < end; i += increment)
 				yield return i;
 		}
 
