@@ -7,10 +7,20 @@
         mc:Ignorable="d"
 		xmlns:helix="http://helix-toolkit.org/wpf"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
+	<Grid>
 		<helix:HelixViewport3D x:Name="my_3d_view" ZoomExtentsWhenLoaded="true" Grid.RowSpan="2" >
 			<!-- Remember to add light to the scene -->
 			<helix:DefaultLights/>
 		</helix:HelixViewport3D>
+		<Slider HorizontalAlignment="Left" Margin="-124,179,0,0" Height="56" Width="337" RenderTransformOrigin="0.5,0.5" VerticalAlignment="Top">
+			<Slider.RenderTransform>
+				<TransformGroup>
+					<ScaleTransform/>
+					<SkewTransform/>
+					<RotateTransform Angle="-90"/>
+					<TranslateTransform/>
+				</TransformGroup>
+			</Slider.RenderTransform>
+		</Slider>
 	</Grid>
 </Window>

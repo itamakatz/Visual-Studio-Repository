@@ -24,105 +24,153 @@ namespace try_geometry3Sharp
 	/// </summary>
 	public partial class MainWindow : Window
 	{
+		enum Axis { X, Y, Z};
+
 		private const string MODEL_IN_PATH = @"C:\Users\Itamar\Desktop\CorvinCastle.stl";
 		private const string MODEL_OUT_PATH = @"C:\Users\Itamar\Desktop\CorvinCastle_new.stl";
-		private const string SVG_PATH = @"C:\Users\Itamar\Desktop\bitmap.svg";
+		private const string SVG_PATH_PREFIX = @"C:\Users\Itamar\Desktop\SVG_slice";
+		private const string SVG_PATH_SUFIX = @".SVG";
 		private const string PNG_PATH = @"C:\Users\Itamar\Desktop\bitmap.Png";
-		List<DMesh3> meshes;
+
+		private const float SVG_WIDTH = 0.1f;
+		private const float SLICING_WIDTH = 0.1f / 2;
+		private const Axis SLICING_AXIS = Axis.Y;
+		private const double NUM_OF_SLICES = 20;
+		private Vector3d SLICING_NORMAL;
+		private Vector3d SLICING_ORIGIN;
+		private List<double> Slice_Increment;
+		private IEnumerable<double> Slice_Enumerator;
+
+		DMesh3 Imported_STL_mesh;
+		SVGWriter my_SVGWriter;
+		Model3D HelixToolkit_Model3D = null;
+		static int SVG_Count = 1;
 
 		public MainWindow()
 		{
 			InitializeComponent();
-			DMesh3Builder builder = new DMesh3Builder();
-			StandardMeshReader reader = new StandardMeshReader() { MeshBuilder = builder };
+
+			// Open STL file and create DMesh3 objects
+			DMesh3Builder DMesh3_builder = new DMesh3Builder();
+			StandardMeshReader reader = new StandardMeshReader() { MeshBuilder = DMesh3_builder };
 			IOReadResult result = reader.Read(MODEL_IN_PATH, ReadOptions.Defaults);
 			if (result.code == IOCode.Ok)
 			{
-				meshes = builder.Meshes;
+				Imported_STL_mesh = DMesh3_builder.Meshes[0];
 			}
 
-			double plane_origine = meshes[0].CachedBounds.MaxDim / 2;
-			MeshPlaneCut first_plane_cut = new MeshPlaneCut(meshes[0], new Vector3d(0, 0, 0), new Vector3d(0, -1, 0));
-			first_plane_cut.Cut();
+			Vector3d STL_mesh_Diagonal = Imported_STL_mesh.CachedBounds.Diagonal;
+
+			Slice_Increment = Range_Increment(Imported_STL_mesh.CachedBounds.Min[(int)SLICING_AXIS],
+												Imported_STL_mesh.CachedBounds.Max[(int)SLICING_AXIS],
+												STL_mesh_Diagonal[(int)SLICING_AXIS] / NUM_OF_SLICES);
+
+			Slice_Enumerator = Range_Enumerator(Imported_STL_mesh.CachedBounds.Min[(int)SLICING_AXIS],
+									Imported_STL_mesh.CachedBounds.Max[(int)SLICING_AXIS],
+									STL_mesh_Diagonal[(int)SLICING_AXIS] / NUM_OF_SLICES);
 			
-			List<EdgeLoop> cutLoops = first_plane_cut.CutLoops;
-			AxisAlignedBox3d cutLoops_bounds = cutLoops[0].GetBounds();
-			List<EdgeSpan> cutSpans = first_plane_cut.CutSpans;
-			//EdgeLoopRemesher
-
-			SVGWriter my_SVGWriter = new SVGWriter();
-			my_SVGWriter.SetDefaultLineWidth(0.1f);
-
-			foreach (EdgeLoop EdgeLoop_item in cutLoops)
+			switch (SLICING_AXIS)
 			{
-				DCurve3 cutLoops_DCurve3 = EdgeLoop_item.ToCurve();
-				List<Vector2d> cutLoops_Vector2d = new List<Vector2d>();
-				DGraph2 cutLoops_DGraph2 = new DGraph2();
+				case Axis.X:
+					SLICING_ORIGIN = Vector3d.AxisX;
+					SLICING_NORMAL = Vector3d.AxisX * SLICING_WIDTH;
+					break;
+				case Axis.Y:
+					SLICING_ORIGIN = Vector3d.AxisY;
+					SLICING_NORMAL = Vector3d.AxisY * SLICING_WIDTH;
+					break;
+				case Axis.Z:
+					SLICING_ORIGIN = Vector3d.AxisZ;
+					SLICING_NORMAL = Vector3d.AxisZ * SLICING_WIDTH;
+					break;
+				default:
+					break;
+			}
+			// Cut mesh model and save as STL file
 
-				foreach (var item in cutLoops_DCurve3.Vertices)
-				{
-					cutLoops_Vector2d.Add(item.xz);
-					cutLoops_DGraph2.AppendVertex(item.xz);
-				}
+			MeshPlaneCut main_cross_section = null;
+			//MeshPlaneCut second_cross_section;
 
-				cutLoops_DGraph2.AllocateEdgeGroup();
-				int current_group_id = cutLoops_DGraph2.MaxGroupID;
+			foreach (double slice_step in Slice_Enumerator)
+			{
+				main_cross_section = new MeshPlaneCut(new DMesh3(Imported_STL_mesh), SLICING_ORIGIN * slice_step, SLICING_NORMAL);
+				main_cross_section.Cut();
 
-				for (int i = 0; i < cutLoops_DCurve3.VertexCount; i++)
-				{
-					cutLoops_DGraph2.AppendEdge(i, (i + 1) % cutLoops_DCurve3.VertexCount, current_group_id);
-				}
-
-				my_SVGWriter.AddGraph(cutLoops_DGraph2);
+				Create_SVG(main_cross_section);
 			}
 
-			my_SVGWriter.Write(SVG_PATH);
 
-			//first_plane_cut.FillHoles();
-			MeshPlaneCut second_plane_cut = new MeshPlaneCut(first_plane_cut.Mesh, new Vector3d(0.1f, 0.1f, 0.1f), new Vector3d(0, 0.1f, 0));
-			second_plane_cut.Cut();
-			//second_plane_cut.FillHoles();
 
-			//IOWriteResult result =
-			StandardMeshWriter.WriteFile(MODEL_OUT_PATH, new List<WriteMesh>() { new WriteMesh(second_plane_cut.Mesh) }, WriteOptions.Defaults);
-			//StandardMeshWriter.WriteFile(MODEL_OUT_PATH, new List<WriteMesh>() { new WriteMesh(meshes[0]) }, WriteOptions.Defaults);
-			//foreach (var item in meshes[0].VertexIndices())
-			//foreach (var my_DMesh3 in meshes[0].Vertices())
-			//{
-			//	//item.z
-			//}
+			//second_cross_section = new MeshPlaneCut(main_cross_section.Mesh, plane_origine - SLICING_WIDTH, SLICING_NORMAL * -1);
+			//second_cross_section.Cut();
 
+			StandardMeshWriter.WriteFile(MODEL_OUT_PATH, new List<WriteMesh>() { new WriteMesh(main_cross_section.Mesh) }, WriteOptions.Defaults);
+
+			// Using HelixToolkit show 3D object on GUI
 			ModelVisual3D device3D = new ModelVisual3D();
-			Model3D my_Model3D = Create_3D_from_stl(MODEL_OUT_PATH);
-			device3D.Content = my_Model3D;
+			try
+			{
+				ModelImporter import = new ModelImporter();
+				HelixToolkit_Model3D = import.Load(MODEL_OUT_PATH);
+			}
+			catch (Exception e)
+			{
+				MessageBox.Show("Exception Error : " + e.StackTrace);
+			}
 
+			device3D.Content = HelixToolkit_Model3D;
+
+			// Set GUI properties
 			my_3d_view.RotateGesture = new MouseGesture(MouseAction.LeftClick);
 			my_3d_view.Children.Add(device3D);
 		}
 
-		/// <summary>
-		/// Display 3D Model
-		/// </summary>
-		/// <param name="model">Path to the Model file</param>
-		/// <returns>3D Model Content</returns>
-		private Model3D Create_3D_from_stl(string model)
+
+		private void Create_SVG(MeshPlaneCut cross_section)
 		{
-			Model3D device = null;
-			try
-			{
-				//Import 3D model file
-				ModelImporter import = new ModelImporter();
+			List<EdgeLoop> cutLoops = cross_section.CutLoops;
+			List<EdgeSpan> cutSpans = cross_section.CutSpans;
 
-				//Load the 3D model file
-				device = import.Load(model);
+			my_SVGWriter = new SVGWriter();
 
-			}
-			catch (Exception e)
+			my_SVGWriter.SetDefaultLineWidth(SVG_WIDTH);
+
+			foreach (EdgeLoop edgeLoop in cutLoops)
 			{
-				// Handle exception in case can not file 3D model
-				MessageBox.Show("Exception Error : " + e.StackTrace);
+				DCurve3 cutLoop_Curve = edgeLoop.ToCurve();
+				DGraph2 cutLoop_DGraph2 = new DGraph2();
+
+				foreach (Vector3d vec3d in cutLoop_Curve.Vertices)
+				{
+					cutLoop_DGraph2.AppendVertex(vec3d.xz);
+				}
+
+				cutLoop_DGraph2.AllocateEdgeGroup();
+				int current_group_id = cutLoop_DGraph2.MaxGroupID;
+
+				for (int i = 0; i < cutLoop_Curve.VertexCount; i++)
+				{
+					cutLoop_DGraph2.AppendEdge(i, (i + 1) % cutLoop_Curve.VertexCount, current_group_id);
+				}
+
+				my_SVGWriter.AddGraph(cutLoop_DGraph2);
 			}
-			return device;
+
+			my_SVGWriter.Write(SVG_PATH_PREFIX + @"\" + (SVG_Count++) + SVG_PATH_SUFIX);
+		}
+
+		public static List<double> Range_Increment(double start, double end, double increment)
+		{
+			return Enumerable
+				.Repeat(start, (int)((end - start) / increment) + 1)
+				.Select((tr, ti) => tr + (increment * ti))
+				.ToList();
+		}
+
+		public IEnumerable<double> Range_Enumerator(double start, double end, double increment)
+		{
+			for (double i = start; i <= end; i += increment)
+				yield return i;
 		}
 	}
 }
