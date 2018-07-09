@@ -15,20 +15,19 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Media.Media3D;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 //using System.Drawing.Text;
 using HelixToolkit.Wpf;
 using System.IO;
 //using Svg;
 
-namespace try_geometry3Sharp
+namespace IOTech_BitMap_Slicer
 {
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		enum Axis { X, Y, Z};
+		enum Axis { X, Y, Z };
 
 		// should chane all paths to be relative using:
 		//string filePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\sample.svg");
@@ -76,7 +75,7 @@ namespace try_geometry3Sharp
 			Slice_Enumerator = Range_Enumerator(Imported_STL_mesh.CachedBounds.Min[(int)SLICING_AXIS],
 									Imported_STL_mesh.CachedBounds.Max[(int)SLICING_AXIS],
 									STL_mesh_Diagonal[(int)SLICING_AXIS] / NUM_OF_SLICES);
-			
+
 			switch (SLICING_AXIS)
 			{
 				case Axis.X:
