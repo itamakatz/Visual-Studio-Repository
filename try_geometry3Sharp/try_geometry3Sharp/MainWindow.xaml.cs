@@ -15,10 +15,9 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Media.Media3D;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 //using System.Drawing.Text;
 using HelixToolkit.Wpf;
-using System.IO;
+using System.IO; 
 //using Svg;
 
 namespace try_geometry3Sharp
