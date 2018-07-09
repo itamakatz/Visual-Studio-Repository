@@ -18,7 +18,7 @@ using System.Drawing;
 //using System.Drawing.Text;
 using HelixToolkit.Wpf;
 using System.IO;
-//using Svg;
+using Svg;
 
 namespace IOTech_BitMap_Slicer
 {
@@ -170,14 +170,14 @@ namespace IOTech_BitMap_Slicer
 
 			string filePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\sample.svg");
 
-			//SvgDocument sampleDoc = SvgDocument.Open<SvgDocument>(filePath, new Dictionary<string, string>
-			//	{
-			//		{"entity1", "fill:red" },
-			//		{"entity2", "fill:yellow" }
-			//	});
+			SvgDocument sampleDoc = SvgDocument.Open<SvgDocument>(filePath, new Dictionary<string, string>
+				{
+					{"entity1", "fill:red" },
+					{"entity2", "fill:yellow" }
+				});
 
-			//SvgDocument sampleDoc2 = new SvgDocument();
-			//sampleDoc2.Draw(1000,1000).Save(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\sample.png"));
+			SvgDocument sampleDoc2 = new SvgDocument();
+			sampleDoc2.Draw(1000, 1000).Save(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\sample.png"));
 
 			//var byteArray = Encoding.ASCII.GetBytes(svg_path);
 			//using (var stream = new MemoryStream(byteArray))
