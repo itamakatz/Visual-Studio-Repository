@@ -58,12 +58,13 @@ namespace IOTech_BitMap_Slicer
 		private Vector3d SLICING_DIRECTION_UNIT;
 		private Vector2d Bitmap_dimensions = new Vector2d();
 		private Vector2d Mesh_min_dimensions = new Vector2d();
-
+		
 		private IEnumerable<double> Slice_Enumerator;
 
 		private DMesh3 Imported_STL_mesh;
 		private SVGWriter my_SVGWriter;
 		private Model3D HelixToolkit_Model3D = null;
+		private Bitmap bitmap;
 
 		private static int Slice_Count = 1;
 
@@ -138,7 +139,7 @@ namespace IOTech_BitMap_Slicer
 				plane_cut_cross_section.Cut();
 				Create_Bitmap(plane_cut_cross_section);
 
-				//Create_SVG(plane_cut_cross_section);
+				Create_SVG(plane_cut_cross_section);
 			}
 
 
@@ -173,30 +174,30 @@ namespace IOTech_BitMap_Slicer
 			List<EdgeLoop> cutLoops = cross_section.CutLoops;
 			List<EdgeSpan> cutSpans = cross_section.CutSpans;
 
+			int loop_count = 1;
+
+			bitmap = new Bitmap(Map_and_scale_double_to_Int32(Bitmap_dimensions.x),
+						   Map_and_scale_double_to_Int32(Bitmap_dimensions.y));
+
 			foreach (EdgeLoop edgeLoop in cutLoops)
 			{
-
-				int loop_count = 1;
 
 				DCurve3 cutLoop_Curve = edgeLoop.ToCurve();
 				List<Vector2d> loop_vertices = new List<Vector2d>();
 
 				foreach (Vector3d vec3d in cutLoop_Curve.Vertices)
 				{
-					loop_vertices.Add((vec3d.xz - Mesh_min_dimensions * Vector2d.AxisX) * SCALE_FACTOR);
+					loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR);
 				}
-
-				Bitmap bitmap = new Bitmap(Map_and_scale_double_to_Int32(Bitmap_dimensions.x), 
-										   Map_and_scale_double_to_Int32(Bitmap_dimensions.y));
 
 				for (int i = 0; i < cutLoop_Curve.VertexCount; i++)
 				{
 					DrawLineInt(bitmap, loop_vertices[i], loop_vertices[(i + 1) % cutLoop_Curve.VertexCount]);
 				}
-
-				bitmap.Save(BITMAP_PATH_PREFIX + @"\"  + "loop_" + (loop_count++) + "_slice_" + (Slice_Count) + BITMAP_PATH_SUFIX, 
-							System.Drawing.Imaging.ImageFormat.Png);
 			}
+
+			bitmap.Save(BITMAP_PATH_PREFIX + @"\" + "slice_" + (Slice_Count) + "_loop_" + (loop_count++) + BITMAP_PATH_SUFIX,
+						System.Drawing.Imaging.ImageFormat.Png);
 
 			Slice_Count++;
 		}
@@ -207,7 +208,8 @@ namespace IOTech_BitMap_Slicer
 
 			using (var graphics = Graphics.FromImage(bmp))
 			{
-				graphics.DrawLine(blackPen, (float)origin_vec.x, (float)origin_vec.y, (float)dest_vec.x, (float)dest_vec.y);
+				graphics.DrawLine(blackPen, (float)origin_vec.x, (float)(bitmap.Size.Height - origin_vec.y), 
+											(float)dest_vec.x, (float)(bitmap.Size.Height - dest_vec.y));
 			}
 		}
 
@@ -233,7 +235,8 @@ namespace IOTech_BitMap_Slicer
 
 				foreach (Vector3d vec3d in cutLoop_Curve.Vertices)
 				{
-					loop_vertices.Add(vec3d.xz);
+					//loop_vertices.Add(vec3d.xz);
+					loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR);
 					cutLoop_DGraph2.AppendVertex(vec3d.xz);
 				}
 
@@ -248,14 +251,10 @@ namespace IOTech_BitMap_Slicer
 				my_SVGWriter.AddGraph(cutLoop_DGraph2);
 			}
 
-			my_SVGWriter.Write(SVG_PATH_PREFIX + @"\" + (Slice_Count) + SVG_PATH_SUFIX);
-			SVG_to_PNG(SVG_PATH_PREFIX + @"\" + (Slice_Count) + SVG_PATH_SUFIX, 
-				BITMAP_PATH_PREFIX + @"\" + (Slice_Count));
-
-			Slice_Count++;
+			my_SVGWriter.Write(SVG_PATH_PREFIX + @"\" + (Slice_Count - 1) + SVG_PATH_SUFIX);
+			//SVG_to_PNG(SVG_PATH_PREFIX + @"\" + (Slice_Count) + SVG_PATH_SUFIX, 
+			//	BITMAP_PATH_PREFIX + @"\" + (Slice_Count));
 		}
-
-
 
 		public void SVG_to_PNG(String svg_path, String png_path)
 		{
@@ -276,17 +275,17 @@ namespace IOTech_BitMap_Slicer
 			//{
 			//	xml = xml.Remove(0, _byteOrderMarkUtf8.Length);
 			//}
-			Bitmap bitmap2 = new Bitmap(800, 800);
+			//Bitmap bitmap2 = new Bitmap(800, 800);
 			//DrawLineInt(bitmap2);
-			bitmap2.Save(png_path + "_whaaaa" + BITMAP_PATH_SUFIX, System.Drawing.Imaging.ImageFormat.Png);
+			//bitmap2.Save(png_path + "_whaaaa" + BITMAP_PATH_SUFIX, System.Drawing.Imaging.ImageFormat.Png);
 
-			for (int i = 1; i < 10; i++)
-			{
-				Bitmap bitmap = new Bitmap(80 * i, 40 * i);
-				SvgDocument svgDoc = SvgDocument.Open(svg_path);
-				svgDoc.Draw(bitmap);
-				bitmap.Save(png_path + "_" + i + BITMAP_PATH_SUFIX, System.Drawing.Imaging.ImageFormat.Png);
-			}
+			//for (int i = 1; i < 10; i++)
+			//{
+			//	Bitmap bitmap = new Bitmap(80 * i, 40 * i);
+			//	SvgDocument svgDoc = SvgDocument.Open(svg_path);
+			//	svgDoc.Draw(bitmap);
+			//	bitmap.Save(png_path + "_" + i + BITMAP_PATH_SUFIX, System.Drawing.Imaging.ImageFormat.Png);
+			//}
 
 			//Bitmap bitmap = new Bitmap(1000, 500);
 			//SvgDocument svgDoc = SvgDocument.Open(svg_path);
