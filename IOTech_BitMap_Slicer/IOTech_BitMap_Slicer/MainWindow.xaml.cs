@@ -28,11 +28,11 @@ namespace IOTech_BitMap_Slicer
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		enum Axis { X, Y, Z };
-
 		// ****
 		// should chane all paths to be relative using:
 		// string filePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\sample.svg");
+
+		// ***** Variables that can be changed ***** //
 
 		private const bool RUN_VISUAL = false;
 
@@ -45,20 +45,29 @@ namespace IOTech_BitMap_Slicer
 		private const string BITMAP_PATH_PREFIX = @"C:\Users\Itamar\Desktop\BITMAP_slice";
 		private const string BITMAP_PATH_SUFIX = @".png";
 
-		private const string PNG_PATH = @"C:\Users\Itamar\Desktop\bitmap.Png";
 		private const string TMP_PATH = @"C:\Users\Itamar\Desktop\TMP Directory";
-		private const float SVG_WIDTH = 0.1f;
-		private const float SLICING_WIDTH = 0.1f / 2;
-		private const Axis SLICING_AXIS = Axis.Y;
+
+		private const int SCALE_FACTOR = 16;
 		private const double NUM_OF_SLICES = 4;
-		private Vector3d SLICING_NORMAL;
-		private Vector3d SLICING_ORIGIN;
+		private const Axis SLICING_AXIS = Axis.Y;
+
+		private const float SVG_WIDTH = 0.1f;
+
+		// ***** Initialization of other variables ***** //
+
+		private Vector3d SLICING_DIRECTION_UNIT;
+		private Vector2d Bitmap_dimensions = new Vector2d();
+		private Vector2d Mesh_min_dimensions = new Vector2d();
+
 		private IEnumerable<double> Slice_Enumerator;
 
-		DMesh3 Imported_STL_mesh;
-		SVGWriter my_SVGWriter;
-		Model3D HelixToolkit_Model3D = null;
-		static int SVG_Count = 1;
+		private DMesh3 Imported_STL_mesh;
+		private SVGWriter my_SVGWriter;
+		private Model3D HelixToolkit_Model3D = null;
+
+		private static int Slice_Count = 1;
+
+		private enum Axis { X, Y, Z };
 
 		public MainWindow()
 		{
@@ -73,6 +82,7 @@ namespace IOTech_BitMap_Slicer
 				Imported_STL_mesh = DMesh3_builder.Meshes[0];
 			}
 
+			//Imported_STL_mesh.CachedBounds.MoveMin(Vector3d.Zero);
 			Vector3d STL_mesh_Diagonal = Imported_STL_mesh.CachedBounds.Diagonal;
 
 			Slice_Enumerator = Range_Enumerator(Imported_STL_mesh.CachedBounds.Min[(int)SLICING_AXIS],
@@ -82,39 +92,61 @@ namespace IOTech_BitMap_Slicer
 			switch (SLICING_AXIS)
 			{
 				case Axis.X:
-					SLICING_ORIGIN = Vector3d.AxisX;
-					SLICING_NORMAL = Vector3d.AxisX * SLICING_WIDTH;
+
+					Bitmap_dimensions.x = STL_mesh_Diagonal.y;
+					Mesh_min_dimensions.x = Imported_STL_mesh.CachedBounds.Min.y;
+
+					Bitmap_dimensions.y = STL_mesh_Diagonal.z;
+					Mesh_min_dimensions.y = Imported_STL_mesh.CachedBounds.Min.z;
+
+					SLICING_DIRECTION_UNIT = Vector3d.AxisX;
+
 					break;
 				case Axis.Y:
-					SLICING_ORIGIN = Vector3d.AxisY;
-					SLICING_NORMAL = Vector3d.AxisY * SLICING_WIDTH;
+
+					Bitmap_dimensions.x = STL_mesh_Diagonal.x;
+					Mesh_min_dimensions.x = Imported_STL_mesh.CachedBounds.Min.x;
+
+					Bitmap_dimensions.y = STL_mesh_Diagonal.z;
+					Mesh_min_dimensions.y = Imported_STL_mesh.CachedBounds.Min.z;
+
+					SLICING_DIRECTION_UNIT = Vector3d.AxisY;
+
 					break;
 				case Axis.Z:
-					SLICING_ORIGIN = Vector3d.AxisZ;
-					SLICING_NORMAL = Vector3d.AxisZ * SLICING_WIDTH;
+
+					Bitmap_dimensions.x = STL_mesh_Diagonal.x;
+					Mesh_min_dimensions.x = Imported_STL_mesh.CachedBounds.Min.x;
+
+					Bitmap_dimensions.y = STL_mesh_Diagonal.y;
+					Mesh_min_dimensions.y = Imported_STL_mesh.CachedBounds.Min.y;
+
+					SLICING_DIRECTION_UNIT = Vector3d.AxisZ;
+
 					break;
 				default:
 					break;
 			}
 			// Cut mesh model and save as STL file
 
-			MeshPlaneCut main_cross_section = null;
+			MeshPlaneCut plane_cut_cross_section = null;
 			//MeshPlaneCut second_cross_section;
 
 			foreach (double slice_step in Slice_Enumerator)
 			{
-				main_cross_section = new MeshPlaneCut(new DMesh3(Imported_STL_mesh), SLICING_ORIGIN * slice_step, SLICING_NORMAL);
-				main_cross_section.Cut();
+				plane_cut_cross_section = new MeshPlaneCut(new DMesh3(Imported_STL_mesh), SLICING_DIRECTION_UNIT * slice_step, SLICING_DIRECTION_UNIT);
+				plane_cut_cross_section.Cut();
+				Create_Bitmap(plane_cut_cross_section);
 
-				Create_SVG(main_cross_section);
+				//Create_SVG(plane_cut_cross_section);
 			}
 
 
-			//second_cross_section = new MeshPlaneCut(main_cross_section.Mesh, plane_origine - SLICING_WIDTH, SLICING_NORMAL * -1);
+			//second_cross_section = new MeshPlaneCut(main_cross_section.Mesh, plane_origine - 0.01F, SLICING_NORMAL * -1);
 			//second_cross_section.Cut();
 			if (RUN_VISUAL)
 			{
-				StandardMeshWriter.WriteFile(MODEL_OUT_PATH, new List<WriteMesh>() { new WriteMesh(main_cross_section.Mesh) }, WriteOptions.Defaults);
+				StandardMeshWriter.WriteFile(MODEL_OUT_PATH, new List<WriteMesh>() { new WriteMesh(plane_cut_cross_section.Mesh) }, WriteOptions.Defaults);
 
 				// Using HelixToolkit show 3D object on GUI
 				ModelVisual3D device3D = new ModelVisual3D();
@@ -136,6 +168,53 @@ namespace IOTech_BitMap_Slicer
 			}
 		}
 
+		private void Create_Bitmap(MeshPlaneCut cross_section)
+		{
+			List<EdgeLoop> cutLoops = cross_section.CutLoops;
+			List<EdgeSpan> cutSpans = cross_section.CutSpans;
+
+			foreach (EdgeLoop edgeLoop in cutLoops)
+			{
+
+				int loop_count = 1;
+
+				DCurve3 cutLoop_Curve = edgeLoop.ToCurve();
+				List<Vector2d> loop_vertices = new List<Vector2d>();
+
+				foreach (Vector3d vec3d in cutLoop_Curve.Vertices)
+				{
+					loop_vertices.Add((vec3d.xz - Mesh_min_dimensions * Vector2d.AxisX) * SCALE_FACTOR);
+				}
+
+				Bitmap bitmap = new Bitmap(Map_and_scale_double_to_Int32(Bitmap_dimensions.x), 
+										   Map_and_scale_double_to_Int32(Bitmap_dimensions.y));
+
+				for (int i = 0; i < cutLoop_Curve.VertexCount; i++)
+				{
+					DrawLineInt(bitmap, loop_vertices[i], loop_vertices[(i + 1) % cutLoop_Curve.VertexCount]);
+				}
+
+				bitmap.Save(BITMAP_PATH_PREFIX + @"\"  + "loop_" + (loop_count++) + "_slice_" + (Slice_Count) + BITMAP_PATH_SUFIX, 
+							System.Drawing.Imaging.ImageFormat.Png);
+			}
+
+			Slice_Count++;
+		}
+
+		public void DrawLineInt(Bitmap bmp, Vector2d origin_vec, Vector2d dest_vec)
+		{
+			System.Drawing.Pen blackPen = new System.Drawing.Pen(System.Drawing.Color.Black, 3);
+
+			using (var graphics = Graphics.FromImage(bmp))
+			{
+				graphics.DrawLine(blackPen, (float)origin_vec.x, (float)origin_vec.y, (float)dest_vec.x, (float)dest_vec.y);
+			}
+		}
+
+		private Int32 Map_and_scale_double_to_Int32(double in_double)
+		{
+			return (Int32)Math.Ceiling(in_double) * SCALE_FACTOR;
+		}
 
 		private void Create_SVG(MeshPlaneCut cross_section)
 		{
@@ -150,9 +229,11 @@ namespace IOTech_BitMap_Slicer
 			{
 				DCurve3 cutLoop_Curve = edgeLoop.ToCurve();
 				DGraph2 cutLoop_DGraph2 = new DGraph2();
+				List<Vector2d> loop_vertices = new List<Vector2d>();
 
 				foreach (Vector3d vec3d in cutLoop_Curve.Vertices)
 				{
+					loop_vertices.Add(vec3d.xz);
 					cutLoop_DGraph2.AppendVertex(vec3d.xz);
 				}
 
@@ -167,27 +248,14 @@ namespace IOTech_BitMap_Slicer
 				my_SVGWriter.AddGraph(cutLoop_DGraph2);
 			}
 
-			my_SVGWriter.Write(SVG_PATH_PREFIX + @"\" + (SVG_Count) + SVG_PATH_SUFIX);
-			SVG_to_PNG(SVG_PATH_PREFIX + @"\" + (SVG_Count) + SVG_PATH_SUFIX, 
-				BITMAP_PATH_PREFIX + @"\" + (SVG_Count));
+			my_SVGWriter.Write(SVG_PATH_PREFIX + @"\" + (Slice_Count) + SVG_PATH_SUFIX);
+			SVG_to_PNG(SVG_PATH_PREFIX + @"\" + (Slice_Count) + SVG_PATH_SUFIX, 
+				BITMAP_PATH_PREFIX + @"\" + (Slice_Count));
 
-			SVG_Count++;
+			Slice_Count++;
 		}
 
-		public void DrawLineInt(Bitmap bmp)
-		{
-			System.Drawing.Pen blackPen = new System.Drawing.Pen(System.Drawing.Color.Black, 3);
 
-			int x1 = 100;
-			int y1 = 100;
-			int x2 = 500;
-			int y2 = 100;
-			// Draw line to screen.
-			using (var graphics = Graphics.FromImage(bmp))
-			{
-				graphics.DrawLine(blackPen, x1, y1, x2, y2);
-			}
-		}
 
 		public void SVG_to_PNG(String svg_path, String png_path)
 		{
@@ -209,7 +277,7 @@ namespace IOTech_BitMap_Slicer
 			//	xml = xml.Remove(0, _byteOrderMarkUtf8.Length);
 			//}
 			Bitmap bitmap2 = new Bitmap(800, 800);
-			DrawLineInt(bitmap2);
+			//DrawLineInt(bitmap2);
 			bitmap2.Save(png_path + "_whaaaa" + BITMAP_PATH_SUFIX, System.Drawing.Imaging.ImageFormat.Png);
 
 			for (int i = 1; i < 10; i++)
