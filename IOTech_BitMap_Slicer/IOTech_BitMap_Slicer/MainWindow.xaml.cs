@@ -19,6 +19,7 @@ using System.Drawing;
 using HelixToolkit.Wpf;
 using System.IO;
 using Svg;
+using System.Drawing.Drawing2D;
 
 namespace IOTech_BitMap_Slicer
 {
@@ -49,7 +50,7 @@ namespace IOTech_BitMap_Slicer
 		private const float SVG_WIDTH = 0.1f;
 		private const float SLICING_WIDTH = 0.1f / 2;
 		private const Axis SLICING_AXIS = Axis.Y;
-		private const double NUM_OF_SLICES = 20;
+		private const double NUM_OF_SLICES = 4;
 		private Vector3d SLICING_NORMAL;
 		private Vector3d SLICING_ORIGIN;
 		private IEnumerable<double> Slice_Enumerator;
@@ -168,13 +169,29 @@ namespace IOTech_BitMap_Slicer
 
 			my_SVGWriter.Write(SVG_PATH_PREFIX + @"\" + (SVG_Count) + SVG_PATH_SUFIX);
 			SVG_to_PNG(SVG_PATH_PREFIX + @"\" + (SVG_Count) + SVG_PATH_SUFIX, 
-				BITMAP_PATH_PREFIX + @"\" + (SVG_Count) + BITMAP_PATH_SUFIX);
+				BITMAP_PATH_PREFIX + @"\" + (SVG_Count));
 
 			SVG_Count++;
 		}
 
+		public void DrawLineInt(Bitmap bmp)
+		{
+			System.Drawing.Pen blackPen = new System.Drawing.Pen(System.Drawing.Color.Black, 3);
+
+			int x1 = 100;
+			int y1 = 100;
+			int x2 = 500;
+			int y2 = 100;
+			// Draw line to screen.
+			using (var graphics = Graphics.FromImage(bmp))
+			{
+				graphics.DrawLine(blackPen, x1, y1, x2, y2);
+			}
+		}
+
 		public void SVG_to_PNG(String svg_path, String png_path)
 		{
+			GraphicsPath my_GraphicsPath = new GraphicsPath();
 
 			//string filePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\sample.svg");
 
@@ -191,10 +208,22 @@ namespace IOTech_BitMap_Slicer
 			//{
 			//	xml = xml.Remove(0, _byteOrderMarkUtf8.Length);
 			//}
+			Bitmap bitmap2 = new Bitmap(800, 800);
+			DrawLineInt(bitmap2);
+			bitmap2.Save(png_path + "_whaaaa" + BITMAP_PATH_SUFIX, System.Drawing.Imaging.ImageFormat.Png);
 
-			SvgDocument svgDoc = SvgDocument.Open(svg_path);
-			Bitmap bitmap = svgDoc.Draw(100,50);
-			bitmap.Save(png_path, System.Drawing.Imaging.ImageFormat.Png);
+			for (int i = 1; i < 10; i++)
+			{
+				Bitmap bitmap = new Bitmap(80 * i, 40 * i);
+				SvgDocument svgDoc = SvgDocument.Open(svg_path);
+				svgDoc.Draw(bitmap);
+				bitmap.Save(png_path + "_" + i + BITMAP_PATH_SUFIX, System.Drawing.Imaging.ImageFormat.Png);
+			}
+
+			//Bitmap bitmap = new Bitmap(1000, 500);
+			//SvgDocument svgDoc = SvgDocument.Open(svg_path);
+			//svgDoc.Draw(bitmap);
+			//bitmap.Save(png_path, System.Drawing.Imaging.ImageFormat.Png);
 			//RenderSvg(svgDoc);
 
 			//var byteArray = UTF8Encoding.Default.GetBytes(svg_path);
