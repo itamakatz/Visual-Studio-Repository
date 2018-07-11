@@ -20,6 +20,7 @@ using HelixToolkit.Wpf;
 using System.IO;
 using Svg;
 using System.Drawing.Drawing2D;
+using System.Diagnostics;
 
 namespace IOTech_BitMap_Slicer
 {
@@ -36,25 +37,33 @@ namespace IOTech_BitMap_Slicer
 
 		private const bool RUN_VISUAL = false;
 
-		private const string MODEL_IN_PATH = @"C:\Users\Itamar\Desktop\CorvinCastle.stl";
-		private const string MODEL_OUT_PATH = @"C:\Users\Itamar\Desktop\CorvinCastle_new.stl";
+		private string MODEL_IN_PATH = @"Desktop\CorvinCastle.stl";
+		private string MODEL_OUT_PATH = @"Desktop\CorvinCastle_new.stl";
 
-		private const string SVG_PATH_PREFIX = @"C:\Users\Itamar\Desktop\SVG_slice";
+		private string SVG_DIR_PREFIX = @"Desktop\SVG_slice";
 		private const string SVG_PATH_SUFIX = @".SVG";
 
-		private const string BITMAP_PATH_PREFIX = @"C:\Users\Itamar\Desktop\BITMAP_slice";
+		private string BITMAP_DIR_PREFIX = @"Desktop\BITMAP_slice";
 		private const string BITMAP_PATH_SUFIX = @".png";
 
-		private const string TMP_PATH = @"C:\Users\Itamar\Desktop\TMP Directory";
+		private string TMP_DIR = @"Desktop\TMP Directory";
 
-		private const int SCALE_FACTOR = 16;
+		private const int SCALE_FACTOR = 2;
 		private const double NUM_OF_SLICES = 4;
 		private const Axis SLICING_AXIS = Axis.Y;
 
 		private const float SVG_WIDTH = 0.1f;
+		private const int EXIT_CODE = 10;
+
+		private const int PEN_WIDTH = 10;
+
+		//System.Drawing.Pen blackPen = new System.Drawing.Pen(System.Drawing.Color.Black, PEN_WIDTH );
+		private static System.Drawing.Pen Bitmap_pen = new System.Drawing.Pen(System.Drawing.Color.Blue, PEN_WIDTH);
 
 		// ***** Initialization of other variables ***** //
 
+		private string USER_PATH = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+		 
 		private Vector3d SLICING_DIRECTION_UNIT;
 		private Vector2d Bitmap_dimensions = new Vector2d();
 		private Vector2d Mesh_min_dimensions = new Vector2d();
@@ -74,6 +83,10 @@ namespace IOTech_BitMap_Slicer
 		{
 			InitializeComponent();
 
+			Check_directories();
+
+			Trace.WriteLine("wasssup broooo????");
+
 			// Open STL file and create DMesh3 objects
 			DMesh3Builder DMesh3_builder = new DMesh3Builder();
 			StandardMeshReader reader = new StandardMeshReader() { MeshBuilder = DMesh3_builder };
@@ -81,6 +94,13 @@ namespace IOTech_BitMap_Slicer
 			if (result.code == IOCode.Ok)
 			{
 				Imported_STL_mesh = DMesh3_builder.Meshes[0];
+			}
+			else
+			{
+				Trace.WriteLine("USER_PATH is - " + USER_PATH);
+				Trace.WriteLine("MODEL_IN_PATH is - " + MODEL_IN_PATH);
+				Trace.WriteLine("DMesh3Builder faild to open stl model");
+				Environment.Exit(EXIT_CODE);
 			}
 
 			//Imported_STL_mesh.CachedBounds.MoveMin(Vector3d.Zero);
@@ -176,8 +196,10 @@ namespace IOTech_BitMap_Slicer
 
 			int loop_count = 1;
 
-			bitmap = new Bitmap(Map_and_scale_double_to_Int32(Bitmap_dimensions.x),
-						   Map_and_scale_double_to_Int32(Bitmap_dimensions.y));
+			// how come we do not need Bitmap_dimensions.x * SCALE_FACTOR I simply dont understand. After all we do multiply in
+			//							loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR + PEN_WIDTH);
+			bitmap = new Bitmap(Map_and_scale_double_to_Int32(Bitmap_dimensions.x + PEN_WIDTH * 2),
+						   Map_and_scale_double_to_Int32(Bitmap_dimensions.y + PEN_WIDTH * 2));
 
 			foreach (EdgeLoop edgeLoop in cutLoops)
 			{
@@ -187,7 +209,7 @@ namespace IOTech_BitMap_Slicer
 
 				foreach (Vector3d vec3d in cutLoop_Curve.Vertices)
 				{
-					loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR);
+					loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR + PEN_WIDTH);
 				}
 
 				for (int i = 0; i < cutLoop_Curve.VertexCount; i++)
@@ -196,19 +218,24 @@ namespace IOTech_BitMap_Slicer
 				}
 			}
 
-			bitmap.Save(BITMAP_PATH_PREFIX + @"\" + "slice_" + (Slice_Count) + "_loop_" + (loop_count++) + BITMAP_PATH_SUFIX,
+			try
+			{
+				bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "slice_" + (Slice_Count) + "_loop_" + (loop_count++) + BITMAP_PATH_SUFIX,
 						System.Drawing.Imaging.ImageFormat.Png);
-
+			}
+			catch (Exception)
+			{
+				throw;
+			}
+			
 			Slice_Count++;
 		}
 
 		public void DrawLineInt(Bitmap bmp, Vector2d origin_vec, Vector2d dest_vec)
 		{
-			System.Drawing.Pen blackPen = new System.Drawing.Pen(System.Drawing.Color.Black, 3);
-
 			using (var graphics = Graphics.FromImage(bmp))
 			{
-				graphics.DrawLine(blackPen, (float)origin_vec.x, (float)(bitmap.Size.Height - origin_vec.y), 
+				graphics.DrawLine(Bitmap_pen, (float)origin_vec.x, (float)(bitmap.Size.Height - origin_vec.y), 
 											(float)dest_vec.x, (float)(bitmap.Size.Height - dest_vec.y));
 			}
 		}
@@ -251,7 +278,7 @@ namespace IOTech_BitMap_Slicer
 				my_SVGWriter.AddGraph(cutLoop_DGraph2);
 			}
 
-			my_SVGWriter.Write(SVG_PATH_PREFIX + @"\" + (Slice_Count - 1) + SVG_PATH_SUFIX);
+			my_SVGWriter.Write(SVG_DIR_PREFIX + @"\" + (Slice_Count - 1) + SVG_PATH_SUFIX);
 			//SVG_to_PNG(SVG_PATH_PREFIX + @"\" + (Slice_Count) + SVG_PATH_SUFIX, 
 			//	BITMAP_PATH_PREFIX + @"\" + (Slice_Count));
 		}
@@ -315,6 +342,40 @@ namespace IOTech_BitMap_Slicer
 		{
 			for (double i = start + increment; i < end; i += increment)
 				yield return i;
+		}
+
+		void Check_directories()
+		{
+			try
+			{
+				// adjust all path's relative to specific pc
+				MODEL_IN_PATH = System.IO.Path.Combine(USER_PATH, MODEL_IN_PATH);
+				MODEL_OUT_PATH = System.IO.Path.Combine(USER_PATH, MODEL_OUT_PATH);
+				SVG_DIR_PREFIX = System.IO.Path.Combine(USER_PATH, SVG_DIR_PREFIX);
+				BITMAP_DIR_PREFIX = System.IO.Path.Combine(USER_PATH, BITMAP_DIR_PREFIX);
+				TMP_DIR = System.IO.Path.Combine(USER_PATH, TMP_DIR);
+
+				if (!File.Exists(SVG_DIR_PREFIX))
+				{
+					Directory.CreateDirectory(SVG_DIR_PREFIX);
+				}
+
+				if (!File.Exists(BITMAP_DIR_PREFIX))
+				{
+					Directory.CreateDirectory(BITMAP_DIR_PREFIX);
+				}
+
+				if (!File.Exists(TMP_DIR))
+				{
+					Directory.CreateDirectory(TMP_DIR);
+				}
+			}
+			catch (Exception e)
+			{
+				Trace.WriteLine("Check_directories faild");
+				Trace.WriteLine(e);
+				Environment.Exit(EXIT_CODE);
+			}
 		}
 
 		public void Clear_dir(String path)
