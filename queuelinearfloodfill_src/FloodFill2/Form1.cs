@@ -30,17 +30,17 @@ namespace FloodFill2
 		void Init()
 		{
 			//populate combo boxes
-			comboNamedColor.Items.Add("<Custom>");
-			comboNamedColor.Items.AddRange(Enum.GetNames(typeof(System.Drawing.KnownColor)));
-			comboNamedColor.SelectedIndex = 0;
+			// comboNamedColor.Items.Add("<Custom>");
+			// comboNamedColor.Items.AddRange(Enum.GetNames(typeof(System.Drawing.KnownColor)));
+			// comboNamedColor.SelectedIndex = 0;
 			comboFillType.Items.Add("QueueLinear (Array method)");
 			comboFillType.Items.Add("QueueLinear (LockBits method)");
 			comboFillType.SelectedIndex = 0;
 
 			//set tolerance slider inital values
-			sliderPickerTolR.Value=30;
-			sliderPickerTolG.Value=30;
-			sliderPickerTolB.Value=30;
+			// sliderPickerTolR.Value=30;
+			// sliderPickerTolG.Value=30;
+			// sliderPickerTolB.Value=30;
 
 			//load default image if it is present
 			if (File.Exists(@"poppy_sm.jpg"))
@@ -66,7 +66,7 @@ namespace FloodFill2
 			//(Application.DoEvents() is called during slow fill)
 			if (floodFiller.Slow)
 			{
-				panel.Enabled = false;
+				// panel.Enabled = false;
 				groupBoxFillColor.Enabled = false;
 				groupBoxTolerance.Enabled = false;
 			}
@@ -86,50 +86,50 @@ namespace FloodFill2
 			}
 
 			//enable controls again
-			panel.Enabled = true;
+			// panel.Enabled = true;
 			groupBoxFillColor.Enabled = true;
 			groupBoxTolerance.Enabled = true;
 
 			//update image
-			panel.Invalidate();
+			// panel.Invalidate();
 
 			//update the statusbar & button
 			statusStrip.Items[0].Text = "Last fill took "+floodFiller.watch.ElapsedMilliseconds.ToString()+"ms";
 			btnStop.Enabled = false;
 		}
 
-		#region Panel Events
+		// #region Panel Events
 
-		void panelMouseDown(object sender, System.Windows.Forms.MouseEventArgs ev)
-		{
-			mouseDown = true;
-		}
+		// void panelMouseDown(object sender, System.Windows.Forms.MouseEventArgs ev)
+		// {
+		// 	mouseDown = true;
+		// }
 
-		void panelMouseUp(object sender, System.Windows.Forms.MouseEventArgs ev)
-		{
-			//make sure :
-			//1) we recieved a mousedown message before this
-			//2) the coordinates are not above the top of the bitmap
-			if (!mouseDown || ev.X - panel.AutoScrollPosition.X < 0 || ev.Y - panel.AutoScrollPosition.Y < 0) return;
-			mouseDown = false;
+		// void panelMouseUp(object sender, System.Windows.Forms.MouseEventArgs ev)
+		// {
+		// 	//make sure :
+		// 	//1) we recieved a mousedown message before this
+		// 	//2) the coordinates are not above the top of the bitmap
+		// 	if (!mouseDown || ev.X - panel.AutoScrollPosition.X < 0 || ev.Y - panel.AutoScrollPosition.Y < 0) return;
+		// 	mouseDown = false;
 
-			if (ev.Button == System.Windows.Forms.MouseButtons.Left && floodFiller.Bitmap!=null) //if the left button was pressed and bitmap isn't null
-			{
-				//get the actual point that was clicked on the bitmap
-				Point pt = new Point(ev.X - panel.AutoScrollPosition.X, ev.Y - panel.AutoScrollPosition.Y);	
-				pt.X %= panel.Image.Bitmap.Width;
-				pt.Y %= panel.Image.Bitmap.Height;
-				//do the fill
-				DoFill(pt);
-			}
-		}
+		// 	if (ev.Button == System.Windows.Forms.MouseButtons.Left && floodFiller.Bitmap!=null) //if the left button was pressed and bitmap isn't null
+		// 	{
+		// 		//get the actual point that was clicked on the bitmap
+		// 		Point pt = new Point(ev.X - panel.AutoScrollPosition.X, ev.Y - panel.AutoScrollPosition.Y);	
+		// 		pt.X %= panel.Image.Bitmap.Width;
+		// 		pt.Y %= panel.Image.Bitmap.Height;
+		// 		//do the fill
+		// 		DoFill(pt);
+		// 	}
+		// }
 
-		void panelMouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
-		{
-			statusStrip.Items[1].Text = "Position: " + (e.X - panel.AutoScrollPosition.X).ToString() + ", " + (e.Y - panel.AutoScrollPosition.Y).ToString();
-		}
+		// void panelMouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
+		// {
+		// 	statusStrip.Items[1].Text = "Position: " + (e.X - panel.AutoScrollPosition.X).ToString() + ", " + (e.Y - panel.AutoScrollPosition.Y).ToString();
+		// }
 
-		#endregion
+		// #endregion
 
 		#region Misc Events
 		private void openBtn_Click(object sender, EventArgs e)
@@ -142,10 +142,10 @@ namespace FloodFill2
 			SaveBitmap();
 		}
 
-		private void sliderPickerColor_ValueChanged(object sender, EventArgs e)
-		{
-			SetFillColor(Color.FromArgb((int)sliderPickerR.Value,(int)sliderPickerG.Value,(int)sliderPickerB.Value));
-		}
+		// private void sliderPickerColor_ValueChanged(object sender, EventArgs e)
+		// {
+		// 	SetFillColor(Color.FromArgb((int)sliderPickerR.Value,(int)sliderPickerG.Value,(int)sliderPickerB.Value));
+		// }
 
 		private void btnSlow_CheckedChanged(object sender, EventArgs e)
 		{
@@ -160,83 +160,83 @@ namespace FloodFill2
 
 		#region Combo Events
 
-		///<summary>Custom-draws the color combo.  A modified version of Steve McMahon's
-		/// owner-drawn combo box in his HLS-To-RGB example, available at www.vbaccelerator.com.</summary>
-		void comboNamedColorDrawItem(object sender, System.Windows.Forms.DrawItemEventArgs e)
-		{
-			int itemIndex = e.Index;
+		// ///<summary>Custom-draws the color combo.  A modified version of Steve McMahon's
+		// /// owner-drawn combo box in his HLS-To-RGB example, available at www.vbaccelerator.com.</summary>
+		// void comboNamedColorDrawItem(object sender, System.Windows.Forms.DrawItemEventArgs e)
+		// {
+		// 	int itemIndex = e.Index;
 
-			e.DrawBackground();
+		// 	e.DrawBackground();
 
-			if (itemIndex > 0) //known color
-			{
-				//get color name
-				string knownColorName = comboNamedColor.Items[itemIndex].ToString();
+		// 	if (itemIndex > 0) //known color
+		// 	{
+		// 		//get color name
+		// 		string knownColorName = comboNamedColor.Items[itemIndex].ToString();
 
-				Rectangle textRectangle = e.Bounds;
+		// 		Rectangle textRectangle = e.Bounds;
 
-				//compute the rectangle to draw the color swatch in
-				Rectangle colorRectangle = e.Bounds;
-				colorRectangle.X += 2;
-				colorRectangle.Y += 2;
-				colorRectangle.Width = 16;
-				colorRectangle.Height -= 4;
+		// 		//compute the rectangle to draw the color swatch in
+		// 		Rectangle colorRectangle = e.Bounds;
+		// 		colorRectangle.X += 2;
+		// 		colorRectangle.Y += 2;
+		// 		colorRectangle.Width = 16;
+		// 		colorRectangle.Height -= 4;
 
-				//Get color to draw, and draw the color swatch.
-				KnownColor k = (KnownColor)Enum.Parse(typeof(System.Drawing.KnownColor), knownColorName);
-				Color color = Color.FromKnownColor(k);
-				using(SolidBrush colorBrush = new SolidBrush(color))
-					e.Graphics.FillRectangle(colorBrush, colorRectangle);
-				e.Graphics.DrawRectangle(SystemPens.ControlDarkDark, colorRectangle);
+		// 		//Get color to draw, and draw the color swatch.
+		// 		KnownColor k = (KnownColor)Enum.Parse(typeof(System.Drawing.KnownColor), knownColorName);
+		// 		Color color = Color.FromKnownColor(k);
+		// 		using(SolidBrush colorBrush = new SolidBrush(color))
+		// 			e.Graphics.FillRectangle(colorBrush, colorRectangle);
+		// 		e.Graphics.DrawRectangle(SystemPens.ControlDarkDark, colorRectangle);
 
-				//adjust text rectangle to exclude color swatch area
-				textRectangle.X += 20;
-				textRectangle.Width -= 20;
+		// 		//adjust text rectangle to exclude color swatch area
+		// 		textRectangle.X += 20;
+		// 		textRectangle.Width -= 20;
 
-				//draw text
-				Brush textBrush;
-				if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
-					textBrush = SystemBrushes.HighlightText;
-				else
-					textBrush = SystemBrushes.ControlText;
-				e.Graphics.DrawString(knownColorName, e.Font, textBrush, textRectangle);
-			}
-			else if (itemIndex == 0) //custom color
-			{
-				//draw text
-				Rectangle textRectangle = e.Bounds;
-				Brush textBrush;
-				if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
-					textBrush = SystemBrushes.HighlightText;
-				else
-					textBrush = SystemBrushes.ControlText;
-				e.Graphics.DrawString(comboNamedColor.Items[itemIndex].ToString(), e.Font, textBrush, textRectangle);
-			}
+		// 		//draw text
+		// 		Brush textBrush;
+		// 		if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
+		// 			textBrush = SystemBrushes.HighlightText;
+		// 		else
+		// 			textBrush = SystemBrushes.ControlText;
+		// 		e.Graphics.DrawString(knownColorName, e.Font, textBrush, textRectangle);
+		// 	}
+		// 	else if (itemIndex == 0) //custom color
+		// 	{
+		// 		//draw text
+		// 		Rectangle textRectangle = e.Bounds;
+		// 		Brush textBrush;
+		// 		if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
+		// 			textBrush = SystemBrushes.HighlightText;
+		// 		else
+		// 			textBrush = SystemBrushes.ControlText;
+		// 		e.Graphics.DrawString(comboNamedColor.Items[itemIndex].ToString(), e.Font, textBrush, textRectangle);
+		// 	}
 
-			//if item is focused, draw focus rect
-			if ((e.State & DrawItemState.Focus) == DrawItemState.Focus)
-				e.DrawFocusRectangle();
-		}
+		// 	//if item is focused, draw focus rect
+		// 	if ((e.State & DrawItemState.Focus) == DrawItemState.Focus)
+		// 		e.DrawFocusRectangle();
+		// }
 
 
-		void comboNamedColorSelectedIndexChanged(object sender, System.EventArgs e)
-		{
-			int itemIndex = comboNamedColor.SelectedIndex;
-			if (itemIndex > 0)
-			{
-				string knownColorName = comboNamedColor.Items[itemIndex].ToString();
-				KnownColor k = (KnownColor)Enum.Parse(typeof(System.Drawing.KnownColor), knownColorName);
-				Color color = Color.FromKnownColor(k);
+		// void comboNamedColorSelectedIndexChanged(object sender, System.EventArgs e)
+		// {
+		// 	int itemIndex = comboNamedColor.SelectedIndex;
+		// 	if (itemIndex > 0)
+		// 	{
+		// 		string knownColorName = comboNamedColor.Items[itemIndex].ToString();
+		// 		KnownColor k = (KnownColor)Enum.Parse(typeof(System.Drawing.KnownColor), knownColorName);
+		// 		Color color = Color.FromKnownColor(k);
 				
-				SetFillColor(color);
-			}
-		}
+		// 		SetFillColor(color);
+		// 	}
+		// }
 
 		private void SetFillColor(Color color)
 		{
-			sliderPickerR.Value = (int)color.R;
-			sliderPickerG.Value = (int)color.G;
-			sliderPickerB.Value = (int)color.B;
+			// sliderPickerR.Value = (int)color.R;
+			// sliderPickerG.Value = (int)color.G;
+			// sliderPickerB.Value = (int)color.B;
 
 			//Update floodFiller.FillColor and color preview swatch
 			floodFiller.FillColor = color;
@@ -251,7 +251,7 @@ namespace FloodFill2
 			
 			if(color.IsKnownColor)
 			{
-				comboNamedColor.SelectedIndex=comboNamedColor.Items.IndexOf(color.Name);
+				// comboNamedColor.SelectedIndex=comboNamedColor.Items.IndexOf(color.Name);
 				return;
 			}
 
@@ -263,12 +263,12 @@ namespace FloodFill2
 				Color kc =Color.FromKnownColor(val);
 				if (kc.R == color.R && kc.G==color.G && kc.B==color.B)
 				{
-					comboNamedColor.SelectedIndex = i;
+					// comboNamedColor.SelectedIndex = i;
 					return;
 				}
 				i--;
 			}
-			comboNamedColor.SelectedIndex = 0;
+			// comboNamedColor.SelectedIndex = 0;
 		}
 
 		void comboFillTypeSelectedIndexChanged(object sender, System.EventArgs e)
@@ -287,22 +287,22 @@ namespace FloodFill2
 		}
 		#endregion
 
-		#region Tolerance Slider Events
-		private void sliderPickerTolR_ValueChanged(object sender, EventArgs e)
-		{
-			floodFiller.Tolerance[0] = (byte)sliderPickerTolR.Value;
-		}
+		// #region Tolerance Slider Events
+		// private void sliderPickerTolR_ValueChanged(object sender, EventArgs e)
+		// {
+		// 	floodFiller.Tolerance[0] = (byte)sliderPickerTolR.Value;
+		// }
 
-		private void sliderPickerTolG_ValueChanged(object sender, EventArgs e)
-		{
-			floodFiller.Tolerance[1] = (byte)sliderPickerTolG.Value;
-		}
+		// private void sliderPickerTolG_ValueChanged(object sender, EventArgs e)
+		// {
+		// 	floodFiller.Tolerance[1] = (byte)sliderPickerTolG.Value;
+		// }
 
-		private void sliderPickerTolB_ValueChanged(object sender, EventArgs e)
-		{
-			floodFiller.Tolerance[2] = (byte)sliderPickerTolB.Value;
-		}
-		#endregion
+		// private void sliderPickerTolB_ValueChanged(object sender, EventArgs e)
+		// {
+		// 	floodFiller.Tolerance[2] = (byte)sliderPickerTolB.Value;
+		// }
+		// #endregion
 
 
 		#region Open/Save
@@ -352,8 +352,8 @@ namespace FloodFill2
 					{
 						//TODO: Right now only 32bpp is supported. We may also want to allow for other pixel formats.
 						floodFiller.Bitmap = new EditableBitmap(b,PixelFormat.Format32bppArgb);
-						panel.Image=floodFiller.Bitmap;
-						panel.AutoScrollMinSize = new Size(panel.Image.Bitmap.Width, panel.Image.Bitmap.Height);
+						// panel.Image=floodFiller.Bitmap;
+						// panel.AutoScrollMinSize = new Size(panel.Image.Bitmap.Width, panel.Image.Bitmap.Height);
 					}
 					else
 					{
@@ -455,7 +455,7 @@ namespace FloodFill2
 		/// <param name="y"></param>
 		private void UpdateScreen(ref int x, ref int y)
 		{
-			panel.SetPixel(fillBrush, x+panel.AutoScrollPosition.X,y+panel.AutoScrollPosition.Y);
+			// panel.SetPixel(fillBrush, x+panel.AutoScrollPosition.X,y+panel.AutoScrollPosition.Y);
 			Application.DoEvents();
 		}
 

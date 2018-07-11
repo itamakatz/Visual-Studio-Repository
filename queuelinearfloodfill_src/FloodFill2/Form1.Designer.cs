@@ -38,7 +38,7 @@ namespace FloodFill2
 			this.label5 = new System.Windows.Forms.Label();
 			this.groupBoxFillColor = new System.Windows.Forms.GroupBox();
 			this.labelColorPreview = new System.Windows.Forms.Label();
-			this.comboNamedColor = new System.Windows.Forms.ComboBox();
+			// this.comboNamedColor = new System.Windows.Forms.ComboBox();
 			this.label2 = new System.Windows.Forms.Label();
 			this.label1 = new System.Windows.Forms.Label();
 			this.labelFillR = new System.Windows.Forms.Label();
@@ -49,13 +49,13 @@ namespace FloodFill2
 			this.btnSlow = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnStop = new System.Windows.Forms.ToolStripButton();
-			this.sliderPickerTolB = new FloodFill2.TextBoxSlider();
-			this.sliderPickerTolG = new FloodFill2.TextBoxSlider();
-			this.sliderPickerTolR = new FloodFill2.TextBoxSlider();
-			this.sliderPickerB = new FloodFill2.TextBoxSlider();
-			this.sliderPickerG = new FloodFill2.TextBoxSlider();
-			this.sliderPickerR = new FloodFill2.TextBoxSlider();
-			this.panel = new PictureBoxScroll.PicturePanel();
+			// this.sliderPickerTolB = new FloodFill2.TextBoxSlider();
+			// this.sliderPickerTolG = new FloodFill2.TextBoxSlider();
+			// this.sliderPickerTolR = new FloodFill2.TextBoxSlider();
+			// this.sliderPickerB = new FloodFill2.TextBoxSlider();
+			// this.sliderPickerG = new FloodFill2.TextBoxSlider();
+			// this.sliderPickerR = new FloodFill2.TextBoxSlider();
+			// this.panel = new PictureBoxScroll.PicturePanel();
 			this.statusStrip.SuspendLayout();
 			this.groupBoxTolerance.SuspendLayout();
 			this.groupBoxFillColor.SuspendLayout();
@@ -98,9 +98,9 @@ namespace FloodFill2
 			// groupBoxTolerance
 			// 
 			this.groupBoxTolerance.Controls.Add(this.label3);
-			this.groupBoxTolerance.Controls.Add(this.sliderPickerTolB);
-			this.groupBoxTolerance.Controls.Add(this.sliderPickerTolG);
-			this.groupBoxTolerance.Controls.Add(this.sliderPickerTolR);
+			// this.groupBoxTolerance.Controls.Add(this.sliderPickerTolB);
+			// this.groupBoxTolerance.Controls.Add(this.sliderPickerTolG);
+			// this.groupBoxTolerance.Controls.Add(this.sliderPickerTolR);
 			this.groupBoxTolerance.Controls.Add(this.label4);
 			this.groupBoxTolerance.Controls.Add(this.label5);
 			this.groupBoxTolerance.Location = new System.Drawing.Point(12, 227);
@@ -139,11 +139,11 @@ namespace FloodFill2
 			// 
 			// groupBoxFillColor
 			// 
-			this.groupBoxFillColor.Controls.Add(this.sliderPickerB);
-			this.groupBoxFillColor.Controls.Add(this.sliderPickerG);
-			this.groupBoxFillColor.Controls.Add(this.sliderPickerR);
+			// this.groupBoxFillColor.Controls.Add(this.sliderPickerB);
+			// this.groupBoxFillColor.Controls.Add(this.sliderPickerG);
+			// this.groupBoxFillColor.Controls.Add(this.sliderPickerR);
 			this.groupBoxFillColor.Controls.Add(this.labelColorPreview);
-			this.groupBoxFillColor.Controls.Add(this.comboNamedColor);
+			// this.groupBoxFillColor.Controls.Add(this.comboNamedColor);
 			this.groupBoxFillColor.Controls.Add(this.label2);
 			this.groupBoxFillColor.Controls.Add(this.label1);
 			this.groupBoxFillColor.Controls.Add(this.labelFillR);
@@ -164,16 +164,16 @@ namespace FloodFill2
 			// 
 			// comboNamedColor
 			// 
-			this.comboNamedColor.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-			this.comboNamedColor.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.comboNamedColor.FormattingEnabled = true;
-			this.comboNamedColor.Location = new System.Drawing.Point(7, 20);
-			this.comboNamedColor.Name = "comboNamedColor";
-			this.comboNamedColor.Size = new System.Drawing.Size(145, 21);
-			this.comboNamedColor.TabIndex = 1;
-			this.comboNamedColor.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.comboNamedColorDrawItem);
-			this.comboNamedColor.SelectedIndexChanged += new System.EventHandler(this.comboNamedColorSelectedIndexChanged);
-			// 
+			// this.comboNamedColor.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+			// this.comboNamedColor.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			// this.comboNamedColor.FormattingEnabled = true;
+			// this.comboNamedColor.Location = new System.Drawing.Point(7, 20);
+			// this.comboNamedColor.Name = "comboNamedColor";
+			// this.comboNamedColor.Size = new System.Drawing.Size(145, 21);
+			// this.comboNamedColor.TabIndex = 1;
+			// this.comboNamedColor.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.comboNamedColorDrawItem);
+			// this.comboNamedColor.SelectedIndexChanged += new System.EventHandler(this.comboNamedColorSelectedIndexChanged);
+			// // 
 			// label2
 			// 
 			this.label2.AutoSize = true;
@@ -269,85 +269,85 @@ namespace FloodFill2
 			// 
 			// sliderPickerTolB
 			// 
-			this.sliderPickerTolB.DecimalPlaces = 0;
-			this.sliderPickerTolB.Location = new System.Drawing.Point(29, 90);
-			this.sliderPickerTolB.Maximum = 255F;
-			this.sliderPickerTolB.Name = "sliderPickerTolB";
-			this.sliderPickerTolB.Size = new System.Drawing.Size(152, 46);
-			this.sliderPickerTolB.TabIndex = 8;
-			this.sliderPickerTolB.TickFrequency = 15F;
-			this.sliderPickerTolB.ValueChanged += new System.EventHandler(this.sliderPickerTolB_ValueChanged);
-			// 
-			// sliderPickerTolG
-			// 
-			this.sliderPickerTolG.DecimalPlaces = 0;
-			this.sliderPickerTolG.Location = new System.Drawing.Point(29, 54);
-			this.sliderPickerTolG.Maximum = 255F;
-			this.sliderPickerTolG.Name = "sliderPickerTolG";
-			this.sliderPickerTolG.Size = new System.Drawing.Size(152, 46);
-			this.sliderPickerTolG.TabIndex = 7;
-			this.sliderPickerTolG.TickFrequency = 15F;
-			this.sliderPickerTolG.ValueChanged += new System.EventHandler(this.sliderPickerTolG_ValueChanged);
-			// 
-			// sliderPickerTolR
-			// 
-			this.sliderPickerTolR.DecimalPlaces = 0;
-			this.sliderPickerTolR.Location = new System.Drawing.Point(29, 19);
-			this.sliderPickerTolR.Maximum = 255F;
-			this.sliderPickerTolR.Name = "sliderPickerTolR";
-			this.sliderPickerTolR.Size = new System.Drawing.Size(152, 46);
-			this.sliderPickerTolR.TabIndex = 6;
-			this.sliderPickerTolR.TickFrequency = 15F;
-			this.sliderPickerTolR.ValueChanged += new System.EventHandler(this.sliderPickerTolR_ValueChanged);
-			// 
-			// sliderPickerB
-			// 
-			this.sliderPickerB.DecimalPlaces = 0;
-			this.sliderPickerB.Location = new System.Drawing.Point(29, 112);
-			this.sliderPickerB.Maximum = 255F;
-			this.sliderPickerB.Name = "sliderPickerB";
-			this.sliderPickerB.Size = new System.Drawing.Size(149, 46);
-			this.sliderPickerB.TabIndex = 5;
-			this.sliderPickerB.TickFrequency = 15F;
-			this.sliderPickerB.ValueChanged += new System.EventHandler(this.sliderPickerColor_ValueChanged);
-			// 
-			// sliderPickerG
-			// 
-			this.sliderPickerG.DecimalPlaces = 0;
-			this.sliderPickerG.Location = new System.Drawing.Point(29, 77);
-			this.sliderPickerG.Maximum = 255F;
-			this.sliderPickerG.Name = "sliderPickerG";
-			this.sliderPickerG.Size = new System.Drawing.Size(149, 46);
-			this.sliderPickerG.TabIndex = 3;
-			this.sliderPickerG.TickFrequency = 15F;
-			this.sliderPickerG.ValueChanged += new System.EventHandler(this.sliderPickerColor_ValueChanged);
-			// 
-			// sliderPickerR
-			// 
-			this.sliderPickerR.DecimalPlaces = 0;
-			this.sliderPickerR.Location = new System.Drawing.Point(29, 42);
-			this.sliderPickerR.Maximum = 255F;
-			this.sliderPickerR.Name = "sliderPickerR";
-			this.sliderPickerR.Size = new System.Drawing.Size(149, 46);
-			this.sliderPickerR.TabIndex = 2;
-			this.sliderPickerR.TickFrequency = 15F;
-			this.sliderPickerR.ValueChanged += new System.EventHandler(this.sliderPickerColor_ValueChanged);
+			// this.sliderPickerTolB.DecimalPlaces = 0;
+			// this.sliderPickerTolB.Location = new System.Drawing.Point(29, 90);
+			// this.sliderPickerTolB.Maximum = 255F;
+			// this.sliderPickerTolB.Name = "sliderPickerTolB";
+			// this.sliderPickerTolB.Size = new System.Drawing.Size(152, 46);
+			// this.sliderPickerTolB.TabIndex = 8;
+			// this.sliderPickerTolB.TickFrequency = 15F;
+			// this.sliderPickerTolB.ValueChanged += new System.EventHandler(this.sliderPickerTolB_ValueChanged);
+			// // 
+			// // sliderPickerTolG
+			// // 
+			// this.sliderPickerTolG.DecimalPlaces = 0;
+			// this.sliderPickerTolG.Location = new System.Drawing.Point(29, 54);
+			// this.sliderPickerTolG.Maximum = 255F;
+			// this.sliderPickerTolG.Name = "sliderPickerTolG";
+			// this.sliderPickerTolG.Size = new System.Drawing.Size(152, 46);
+			// this.sliderPickerTolG.TabIndex = 7;
+			// this.sliderPickerTolG.TickFrequency = 15F;
+			// this.sliderPickerTolG.ValueChanged += new System.EventHandler(this.sliderPickerTolG_ValueChanged);
+			// // 
+			// // sliderPickerTolR
+			// // 
+			// this.sliderPickerTolR.DecimalPlaces = 0;
+			// this.sliderPickerTolR.Location = new System.Drawing.Point(29, 19);
+			// this.sliderPickerTolR.Maximum = 255F;
+			// this.sliderPickerTolR.Name = "sliderPickerTolR";
+			// this.sliderPickerTolR.Size = new System.Drawing.Size(152, 46);
+			// this.sliderPickerTolR.TabIndex = 6;
+			// this.sliderPickerTolR.TickFrequency = 15F;
+			// this.sliderPickerTolR.ValueChanged += new System.EventHandler(this.sliderPickerTolR_ValueChanged);
+			// // 
+			// // sliderPickerB
+			// // 
+			// this.sliderPickerB.DecimalPlaces = 0;
+			// this.sliderPickerB.Location = new System.Drawing.Point(29, 112);
+			// this.sliderPickerB.Maximum = 255F;
+			// this.sliderPickerB.Name = "sliderPickerB";
+			// this.sliderPickerB.Size = new System.Drawing.Size(149, 46);
+			// this.sliderPickerB.TabIndex = 5;
+			// this.sliderPickerB.TickFrequency = 15F;
+			// this.sliderPickerB.ValueChanged += new System.EventHandler(this.sliderPickerColor_ValueChanged);
+			// // 
+			// // sliderPickerG
+			// // 
+			// this.sliderPickerG.DecimalPlaces = 0;
+			// this.sliderPickerG.Location = new System.Drawing.Point(29, 77);
+			// this.sliderPickerG.Maximum = 255F;
+			// this.sliderPickerG.Name = "sliderPickerG";
+			// this.sliderPickerG.Size = new System.Drawing.Size(149, 46);
+			// this.sliderPickerG.TabIndex = 3;
+			// this.sliderPickerG.TickFrequency = 15F;
+			// this.sliderPickerG.ValueChanged += new System.EventHandler(this.sliderPickerColor_ValueChanged);
+			// // 
+			// // sliderPickerR
+			// // 
+			// this.sliderPickerR.DecimalPlaces = 0;
+			// this.sliderPickerR.Location = new System.Drawing.Point(29, 42);
+			// this.sliderPickerR.Maximum = 255F;
+			// this.sliderPickerR.Name = "sliderPickerR";
+			// this.sliderPickerR.Size = new System.Drawing.Size(149, 46);
+			// this.sliderPickerR.TabIndex = 2;
+			// this.sliderPickerR.TickFrequency = 15F;
+			// this.sliderPickerR.ValueChanged += new System.EventHandler(this.sliderPickerColor_ValueChanged);
 			// 
 			// panel
-			// 
-			this.panel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
-			this.panel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-			this.panel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-			this.panel.Image = null;
-			this.panel.Location = new System.Drawing.Point(206, 28);
-			this.panel.Name = "panel";
-			this.panel.Size = new System.Drawing.Size(325, 347);
-			this.panel.TabIndex = 1;
-			this.panel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panelMouseDown);
-			this.panel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panelMouseMove);
-			this.panel.MouseUp += new System.Windows.Forms.MouseEventHandler(this.panelMouseUp);
+			// // 
+			// this.panel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			// 			| System.Windows.Forms.AnchorStyles.Left)
+			// 			| System.Windows.Forms.AnchorStyles.Right)));
+			// this.panel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+			// this.panel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			// this.panel.Image = null;
+			// this.panel.Location = new System.Drawing.Point(206, 28);
+			// this.panel.Name = "panel";
+			// this.panel.Size = new System.Drawing.Size(325, 347);
+			// this.panel.TabIndex = 1;
+			// this.panel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panelMouseDown);
+			// this.panel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panelMouseMove);
+			// this.panel.MouseUp += new System.Windows.Forms.MouseEventHandler(this.panelMouseUp);
 			// 
 			// Form1
 			// 
@@ -357,7 +357,7 @@ namespace FloodFill2
 			this.Controls.Add(this.groupBoxTolerance);
 			this.Controls.Add(this.groupBoxFillColor);
 			this.Controls.Add(this.comboFillType);
-			this.Controls.Add(this.panel);
+			// this.Controls.Add(this.panel);
 			this.Controls.Add(this.statusStrip);
 			this.Controls.Add(this.toolStrip1);
 			this.MinimumSize = new System.Drawing.Size(551, 395);
@@ -378,7 +378,7 @@ namespace FloodFill2
 
 		#endregion
 
-		private PictureBoxScroll.PicturePanel panel;
+		// private PictureBoxScroll.PicturePanel panel;
 		private System.Windows.Forms.ComboBox comboFillType;
 		private System.Windows.Forms.StatusStrip statusStrip;
 		private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
@@ -389,7 +389,7 @@ namespace FloodFill2
 		private System.Windows.Forms.Label label5;
 		private System.Windows.Forms.GroupBox groupBoxFillColor;
 		private System.Windows.Forms.Label labelColorPreview;
-		private System.Windows.Forms.ComboBox comboNamedColor;
+		// private System.Windows.Forms.ComboBox comboNamedColor;
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Label labelFillR;
@@ -400,12 +400,12 @@ namespace FloodFill2
 		private System.Windows.Forms.ToolStripButton btnSlow;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
 		private System.Windows.Forms.ToolStripButton btnStop;
-		private TextBoxSlider sliderPickerR;
-		private TextBoxSlider sliderPickerG;
-		private TextBoxSlider sliderPickerB;
-		private TextBoxSlider sliderPickerTolR;
-		private TextBoxSlider sliderPickerTolG;
-		private TextBoxSlider sliderPickerTolB;
+		// private TextBoxSlider sliderPickerR;
+		// private TextBoxSlider sliderPickerG;
+		// private TextBoxSlider sliderPickerB;
+		// private TextBoxSlider sliderPickerTolR;
+		// private TextBoxSlider sliderPickerTolG;
+		// private TextBoxSlider sliderPickerTolB;
 	}
 }
 

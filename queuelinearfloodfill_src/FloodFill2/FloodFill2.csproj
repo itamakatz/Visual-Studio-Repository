@@ -46,15 +46,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PicturePanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="TextBoxSlider.cs">
+    <Compile Include="PicturePanel.cs" />
+    <Compile Include="The_Code.cs" />
+    <!-- <Compile Include="TextBoxSlider.cs">
       <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="TextBoxSlider.designer.cs">
+    </Compile> -->
+    <!-- <Compile Include="TextBoxSlider.designer.cs">
       <DependentUpon>TextBoxSlider.cs</DependentUpon>
-    </Compile>
+    </Compile> -->
     <Compile Include="UnsafeQueueLinearFloodFiller.cs" />
     <Compile Include="FloodFillRangeQueue.cs" />
     <Compile Include="QueueLinearFloodFiller.cs" />
@@ -77,10 +76,10 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="TextBoxSlider.resx">
+    <!-- <EmbeddedResource Include="TextBoxSlider.resx">
       <DependentUpon>TextBoxSlider.cs</DependentUpon>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
+    </EmbeddedResource> -->
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
