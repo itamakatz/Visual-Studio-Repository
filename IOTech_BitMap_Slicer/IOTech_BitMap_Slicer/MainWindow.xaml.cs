@@ -1,4 +1,7 @@
-﻿using g3;
+﻿#define PAINT_BITMAP_BORDERS
+#define RUN_VISUAL
+
+using g3;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,8 +25,10 @@ using Svg;
 using System.Drawing.Drawing2D;
 using System.Diagnostics;
 
+
 namespace IOTech_BitMap_Slicer
 {
+
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml
 	/// </summary>
@@ -35,7 +40,6 @@ namespace IOTech_BitMap_Slicer
 
 		// ***** Variables that can be changed ***** //
 
-		private const bool RUN_VISUAL = false;
 
 		private string MODEL_IN_PATH = @"Desktop\CorvinCastle.stl";
 		private string MODEL_OUT_PATH = @"Desktop\CorvinCastle_new.stl";
@@ -48,7 +52,7 @@ namespace IOTech_BitMap_Slicer
 
 		private string TMP_DIR = @"Desktop\TMP Directory";
 
-		private const int SCALE_FACTOR = 2;
+		private const int SCALE_FACTOR = 32;
 		private const double NUM_OF_SLICES = 4;
 		private const Axis SLICING_AXIS = Axis.Y;
 
@@ -165,28 +169,55 @@ namespace IOTech_BitMap_Slicer
 
 			//second_cross_section = new MeshPlaneCut(main_cross_section.Mesh, plane_origine - 0.01F, SLICING_NORMAL * -1);
 			//second_cross_section.Cut();
-			if (RUN_VISUAL)
+#if RUN_VISUAL
+			StandardMeshWriter.WriteFile(MODEL_OUT_PATH, new List<WriteMesh>() { new WriteMesh(plane_cut_cross_section.Mesh) }, WriteOptions.Defaults);
+
+			// Using HelixToolkit show 3D object on GUI
+			ModelVisual3D device3D = new ModelVisual3D();
+			try
 			{
-				StandardMeshWriter.WriteFile(MODEL_OUT_PATH, new List<WriteMesh>() { new WriteMesh(plane_cut_cross_section.Mesh) }, WriteOptions.Defaults);
-
-				// Using HelixToolkit show 3D object on GUI
-				ModelVisual3D device3D = new ModelVisual3D();
-				try
-				{
-					ModelImporter import = new ModelImporter();
-					HelixToolkit_Model3D = import.Load(MODEL_OUT_PATH);
-				}
-				catch (Exception e)
-				{
-					MessageBox.Show("Exception Error : " + e.StackTrace);
-				}
-
-				device3D.Content = HelixToolkit_Model3D;
-
-				// Set GUI properties
-				my_3d_view.RotateGesture = new MouseGesture(MouseAction.LeftClick);
-				my_3d_view.Children.Add(device3D);
+				ModelImporter import = new ModelImporter();
+				HelixToolkit_Model3D = import.Load(MODEL_OUT_PATH);
 			}
+			catch (Exception e)
+			{
+				MessageBox.Show("Exception Error : " + e.StackTrace);
+			}
+
+#if SHOW_BOUNDS
+			ModelVisual3D model_visual = new ModelVisual3D();
+			
+			MeshGeometry3D mymesh = new MeshGeometry3D();
+
+			var dim_x = HelixToolkit_Model3D.Bounds.SizeX;
+			var dim_y = HelixToolkit_Model3D.Bounds.SizeY;
+			var dim_z = HelixToolkit_Model3D.Bounds.SizeZ;
+
+			//mymesh.Positions.Add(new Point3D(0, 0, 0));
+			//mymesh.Positions.Add(new Point3D(0, dim_y, 0));
+			//mymesh.Positions.Add(new Point3D(dim_x, 0, 0));
+			//mymesh.Positions.Add(new Point3D(dim_x, dim_y, 0));
+			mymesh.Positions.Add(new Point3D(0, 0, dim_z));
+			mymesh.Positions.Add(new Point3D(0, dim_y, dim_z));
+			mymesh.Positions.Add(new Point3D(dim_x, 0, dim_z));
+			mymesh.Positions.Add(new Point3D(dim_x, dim_y, dim_z));
+
+			Model3DGroup my_Model3DGroup2 = new Model3DGroup();
+			Model3D my_new_Model3D = new GeometryModel3D(mymesh, new DiffuseMaterial(new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 0, 128, 0))));
+			model_visual.Content = my_new_Model3D;
+
+			model_visual.Children.Add(device3D);
+			my_3d_view.Children.Add(model_visual);
+#endif 
+			// ORIGINAL STUFF
+
+			device3D.Content = HelixToolkit_Model3D;
+
+			//Set GUI properties
+			my_3d_view.RotateGesture = new MouseGesture(MouseAction.LeftClick);
+			my_3d_view.Children.Add(device3D);
+#endif
+
 		}
 
 		private void Create_Bitmap(MeshPlaneCut cross_section)
@@ -201,6 +232,15 @@ namespace IOTech_BitMap_Slicer
 			bitmap = new Bitmap(Map_and_scale_double_to_Int32(Bitmap_dimensions.x + PEN_WIDTH * 2),
 						   Map_and_scale_double_to_Int32(Bitmap_dimensions.y + PEN_WIDTH * 2));
 
+#if PAINT_BITMAP_BORDERS
+			using (var graphics = Graphics.FromImage(bitmap))
+			{
+				graphics.DrawLine(Bitmap_pen, 0, 0, 0, bitmap.Height);
+				graphics.DrawLine(Bitmap_pen, 0, bitmap.Height, bitmap.Width, bitmap.Height);
+				graphics.DrawLine(Bitmap_pen, bitmap.Width, bitmap.Height, bitmap.Width, 0);
+				graphics.DrawLine(Bitmap_pen, bitmap.Width, 0, 0, 0);
+			}
+#endif
 			foreach (EdgeLoop edgeLoop in cutLoops)
 			{
 
@@ -214,7 +254,7 @@ namespace IOTech_BitMap_Slicer
 
 				for (int i = 0; i < cutLoop_Curve.VertexCount; i++)
 				{
-					DrawLineInt(bitmap, loop_vertices[i], loop_vertices[(i + 1) % cutLoop_Curve.VertexCount]);
+					DrawLineInt(bitmap, Bitmap_pen, loop_vertices[i], loop_vertices[(i + 1) % cutLoop_Curve.VertexCount]);
 				}
 			}
 
@@ -231,13 +271,13 @@ namespace IOTech_BitMap_Slicer
 			Slice_Count++;
 		}
 
-		public void DrawLineInt(Bitmap bmp, Vector2d origin_vec, Vector2d dest_vec)
+		public void DrawLineInt(Bitmap bmp, System.Drawing.Pen Bitmap_pen, Vector2d origin_vec, Vector2d dest_vec)
 		{
 			using (var graphics = Graphics.FromImage(bmp))
 			{
 				graphics.DrawLine(Bitmap_pen, (float)origin_vec.x, (float)(bitmap.Size.Height - origin_vec.y), 
 											(float)dest_vec.x, (float)(bitmap.Size.Height - dest_vec.y));
-			}
+			}                                          
 		}
 
 		private Int32 Map_and_scale_double_to_Int32(double in_double)
@@ -262,7 +302,6 @@ namespace IOTech_BitMap_Slicer
 
 				foreach (Vector3d vec3d in cutLoop_Curve.Vertices)
 				{
-					//loop_vertices.Add(vec3d.xz);
 					loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR);
 					cutLoop_DGraph2.AppendVertex(vec3d.xz);
 				}
@@ -279,63 +318,6 @@ namespace IOTech_BitMap_Slicer
 			}
 
 			my_SVGWriter.Write(SVG_DIR_PREFIX + @"\" + (Slice_Count - 1) + SVG_PATH_SUFIX);
-			//SVG_to_PNG(SVG_PATH_PREFIX + @"\" + (Slice_Count) + SVG_PATH_SUFIX, 
-			//	BITMAP_PATH_PREFIX + @"\" + (Slice_Count));
-		}
-
-		public void SVG_to_PNG(String svg_path, String png_path)
-		{
-			GraphicsPath my_GraphicsPath = new GraphicsPath();
-
-			//string filePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\sample.svg");
-
-			//SvgDocument sampleDoc = SvgDocument.Open<SvgDocument>(filePath, new Dictionary<string, string>
-			//	{
-			//		{"entity1", "fill:red" },
-			//		{"entity2", "fill:yellow" }
-			//	});
-
-			//sampleDoc.Draw(1000, 1000).Save(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\sample.png"));
-
-			//string _byteOrderMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
-			//if (xml.StartsWith(_byteOrderMarkUtf8))
-			//{
-			//	xml = xml.Remove(0, _byteOrderMarkUtf8.Length);
-			//}
-			//Bitmap bitmap2 = new Bitmap(800, 800);
-			//DrawLineInt(bitmap2);
-			//bitmap2.Save(png_path + "_whaaaa" + BITMAP_PATH_SUFIX, System.Drawing.Imaging.ImageFormat.Png);
-
-			//for (int i = 1; i < 10; i++)
-			//{
-			//	Bitmap bitmap = new Bitmap(80 * i, 40 * i);
-			//	SvgDocument svgDoc = SvgDocument.Open(svg_path);
-			//	svgDoc.Draw(bitmap);
-			//	bitmap.Save(png_path + "_" + i + BITMAP_PATH_SUFIX, System.Drawing.Imaging.ImageFormat.Png);
-			//}
-
-			//Bitmap bitmap = new Bitmap(1000, 500);
-			//SvgDocument svgDoc = SvgDocument.Open(svg_path);
-			//svgDoc.Draw(bitmap);
-			//bitmap.Save(png_path, System.Drawing.Imaging.ImageFormat.Png);
-			//RenderSvg(svgDoc);
-
-			//var byteArray = UTF8Encoding.Default.GetBytes(svg_path);
-			//var byteArray = Encoding.ASCII.GetBytes(svg_path);
-
-			//using (var s = new MemoryStream(UTF8Encoding.Default.GetBytes(svg_path)))
-			//{
-			//	SvgDocument svgDoc = SvgDocument.Open<SvgDocument>(s, null);
-			//	//RenderSvg(svgDoc);
-			//}
-
-			//using (var stream = new MemoryStream(byteArray))
-			//{
-			//	SvgDocument svgDocument = SvgDocument.Open<SvgDocument>(stream);
-			//	Bitmap bitmap = svgDocument.Draw();
-			//	//bitmap.Save(png_path, System.Drawing.Imaging.ImageFormat.Bmp);
-			//	bitmap.Save(png_path, System.Drawing.Imaging.ImageFormat.Png);
-			//}
 		}
 
 		public IEnumerable<double> Range_Enumerator(double start, double end, double increment)
