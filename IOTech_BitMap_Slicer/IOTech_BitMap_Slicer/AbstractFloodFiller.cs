@@ -20,12 +20,16 @@ namespace FloodFill2
 	/// </summary>
 	public abstract class AbstractFloodFiller
 	{
-
 		protected EditableBitmap bitmap;
-		protected byte[] tolerance = new byte[] { 25, 25, 25 };
-		protected Color fillColor = Color.Magenta;
-		protected bool fillDiagonally = false;
-		protected bool slow = false;
+		protected byte[] tolerance;
+		protected Color fillColor;
+		protected bool fillDiagonally;
+		protected bool slow;
+
+		//protected byte[] tolerance = new byte[] { 25, 25, 25 };
+		//protected Color fillColor = Color.Magenta;
+		//protected bool fillDiagonally = false;
+		//protected bool slow = false;
 
 		//cached bitmap properties
 		protected int bitmapWidth = 0;
@@ -47,7 +51,18 @@ namespace FloodFill2
 
 		public AbstractFloodFiller()
 		{
-
+			this.FillColor = Color.Magenta;
+			this.FillDiagonally = false;
+			this.Slow = false;
+			this.Tolerance = new byte[] { 25, 25, 25 };
+		}
+		public AbstractFloodFiller(EditableBitmap bitmap)
+		{
+			this.Bitmap = bitmap;
+			this.FillColor = Color.Magenta;
+			this.FillDiagonally = false;
+			this.Slow = false;
+			this.Tolerance = new byte[] { 25, 25, 25 };
 		}
 
 		public AbstractFloodFiller(AbstractFloodFiller configSource)

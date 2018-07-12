@@ -1,5 +1,6 @@
 ﻿#define PAINT_BITMAP_BORDERS
-#define RUN_VISUAL
+//#define RUN_VISUAL
+#define SHOW_STARTING_POINT
 
 using g3;
 using System;
@@ -18,17 +19,16 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Media.Media3D;
 using System.Drawing;
-//using System.Drawing.Text;
 using HelixToolkit.Wpf;
 using System.IO;
 using Svg;
 using System.Drawing.Drawing2D;
 using System.Diagnostics;
-
+using PictureBoxScroll;
+using FloodFill2;
 
 namespace IOTech_BitMap_Slicer
 {
-
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml
 	/// </summary>
@@ -52,17 +52,21 @@ namespace IOTech_BitMap_Slicer
 
 		private string TMP_DIR = @"Desktop\TMP Directory";
 
-		private const int SCALE_FACTOR = 32;
+		private const int SCALE_FACTOR = 2;
 		private const double NUM_OF_SLICES = 4;
 		private const Axis SLICING_AXIS = Axis.Y;
 
 		private const float SVG_WIDTH = 0.1f;
 		private const int EXIT_CODE = 10;
 
-		private const int PEN_WIDTH = 10;
+		private const int PEN_FINE_WIDTH = 3;
+		private const int PEN_ROBUST_WIDTH = 3;
+
+		private static System.Drawing.Color bitmap_color = System.Drawing.Color.Blue;
 
 		//System.Drawing.Pen blackPen = new System.Drawing.Pen(System.Drawing.Color.Black, PEN_WIDTH );
-		private static System.Drawing.Pen Bitmap_pen = new System.Drawing.Pen(System.Drawing.Color.Blue, PEN_WIDTH);
+		private static System.Drawing.Pen Pen_Robust = new System.Drawing.Pen(bitmap_color, PEN_ROBUST_WIDTH);
+		private static System.Drawing.Pen Pen_Fine = new System.Drawing.Pen(bitmap_color, PEN_FINE_WIDTH);
 
 		// ***** Initialization of other variables ***** //
 
@@ -166,6 +170,7 @@ namespace IOTech_BitMap_Slicer
 				Create_SVG(plane_cut_cross_section);
 			}
 
+			flood_fill_botmap();
 
 			//second_cross_section = new MeshPlaneCut(main_cross_section.Mesh, plane_origine - 0.01F, SLICING_NORMAL * -1);
 			//second_cross_section.Cut();
@@ -208,9 +213,11 @@ namespace IOTech_BitMap_Slicer
 
 			model_visual.Children.Add(device3D);
 			my_3d_view.Children.Add(model_visual);
-#endif 
-			// ORIGINAL STUFF
 
+#endif
+
+
+			// ORIGINAL view port
 			device3D.Content = HelixToolkit_Model3D;
 
 			//Set GUI properties
@@ -219,6 +226,166 @@ namespace IOTech_BitMap_Slicer
 #endif
 
 		}
+
+		private void my_flood_fill_botmap(ref Bitmap bitmap_flood, int begin_x, int begin_y)
+		{
+
+			using (var graphics = Graphics.FromImage(bitmap_flood))
+			{
+				int plus_x = begin_x;
+				int minus_x = begin_x;
+				int line_y = begin_y;
+
+				System.Drawing.Color local_color = bitmap_flood.GetPixel(plus_x, line_y);
+				System.Drawing.Color global_color = bitmap_color;
+
+				var global_color_ToKnownColor = global_color.ToKnownColor();
+				var local_color_ToKnownColor = local_color.ToKnownColor();
+
+				var global_color_ToArgb = (Int64)global_color.ToArgb();
+				var local_color_ToArgb = (Int64)local_color.ToArgb();
+
+				while (!check_color_equal(local_color, global_color))
+				{
+					while (!check_color_equal(local_color, global_color))
+					{
+						plus_x++;
+						local_color = bitmap_flood.GetPixel(plus_x, line_y);
+					}
+
+					local_color = bitmap_flood.GetPixel(minus_x, line_y);
+
+					while (!check_color_equal(local_color, global_color))
+					{
+						minus_x--;
+						local_color = bitmap_flood.GetPixel(minus_x, line_y);
+					}
+
+					graphics.DrawLine(Pen_Fine, plus_x, line_y, minus_x, line_y);
+
+					line_y++;
+					plus_x = begin_x;
+					minus_x = begin_x;
+
+					local_color = bitmap_flood.GetPixel(begin_x, line_y);
+				}
+
+				plus_x = begin_x;
+				minus_x = begin_x;
+				line_y = begin_y - 1;
+
+				local_color = bitmap_flood.GetPixel(plus_x, line_y);
+
+				while (!check_color_equal(local_color, global_color))
+				{
+					while (!check_color_equal(local_color, global_color))
+					{
+						plus_x++;
+						local_color = bitmap_flood.GetPixel(plus_x, line_y);
+					}
+
+					local_color = bitmap_flood.GetPixel(minus_x, line_y);
+
+					while (!check_color_equal(local_color, global_color))
+					{
+						minus_x--;
+						local_color = bitmap_flood.GetPixel(minus_x, line_y);
+					}
+
+					graphics.DrawLine(Pen_Fine, plus_x, line_y, minus_x, line_y);
+
+					line_y--;
+					plus_x = begin_x;
+					minus_x = begin_x;
+
+					local_color = bitmap_flood.GetPixel(begin_x, line_y);
+				}
+			}
+
+			bool check_color_equal(System.Drawing.Color c1, System.Drawing.Color c2)
+			{
+				return(c1.A == c2.A && c1.R == c2.R && c1.G == c2.G && c1.B == c2.B) ? true : false;
+			}
+		}
+
+
+		private void flood_fill_botmap()
+		{
+			AbstractFloodFiller floodFiller;
+			floodFiller = new The_Code_Class();
+			Bitmap floodFiller_bitmap;
+
+			var floodfill_x = 100;
+			var floodfill_y = 100;
+			var mark_length = 5;
+
+			floodFiller_bitmap = new Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1" + BITMAP_PATH_SUFIX);
+			//floodFiller_bitmap = new Bitmap(200, 200);
+
+			//for (int i = 0; i < floodFiller_bitmap.Height; i++)
+			//{
+			//	for (int j = 0; j < floodFiller_bitmap.Width; j++)
+			//	{
+			//		floodFiller_bitmap.SetPixel(i, j, System.Drawing.Color.White);
+			//	}
+			//}
+
+			//using (var graphics = Graphics.FromImage(floodFiller_bitmap))
+
+			//{
+			//	graphics.DrawEllipse(Bitmap_pen, new RectangleF(5, 5, 190, 190));
+			//}
+
+			//my_flood_fill_botmap(ref floodFiller_bitmap, floodfill_x, floodfill_y);
+
+			try
+			{
+				if (floodFiller_bitmap.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb ||
+					floodFiller_bitmap.PixelFormat == System.Drawing.Imaging.PixelFormat.Format24bppRgb ||
+					floodFiller_bitmap.PixelFormat == System.Drawing.Imaging.PixelFormat.Format8bppIndexed)
+				{
+					//TODO: Right now only 32bpp is supported. We may also want to allow for other pixel formats.
+					floodFiller.Bitmap = new EditableBitmap(floodFiller_bitmap, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+					// panel.Image=floodFiller.Bitmap;
+					// panel.AutoScrollMinSize = new Size(panel.Image.Bitmap.Width, panel.Image.Bitmap.Height);
+				}
+
+				floodFiller_bitmap.Dispose();
+			}
+			catch (Exception e)
+			{
+				Trace.WriteLine("bitmap.Save");
+				Trace.WriteLine(e);
+				Environment.Exit(EXIT_CODE);
+			}
+
+			floodFiller.FillColor = bitmap_color;
+			floodFiller.FloodFill(new System.Drawing.Point(floodfill_x, floodfill_y));
+
+			floodFiller_bitmap = floodFiller.Bitmap.Bitmap;
+
+
+#if SHOW_STARTING_POINT
+			using (var graphics = Graphics.FromImage(floodFiller_bitmap))
+
+			{
+				graphics.DrawLine(Pen_Fine, floodfill_x - mark_length, floodfill_y, floodfill_x + mark_length, floodfill_y);
+				graphics.DrawLine(Pen_Fine, floodfill_x, floodfill_y - mark_length, floodfill_x, floodfill_y + mark_length);
+				//graphics.DrawEllipse(Pen_Fine, new RectangleF(floodfill_x - 5, floodfill_y - 5, 100, 100));
+			}
+#endif
+			try
+			{
+				floodFiller_bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "flood_fill_Bitmap" + BITMAP_PATH_SUFIX, System.Drawing.Imaging.ImageFormat.Png);
+			}
+			catch (Exception e)
+			{
+				Trace.WriteLine("bitmap.Save");
+				Trace.WriteLine(e);
+				Environment.Exit(EXIT_CODE);
+			}
+		}
+
 
 		private void Create_Bitmap(MeshPlaneCut cross_section)
 		{
@@ -229,16 +396,16 @@ namespace IOTech_BitMap_Slicer
 
 			// how come we do not need Bitmap_dimensions.x * SCALE_FACTOR I simply dont understand. After all we do multiply in
 			//							loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR + PEN_WIDTH);
-			bitmap = new Bitmap(Map_and_scale_double_to_Int32(Bitmap_dimensions.x + PEN_WIDTH * 2),
-						   Map_and_scale_double_to_Int32(Bitmap_dimensions.y + PEN_WIDTH * 2));
+			bitmap = new Bitmap(Map_and_scale_double_to_Int32(Bitmap_dimensions.x + PEN_ROBUST_WIDTH * 2),
+						   Map_and_scale_double_to_Int32(Bitmap_dimensions.y + PEN_ROBUST_WIDTH * 2));
 
 #if PAINT_BITMAP_BORDERS
 			using (var graphics = Graphics.FromImage(bitmap))
 			{
-				graphics.DrawLine(Bitmap_pen, 0, 0, 0, bitmap.Height);
-				graphics.DrawLine(Bitmap_pen, 0, bitmap.Height, bitmap.Width, bitmap.Height);
-				graphics.DrawLine(Bitmap_pen, bitmap.Width, bitmap.Height, bitmap.Width, 0);
-				graphics.DrawLine(Bitmap_pen, bitmap.Width, 0, 0, 0);
+				graphics.DrawLine(Pen_Robust, 0, 0, 0, bitmap.Height);
+				graphics.DrawLine(Pen_Robust, 0, bitmap.Height, bitmap.Width, bitmap.Height);
+				graphics.DrawLine(Pen_Robust, bitmap.Width, bitmap.Height, bitmap.Width, 0);
+				graphics.DrawLine(Pen_Robust, bitmap.Width, 0, 0, 0);
 			}
 #endif
 			foreach (EdgeLoop edgeLoop in cutLoops)
@@ -249,12 +416,12 @@ namespace IOTech_BitMap_Slicer
 
 				foreach (Vector3d vec3d in cutLoop_Curve.Vertices)
 				{
-					loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR + PEN_WIDTH);
+					loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR + PEN_ROBUST_WIDTH);
 				}
 
 				for (int i = 0; i < cutLoop_Curve.VertexCount; i++)
 				{
-					DrawLineInt(bitmap, Bitmap_pen, loop_vertices[i], loop_vertices[(i + 1) % cutLoop_Curve.VertexCount]);
+					DrawLineInt(bitmap, Pen_Robust, loop_vertices[i], loop_vertices[(i + 1) % cutLoop_Curve.VertexCount]);
 				}
 			}
 

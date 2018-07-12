@@ -157,11 +157,11 @@ namespace PictureBoxScroll
 			try
 			{
 				startOffset=source.startOffset+(stride*viewArea.Y)+(viewArea.X*pixelFormatSize);
-				bitmap = new Bitmap(viewArea.Width, viewArea.Height, stride, source.Bitmap.PixelFormat, 
-					(IntPtr)(((int)byteArray.bitPtr)+startOffset));
+				//bitmap = new Bitmap(viewArea.Width, viewArea.Height, stride, source.Bitmap.PixelFormat, 
+				//	(IntPtr)(((int)byteArray.bitPtr)+startOffset));
 
-				// bitmap = new Bitmap(viewArea.Width, viewArea.Height, stride, source.Bitmap.PixelFormat, 
-				// 	(IntPtr)(byteArray.bitPtr + startOffset));
+				bitmap = new Bitmap(viewArea.Width, viewArea.Height, stride, source.Bitmap.PixelFormat,
+					(IntPtr)(byteArray.bitPtr + startOffset));
 			}
 			finally
 			{   

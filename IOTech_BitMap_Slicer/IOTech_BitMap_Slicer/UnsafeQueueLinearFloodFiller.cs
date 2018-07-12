@@ -4,6 +4,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Drawing;
 using System.Drawing.Imaging;
+using PictureBoxScroll;
 
 namespace FloodFill2
 {
@@ -16,6 +17,8 @@ namespace FloodFill2
 		protected unsafe byte* scan0;
 		FloodFillRangeQueue ranges = new FloodFillRangeQueue();
 
+		public UnsafeQueueLinearFloodFiller() : base() { }
+		public UnsafeQueueLinearFloodFiller(EditableBitmap bitmap) : base(bitmap) { }
 		public UnsafeQueueLinearFloodFiller(AbstractFloodFiller configSource) : base(configSource) { }
 
 		public override void FloodFill(System.Drawing.Point pt)
@@ -91,7 +94,7 @@ namespace FloodFill2
 				lFillLoc--; 		 	 //de-increment counter
 				ptr -= bitmapPixelFormatSize;				 	 //de-increment pointer
 				pxIdx--;
-				if (lFillLoc <= 0 || !CheckPixel(ref ptr) || (pixelsChecked[pxIdx]))
+				if (lFillLoc < 0 || !CheckPixel(ref ptr) || (pixelsChecked[pxIdx]))
 					break;			 	 //exit loop if we're at edge of bitmap or color area
 
 			}

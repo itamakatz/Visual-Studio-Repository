@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
+using PictureBoxScroll;
 
 namespace FloodFill2
 {
@@ -16,6 +17,8 @@ namespace FloodFill2
 		//<FloodFillRange> ranges = new Queue<FloodFillRange>();
 		FloodFillRangeQueue ranges = new FloodFillRangeQueue();
 
+		public QueueLinearFloodFiller() : base() { }
+		public QueueLinearFloodFiller(EditableBitmap bitmap) : base(bitmap) { }
 		public QueueLinearFloodFiller(AbstractFloodFiller configSource) : base(configSource) { }
 
 		/// <summary>
@@ -113,7 +116,7 @@ namespace FloodFill2
 				pxIdx--;		//de-increment pixel index
 				idx -= bitmapPixelFormatSize;//de-increment byte index
 				//**exit loop if we're at edge of bitmap or color area
-				if (lFillLoc <= 0 || (pixelsChecked[pxIdx]) || !CheckPixel(ref idx))
+				if (lFillLoc < 0 || (pixelsChecked[pxIdx]) || !CheckPixel(ref idx))
 					break;
 
 			}
