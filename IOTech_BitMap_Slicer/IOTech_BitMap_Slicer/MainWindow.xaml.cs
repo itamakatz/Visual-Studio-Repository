@@ -171,14 +171,15 @@ namespace IOTech_BitMap_Slicer
 			{
 				plane_cut_cross_section = new MeshPlaneCut(new DMesh3(Imported_STL_mesh), SLICING_DIRECTION_UNIT * slice_step, SLICING_DIRECTION_UNIT);
 				plane_cut_cross_section.Cut();
-				Create_Bitmap(plane_cut_cross_section);
+				//Create_Bitmap(plane_cut_cross_section);
 				//Create_Bitmap2(plane_cut_cross_section);
+				my_flood_fill_bitmap_recursive();
 
 				Create_SVG(plane_cut_cross_section);
 			}
 
-			flood_fill_bitmap();
-
+			//flood_fill_bitmap();
+			my_flood_fill_botmap();
 			//second_cross_section = new MeshPlaneCut(main_cross_section.Mesh, plane_origine - 0.01F, SLICING_NORMAL * -1);
 			//second_cross_section.Cut();
 #if RUN_VISUAL
@@ -234,8 +235,40 @@ namespace IOTech_BitMap_Slicer
 
 		}
 
-		private void my_flood_fill_botmap(ref Bitmap bitmap_flood, int begin_x, int begin_y)
+		private void my_flood_fill_bitmap_recursive()
 		{
+			bitmap_slice = new Bitmap_Slice(new Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1" + BITMAP_PATH_SUFIX));
+
+			System.Drawing.Color begin_color = bitmap_slice.bitmap.GetPixel(100, 100);
+
+			bitmap_slice.flood_fill_recursive(ref begin_color, 0, 100);
+
+			bitmap_slice.bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "flood_fill_Bitmap" + BITMAP_PATH_SUFIX, System.Drawing.Imaging.ImageFormat.Png);
+
+		}
+
+		private void my_flood_fill_botmap()
+		{
+			int begin_x = 100;
+			int begin_y = 100;
+			var mark_length = 5;
+
+			Bitmap bitmap_flood = new Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1" + BITMAP_PATH_SUFIX);
+			//bitmap_flood = new Bitmap(200, 200);
+
+			//for (int i = 0; i < bitmap_flood.Height; i++)
+			//{
+			//	for (int j = 0; j < bitmap_flood.Width; j++)
+			//	{
+			//		bitmap_flood.SetPixel(i, j, System.Drawing.Color.White);
+			//	}
+			//}
+
+			//using (var graphics = Graphics.FromImage(bitmap_flood))
+
+			//{
+			//	graphics.DrawEllipse(Pen_Fine, new RectangleF(5, 5, 190, 190));
+			//}
 
 			using (var graphics = Graphics.FromImage(bitmap_flood))
 			{
@@ -309,11 +342,25 @@ namespace IOTech_BitMap_Slicer
 				}
 			}
 
+#if SHOW_STARTING_POINT
+			//using (var graphics = Graphics.FromImage(bitmap_flood))
+			//{
+			//	//graphics.DrawLine(Pen_Fine, begin_x - mark_length, begin_y, begin_x + mark_length, begin_y);
+			//	//graphics.DrawLine(Pen_Fine, begin_x, begin_y - mark_length, begin_x, begin_y + mark_length);
+			//	//graphics.DrawEllipse(Pen_Fine, new RectangleF(floodfill_x - 5, floodfill_y - 5, 100, 100));
+			//}
+#endif
+
+			bitmap_flood.Save(BITMAP_DIR_PREFIX + @"\" + "flood_fill_Bitmap" + BITMAP_PATH_SUFIX, System.Drawing.Imaging.ImageFormat.Png);
+						
 			bool check_color_equal(System.Drawing.Color c1, System.Drawing.Color c2)
 			{
 				return(c1.A == c2.A && c1.R == c2.R && c1.G == c2.G && c1.B == c2.B) ? true : false;
 			}
 		}
+
+
+
 
 
 		private void flood_fill_bitmap()
@@ -392,7 +439,6 @@ namespace IOTech_BitMap_Slicer
 				Environment.Exit(EXIT_CODE);
 			}
 		}
-
 
 		private void Create_Bitmap2(MeshPlaneCut cross_section)
 		{
@@ -505,8 +551,6 @@ namespace IOTech_BitMap_Slicer
 			
 			Slice_Count++;
 		}
-
-
 
 		private void Create_SVG(MeshPlaneCut cross_section)
 		{
