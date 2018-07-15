@@ -1,6 +1,7 @@
 ﻿#define PAINT_BITMAP_BORDERS
 //#define RUN_VISUAL
 #define SHOW_STARTING_POINT
+#define SHOW_LOCATION_OF_FLOOD_STARTING_POINT
 
 using g3;
 using System;
@@ -21,10 +22,9 @@ using System.Windows.Media.Media3D;
 using System.Drawing;
 using HelixToolkit.Wpf;
 using System.IO;
-using Svg;
-using System.Drawing.Drawing2D;
 using System.Diagnostics;
 using System.Threading;
+using System.Drawing.Imaging;
 //using PictureBoxScroll;
 //using FloodFill2;
 
@@ -49,7 +49,8 @@ namespace IOTech_BitMap_Slicer
 		private const string SVG_PATH_SUFIX = @".SVG";
 
 		private string BITMAP_DIR_PREFIX = @"Desktop\BITMAP_slice";
-		private const string BITMAP_PATH_SUFIX = @".png";
+		private const string BITMAP_PATH_SUFIX = @".Bmp";
+		System.Drawing.Imaging.ImageFormat image_format = System.Drawing.Imaging.ImageFormat.Bmp;
 
 		private string TMP_DIR = @"Desktop\TMP Directory";
 
@@ -69,6 +70,8 @@ namespace IOTech_BitMap_Slicer
 		private static System.Drawing.Pen Pen_Robust = new System.Drawing.Pen(bitmap_color, PEN_ROBUST_WIDTH);
 		private static System.Drawing.Pen Pen_Fine = new System.Drawing.Pen(bitmap_color, PEN_FINE_WIDTH);
 
+
+
 		// ***** Initialization of other variables ***** //
 
 		private string USER_PATH = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
@@ -80,9 +83,7 @@ namespace IOTech_BitMap_Slicer
 		private IEnumerable<double> Slice_Enumerator;
 
 		private DMesh3 Imported_STL_mesh;
-		private SVGWriter my_SVGWriter;
 		private Model3D HelixToolkit_Model3D = null;
-		private Bitmap bitmap;
 		private Bitmap_Slice bitmap_slice;
 
 		internal Stopwatch watch = new Stopwatch();
@@ -175,8 +176,6 @@ namespace IOTech_BitMap_Slicer
 				plane_cut_cross_section = new MeshPlaneCut(new DMesh3(Imported_STL_mesh), SLICING_DIRECTION_UNIT * slice_step, SLICING_DIRECTION_UNIT);
 				plane_cut_cross_section.Cut();
 				Create_Bitmap(plane_cut_cross_section);
-				//Create_Bitmap2(plane_cut_cross_section);
-
 
 				//Create_SVG(plane_cut_cross_section);
 			}
@@ -184,7 +183,7 @@ namespace IOTech_BitMap_Slicer
 			watch.Reset();
 			watch.Start();
 
-			my_flood_fill_bitmap_recursive();
+			flood_fill_bitmap();
 
 			watch.Stop();
 
@@ -250,7 +249,7 @@ namespace IOTech_BitMap_Slicer
 			Trace.WriteLine("RunTime: " + elapsedTime);
 		}
 
-		private void my_flood_fill_bitmap_recursive()
+		private void flood_fill_bitmap()
 		{
 			bitmap_slice = new Bitmap_Slice(new Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1" + BITMAP_PATH_SUFIX));
 
@@ -264,290 +263,18 @@ namespace IOTech_BitMap_Slicer
 			Thread thread = new Thread(new ThreadStart(bitmap_slice.flood_fill_recursive), stackSize);
 			thread.Start();
 			thread.Join();
+			bitmap_slice.bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "flood_fill_Bitmap" + BITMAP_PATH_SUFIX, image_format);
 
-			bitmap_slice.bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "flood_fill_Bitmap" + BITMAP_PATH_SUFIX, System.Drawing.Imaging.ImageFormat.Png);
-
+#if SHOW_LOCATION_OF_FLOOD_STARTING_POINT
 			Bitmap bitmap_flood = new Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1" + BITMAP_PATH_SUFIX);
 
 			using (var graphics = Graphics.FromImage(bitmap_flood))
 			{
-				graphics.DrawLine(Pen_Fine, begin_x - mark_length, begin_y, begin_x + mark_length, begin_y);
-				graphics.DrawLine(Pen_Fine, begin_x, begin_y - mark_length, begin_x, begin_y + mark_length);
-				//graphics.DrawEllipse(Pen_Fine, new RectangleF(floodfill_x - 5, floodfill_y - 5, 100, 100));
+				graphics.DrawLine(new System.Drawing.Pen(System.Drawing.Color.Yellow, PEN_ROBUST_WIDTH), begin_x - mark_length, begin_y, begin_x + mark_length, begin_y);
+				graphics.DrawLine(new System.Drawing.Pen(System.Drawing.Color.Yellow, PEN_ROBUST_WIDTH), begin_x, begin_y - mark_length, begin_x, begin_y + mark_length);
 			}
-
-			//Bitmap bitmap_flood = new Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1" + BITMAP_PATH_SUFIX);
-
-			//using (var graphics = Graphics.FromImage(bitmap_flood))
-			//{
-			//	graphics.DrawLine(new System.Drawing.Pen(System.Drawing.Color.Yellow, PEN_FINE_WIDTH), 0, 0, 2, 2);
-			//	//graphics.DrawLine(new System.Drawing.Pen(System.Drawing.Color.Yellow, PEN_FINE_WIDTH), 0, 0, bitmap_flood.Height - 10, bitmap_flood.Width - 10);
-			//	graphics.DrawLine(new System.Drawing.Pen(System.Drawing.Color.Green, PEN_FINE_WIDTH), bitmap_flood.Width - 20, 0, bitmap_flood.Width - 10, 0);
-			//}
-
-			bitmap_flood.Save(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1_2" + BITMAP_PATH_SUFIX, System.Drawing.Imaging.ImageFormat.Png);
-
-		}
-
-		private void my_flood_fill_botmap()
-		{
-			int begin_x = 100;
-			int begin_y = 100;
-			var mark_length = 5;
-
-			Bitmap bitmap_flood = new Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1" + BITMAP_PATH_SUFIX);
-			//bitmap_flood = new Bitmap(200, 200);
-
-			//for (int i = 0; i < bitmap_flood.Height; i++)
-			//{
-			//	for (int j = 0; j < bitmap_flood.Width; j++)
-			//	{
-			//		bitmap_flood.SetPixel(i, j, System.Drawing.Color.White);
-			//	}
-			//}
-
-			//using (var graphics = Graphics.FromImage(bitmap_flood))
-
-			//{
-			//	graphics.DrawEllipse(Pen_Fine, new RectangleF(5, 5, 190, 190));
-			//}
-
-			using (var graphics = Graphics.FromImage(bitmap_flood))
-			{
-				int plus_x = begin_x;
-				int minus_x = begin_x;
-				int line_y = begin_y;
-
-				System.Drawing.Color local_color = bitmap_flood.GetPixel(plus_x, line_y);
-				System.Drawing.Color global_color = bitmap_color;
-
-				var global_color_ToKnownColor = global_color.ToKnownColor();
-				var local_color_ToKnownColor = local_color.ToKnownColor();
-
-				var global_color_ToArgb = (Int64)global_color.ToArgb();
-				var local_color_ToArgb = (Int64)local_color.ToArgb();
-
-				while (!check_color_equal(local_color, global_color))
-				{
-					while (!check_color_equal(local_color, global_color))
-					{
-						plus_x++;
-						local_color = bitmap_flood.GetPixel(plus_x, line_y);
-					}
-
-					local_color = bitmap_flood.GetPixel(minus_x, line_y);
-
-					while (!check_color_equal(local_color, global_color))
-					{
-						minus_x--;
-						local_color = bitmap_flood.GetPixel(minus_x, line_y);
-					}
-
-					graphics.DrawLine(Pen_Fine, plus_x, line_y, minus_x, line_y);
-
-					line_y++;
-					plus_x = begin_x;
-					minus_x = begin_x;
-
-					local_color = bitmap_flood.GetPixel(begin_x, line_y);
-				}
-
-				plus_x = begin_x;
-				minus_x = begin_x;
-				line_y = begin_y - 1;
-
-				local_color = bitmap_flood.GetPixel(plus_x, line_y);
-
-				while (!check_color_equal(local_color, global_color))
-				{
-					while (!check_color_equal(local_color, global_color))
-					{
-						plus_x++;
-						local_color = bitmap_flood.GetPixel(plus_x, line_y);
-					}
-
-					local_color = bitmap_flood.GetPixel(minus_x, line_y);
-
-					while (!check_color_equal(local_color, global_color))
-					{
-						minus_x--;
-						local_color = bitmap_flood.GetPixel(minus_x, line_y);
-					}
-
-					graphics.DrawLine(Pen_Fine, plus_x, line_y, minus_x, line_y);
-
-					line_y--;
-					plus_x = begin_x;
-					minus_x = begin_x;
-
-					local_color = bitmap_flood.GetPixel(begin_x, line_y);
-				}
-			}
-
-#if SHOW_STARTING_POINT
-			//using (var graphics = Graphics.FromImage(bitmap_flood))
-			//{
-			//	//graphics.DrawLine(Pen_Fine, begin_x - mark_length, begin_y, begin_x + mark_length, begin_y);
-			//	//graphics.DrawLine(Pen_Fine, begin_x, begin_y - mark_length, begin_x, begin_y + mark_length);
-			//	//graphics.DrawEllipse(Pen_Fine, new RectangleF(floodfill_x - 5, floodfill_y - 5, 100, 100));
-			//}
+			bitmap_flood.Save(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1_2" + BITMAP_PATH_SUFIX, image_format);
 #endif
-
-			bitmap_flood.Save(BITMAP_DIR_PREFIX + @"\" + "flood_fill_Bitmap" + BITMAP_PATH_SUFIX, System.Drawing.Imaging.ImageFormat.Png);
-						
-			bool check_color_equal(System.Drawing.Color c1, System.Drawing.Color c2)
-			{
-				return(c1.A == c2.A && c1.R == c2.R && c1.G == c2.G && c1.B == c2.B) ? true : false;
-			}
-		}
-
-
-
-
-
-		private void flood_fill_bitmap()
-		{
-			//AbstractFloodFiller floodFiller;
-			//floodFiller = new The_Code_Class();
-			Bitmap floodFiller_bitmap;
-
-			var floodfill_x = 100;
-			var floodfill_y = 100;
-			var mark_length = 5;
-
-			floodFiller_bitmap = new Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1" + BITMAP_PATH_SUFIX);
-			//floodFiller_bitmap = new Bitmap(200, 200);
-
-			//for (int i = 0; i < floodFiller_bitmap.Height; i++)
-			//{
-			//	for (int j = 0; j < floodFiller_bitmap.Width; j++)
-			//	{
-			//		floodFiller_bitmap.SetPixel(i, j, System.Drawing.Color.White);
-			//	}
-			//}
-
-			//using (var graphics = Graphics.FromImage(floodFiller_bitmap))
-
-			//{
-			//	graphics.DrawEllipse(Bitmap_pen, new RectangleF(5, 5, 190, 190));
-			//}
-
-			//my_flood_fill_botmap(ref floodFiller_bitmap, floodfill_x, floodfill_y);
-
-			try
-			{
-				if (floodFiller_bitmap.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb ||
-					floodFiller_bitmap.PixelFormat == System.Drawing.Imaging.PixelFormat.Format24bppRgb ||
-					floodFiller_bitmap.PixelFormat == System.Drawing.Imaging.PixelFormat.Format8bppIndexed)
-				{
-					//TODO: Right now only 32bpp is supported. We may also want to allow for other pixel formats.
-					//floodFiller.Bitmap = new EditableBitmap(floodFiller_bitmap, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-					// panel.Image=floodFiller.Bitmap;
-					// panel.AutoScrollMinSize = new Size(panel.Image.Bitmap.Width, panel.Image.Bitmap.Height);
-				}
-
-				floodFiller_bitmap.Dispose();
-			}
-			catch (Exception e)
-			{
-				Trace.WriteLine("bitmap.Save");
-				Trace.WriteLine(e);
-				Environment.Exit(EXIT_CODE);
-			}
-
-			//floodFiller.FillColor = bitmap_color;
-			//floodFiller.FloodFill(new System.Drawing.Point(floodfill_x, floodfill_y));
-
-			//floodFiller_bitmap = floodFiller.Bitmap.Bitmap;
-
-
-#if SHOW_STARTING_POINT
-			using (var graphics = Graphics.FromImage(floodFiller_bitmap))
-
-			{
-				graphics.DrawLine(Pen_Fine, floodfill_x - mark_length, floodfill_y, floodfill_x + mark_length, floodfill_y);
-				graphics.DrawLine(Pen_Fine, floodfill_x, floodfill_y - mark_length, floodfill_x, floodfill_y + mark_length);
-				//graphics.DrawEllipse(Pen_Fine, new RectangleF(floodfill_x - 5, floodfill_y - 5, 100, 100));
-			}
-#endif
-			try
-			{
-				floodFiller_bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "flood_fill_Bitmap" + BITMAP_PATH_SUFIX, System.Drawing.Imaging.ImageFormat.Png);
-			}
-			catch (Exception e)
-			{
-				Trace.WriteLine("bitmap.Save");
-				Trace.WriteLine(e);
-				Environment.Exit(EXIT_CODE);
-			}
-		}
-
-		private void Create_Bitmap2(MeshPlaneCut cross_section)
-		{
-			List<EdgeLoop> cutLoops = cross_section.CutLoops;
-			List<EdgeSpan> cutSpans = cross_section.CutSpans;
-
-			int loop_count = 1;
-
-			// how come we do not need Bitmap_dimensions.x * SCALE_FACTOR I simply dont understand. After all we do multiply in
-			//							loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR + PEN_WIDTH);
-			// bitmap_slice = new Bitmap_Slice(Bitmap_dimensions.x, Bitmap_dimensions.y);
-			bitmap = new Bitmap(get_int_dimension(Bitmap_dimensions.x + PEN_ROBUST_WIDTH * 2),
-				get_int_dimension(Bitmap_dimensions.y + PEN_ROBUST_WIDTH * 2));
-			
-
-#if PAINT_BITMAP_BORDERS
-			//bitmap_slice.Draw_rectangle(bitmap_slice.bitmap.Width, bitmap_slice.bitmap.Height);
-			using (var graphics = Graphics.FromImage(bitmap))
-			{
-				graphics.DrawLine(Pen_Robust, 0, 0, 0, bitmap.Height);
-				graphics.DrawLine(Pen_Robust, 0, bitmap.Height, bitmap.Width, bitmap.Height);
-				graphics.DrawLine(Pen_Robust, bitmap.Width, bitmap.Height, bitmap.Width, 0);
-				graphics.DrawLine(Pen_Robust, bitmap.Width, 0, 0, 0);
-			}
-#endif
-			foreach (EdgeLoop edgeLoop in cutLoops)
-			{
-
-				DCurve3 cutLoop_Curve = edgeLoop.ToCurve();
-				List<Vector2d> loop_vertices = new List<Vector2d>();
-
-				foreach (Vector3d vec3d in cutLoop_Curve.Vertices)
-				{
-					loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR + PEN_ROBUST_WIDTH);
-				}
-
-				for (int i = 0; i < cutLoop_Curve.VertexCount; i++)
-				{
-					DrawLineInt(bitmap, Pen_Robust, loop_vertices[i], loop_vertices[(i + 1) % cutLoop_Curve.VertexCount]);
-				}
-			}
-
-			try
-			{
-				bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "slice_" + (Slice_Count) + "_loop_" + (loop_count++) + BITMAP_PATH_SUFIX,
-						System.Drawing.Imaging.ImageFormat.Png);
-			}
-			catch (Exception)
-			{
-				throw;
-			}
-			
-			Slice_Count++;
-		}
-
-		public void DrawLineInt(Bitmap bitmap, System.Drawing.Pen Pen_Robust, Vector2d origin_vec, Vector2d dest_vec)
-		{
-			using (var graphics = Graphics.FromImage(bitmap))
-			{
-				graphics.DrawLine(Pen_Fine, (float)origin_vec.x, (float)(bitmap.Size.Height - origin_vec.y),
-											(float)dest_vec.x, (float)(bitmap.Size.Height - dest_vec.y));
-			}
-		}
-
-		private Int32 get_int_dimension(double in_double)
-		{
-			return (Int32)Math.Ceiling(in_double) * SCALE_FACTOR;
 		}
 
 		private void Create_Bitmap(MeshPlaneCut cross_section)
@@ -584,7 +311,7 @@ namespace IOTech_BitMap_Slicer
 			try
 			{
 				bitmap_slice.bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "slice_" + (Slice_Count) + "_loop_" + (loop_count++) + BITMAP_PATH_SUFIX,
-						System.Drawing.Imaging.ImageFormat.Png);
+						image_format);
 			}
 			catch (Exception)
 			{
@@ -594,45 +321,53 @@ namespace IOTech_BitMap_Slicer
 			Slice_Count++;
 		}
 
-		private void Create_SVG(MeshPlaneCut cross_section)
-		{
-			List<EdgeLoop> cutLoops = cross_section.CutLoops;
-			List<EdgeSpan> cutSpans = cross_section.CutSpans;
-
-			my_SVGWriter = new SVGWriter();
-
-			my_SVGWriter.SetDefaultLineWidth(SVG_WIDTH);
-
-			foreach (EdgeLoop edgeLoop in cutLoops)
-			{
-				DCurve3 cutLoop_Curve = edgeLoop.ToCurve();
-				DGraph2 cutLoop_DGraph2 = new DGraph2();
-				List<Vector2d> loop_vertices = new List<Vector2d>();
-
-				foreach (Vector3d vec3d in cutLoop_Curve.Vertices)
-				{
-					loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR);
-					cutLoop_DGraph2.AppendVertex(vec3d.xz);
-				}
-
-				cutLoop_DGraph2.AllocateEdgeGroup();
-				int current_group_id = cutLoop_DGraph2.MaxGroupID;
-
-				for (int i = 0; i < cutLoop_Curve.VertexCount; i++)
-				{
-					cutLoop_DGraph2.AppendEdge(i, (i + 1) % cutLoop_Curve.VertexCount, current_group_id);
-				}
-
-				my_SVGWriter.AddGraph(cutLoop_DGraph2);
-			}
-
-			my_SVGWriter.Write(SVG_DIR_PREFIX + @"\" + (Slice_Count - 1) + SVG_PATH_SUFIX);
-		}
-
 		public IEnumerable<double> Range_Enumerator(double start, double end, double increment)
 		{
 			for (double i = start + increment; i < end; i += increment)
 				yield return i;
+		}
+
+		public static byte[] Array1DFromBitmap(Bitmap bmp)
+		{
+			if (bmp == null) throw new NullReferenceException("Bitmap is null");
+
+			System.Drawing.Rectangle rect = new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height);
+			BitmapData data = bmp.LockBits(rect, ImageLockMode.ReadWrite, bmp.PixelFormat);
+			IntPtr ptr = data.Scan0;
+
+			//declare an array to hold the bytes of the bitmap
+			int numBytes = data.Stride * bmp.Height;
+			byte[] bytes = new byte[numBytes];
+
+			//copy the RGB values into the array
+			System.Runtime.InteropServices.Marshal.Copy(ptr, bytes, 0, numBytes);
+
+			bmp.UnlockBits(data);
+
+			return bytes;
+		}
+
+		public static Bitmap BitmapFromArray1D(byte[] bytes, int width, int height)
+		{
+			Bitmap grayBmp = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format8bppIndexed);
+			System.Drawing.Rectangle grayRect = new System.Drawing.Rectangle(0, 0, grayBmp.Width, grayBmp.Height);
+			BitmapData grayData = grayBmp.LockBits(grayRect, ImageLockMode.ReadWrite, grayBmp.PixelFormat);
+			IntPtr grayPtr = grayData.Scan0;
+
+			int grayBytes = grayData.Stride * grayBmp.Height;
+			ColorPalette pal = grayBmp.Palette;
+
+			for (int g = 0; g < 256; g++)
+			{
+				pal.Entries[g] = System.Drawing.Color.FromArgb(g, g, g);
+			}
+
+			grayBmp.Palette = pal;
+
+			System.Runtime.InteropServices.Marshal.Copy(bytes, 0, grayPtr, grayBytes);
+
+			grayBmp.UnlockBits(grayData);
+			return grayBmp;
 		}
 
 		void Check_directories()

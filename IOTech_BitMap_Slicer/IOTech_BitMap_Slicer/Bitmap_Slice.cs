@@ -26,10 +26,7 @@ namespace IOTech_BitMap_Slicer
 		private int current_position;
 		private int bitmap_width;
 
-		public void set_starting_point(int width, int height)
-		{
-			current_position = width + height * bitmap_width;
-		}
+		public static int recursive_count = 0;
 		
 		public Bitmap_Slice(double width, double height)
 		{
@@ -45,32 +42,6 @@ namespace IOTech_BitMap_Slicer
 			bitmap_width = bitmap.Width;
 			bool_array = new bool[bitmap.Height * bitmap_width];
 		}
-
-
-		public void DrawLineInt(Vector2d origin_vec, Vector2d dest_vec)
-		{
-			graphics.DrawLine(Pen_Fine, (float)origin_vec.x, (float)(bitmap.Size.Height - origin_vec.y),
-							(float)dest_vec.x, (float)(bitmap.Size.Height - dest_vec.y));
-		}
-
-		private Int32 get_int_dimension(double in_double)
-		{
-			return (Int32)Math.Ceiling(in_double + PEN_ROBUST_WIDTH * 2) * SCALE_FACTOR;
-		}
-
-		internal void Draw_rectangle(int width, int height)
-		{
-			graphics.DrawLine(Pen_Robust, 0, 0, 0, height);
-			graphics.DrawLine(Pen_Robust, 0, height, width, height);
-			graphics.DrawLine(Pen_Robust, width, height, width, 0);
-			graphics.DrawLine(Pen_Robust, width, 0, 0, 0);
-		}
-
-		public static int recursive_count = 0;
-		//private static int count_1 = 0;
-		//private static int count_2 = 0;
-		//private static int count_3 = 0;
-		//private static int count_4 = 0;
 
 		public void flood_fill_recursive()
 		{
@@ -95,7 +66,6 @@ namespace IOTech_BitMap_Slicer
 				current_position = (current_x - 1) + current_y * bitmap_width;
 				if (!bool_array[current_position])
 				{
-					//count_1++;
 					flood_fill_recursive();
 				}
 			}
@@ -104,7 +74,6 @@ namespace IOTech_BitMap_Slicer
 				current_position = current_x + (current_y - 1) * bitmap_width;
 				if (!bool_array[current_position])
 				{
-					//count_2++;
 					flood_fill_recursive();
 				}
 			}
@@ -113,7 +82,6 @@ namespace IOTech_BitMap_Slicer
 				current_position = (current_x + 1) + current_y * bitmap_width;
 				if (!bool_array[current_position])
 				{
-					//count_3++;
 					flood_fill_recursive();
 				}
 			}
@@ -122,15 +90,38 @@ namespace IOTech_BitMap_Slicer
 				current_position = current_x + (current_y + 1) * bitmap_width;
 				if (!bool_array[current_position])
 				{
-					//count_4++;
 					flood_fill_recursive();
 				}
 			}
 		}
 
+		public void set_starting_point(int width, int height)
+		{
+			current_position = width + height * bitmap_width;
+		}
+
 		private bool check_color_equal(Color c1, Color c2)
 		{
 			return (c1.A == c2.A && c1.R == c2.R && c1.G == c2.G && c1.B == c2.B) ? true : false;
+		}
+
+		public void DrawLineInt(Vector2d origin_vec, Vector2d dest_vec)
+		{
+			graphics.DrawLine(Pen_Fine, (float)origin_vec.x, (float)(bitmap.Size.Height - origin_vec.y),
+							(float)dest_vec.x, (float)(bitmap.Size.Height - dest_vec.y));
+		}
+
+		private Int32 get_int_dimension(double in_double)
+		{
+			return (Int32)Math.Ceiling(in_double + PEN_ROBUST_WIDTH * 2) * SCALE_FACTOR;
+		}
+
+		internal void Draw_rectangle(int width, int height)
+		{
+			graphics.DrawLine(Pen_Robust, 0, 0, 0, height);
+			graphics.DrawLine(Pen_Robust, 0, height, width, height);
+			graphics.DrawLine(Pen_Robust, width, height, width, 0);
+			graphics.DrawLine(Pen_Robust, width, 0, 0, 0);
 		}
 	}
 }
