@@ -171,9 +171,9 @@ namespace IOTech_BitMap_Slicer
 			{
 				plane_cut_cross_section = new MeshPlaneCut(new DMesh3(Imported_STL_mesh), SLICING_DIRECTION_UNIT * slice_step, SLICING_DIRECTION_UNIT);
 				plane_cut_cross_section.Cut();
-				//Create_Bitmap(plane_cut_cross_section);
-				Create_Bitmap2(plane_cut_cross_section);
-				
+				Create_Bitmap(plane_cut_cross_section);
+				//Create_Bitmap2(plane_cut_cross_section);
+
 				Create_SVG(plane_cut_cross_section);
 			}
 
@@ -432,7 +432,6 @@ namespace IOTech_BitMap_Slicer
 				for (int i = 0; i < cutLoop_Curve.VertexCount; i++)
 				{
 					DrawLineInt(bitmap, Pen_Robust, loop_vertices[i], loop_vertices[(i + 1) % cutLoop_Curve.VertexCount]);
-					// bitmap_slice.DrawLineInt(loop_vertices[i], loop_vertices[(i + 1) % cutLoop_Curve.VertexCount]);
 				}
 			}
 
@@ -473,9 +472,6 @@ namespace IOTech_BitMap_Slicer
 			// how come we do not need Bitmap_dimensions.x * SCALE_FACTOR I simply dont understand. After all we do multiply in
 			//							loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR + PEN_WIDTH);
 			bitmap_slice = new Bitmap_Slice(Bitmap_dimensions.x, Bitmap_dimensions.y);
-			//bitmap = new Bitmap(Map_and_scale_double_to_Int32(Bitmap_dimensions.x + PEN_ROBUST_WIDTH * 2),
-			//Map_and_scale_double_to_Int32(Bitmap_dimensions.y + PEN_ROBUST_WIDTH * 2));
-			
 
 #if PAINT_BITMAP_BORDERS
 			bitmap_slice.Draw_rectangle(bitmap_slice.bitmap.Width, bitmap_slice.bitmap.Height);

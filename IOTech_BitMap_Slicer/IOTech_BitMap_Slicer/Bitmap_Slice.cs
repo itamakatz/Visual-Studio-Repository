@@ -15,15 +15,17 @@ namespace IOTech_BitMap_Slicer
 		public static int PEN_FINE_WIDTH { get; set; }
 		public static int PEN_ROBUST_WIDTH { get; set; }
 		public static System.Drawing.Color bitmap_color { get; set; }
-		private static System.Drawing.Pen Pen_Fine = new System.Drawing.Pen(bitmap_color, PEN_FINE_WIDTH);
-		private static System.Drawing.Pen Pen_Robust = new System.Drawing.Pen(bitmap_color, PEN_ROBUST_WIDTH);
+		private static System.Drawing.Pen Pen_Fine;
+		private static System.Drawing.Pen Pen_Robust;
 
 		public Bitmap_Slice(double width, double height)
 		{
 			bitmap = new Bitmap(get_int_dimension(width), get_int_dimension(height));
-		}
+			Pen_Fine = new System.Drawing.Pen(bitmap_color, PEN_FINE_WIDTH);
+			Pen_Robust = new System.Drawing.Pen(bitmap_color, PEN_ROBUST_WIDTH);
+		}	
 
-		public void DrawLineInt(Vector2d origin_vec, Vector2d dest_vec)
+	public void DrawLineInt(Vector2d origin_vec, Vector2d dest_vec)
 		{
 			using (var graphics = Graphics.FromImage(bitmap))
 			{
@@ -34,7 +36,7 @@ namespace IOTech_BitMap_Slicer
 
 		private Int32 get_int_dimension(double in_double)
 		{
-			return (Int32)Math.Ceiling(in_double) * SCALE_FACTOR + PEN_ROBUST_WIDTH * 2;
+			return (Int32)Math.Ceiling(in_double + PEN_ROBUST_WIDTH * 2) * SCALE_FACTOR;
 		}
 
 		internal void Draw_rectangle(int width, int height)
