@@ -1,10 +1,12 @@
 ﻿using g3;
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
+//using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace IOTech_BitMap_Slicer
@@ -16,22 +18,32 @@ namespace IOTech_BitMap_Slicer
 		public static int PEN_FINE_WIDTH { get; set; }
 		public static int PEN_ROBUST_WIDTH { get; set; }
 		public static System.Drawing.Color bitmap_color { get; set; }
-		private static System.Drawing.Pen Pen_Fine;
-		private static System.Drawing.Pen Pen_Robust;
+		public static System.Drawing.Pen Pen_Fine;
+		public static System.Drawing.Pen Pen_Robust;
 		private System.Drawing.Graphics graphics;
 
+		private bool[] bool_array;
+		private int current_position;
+		private int bitmap_width;
+
+		public void set_starting_point(int width, int height)
+		{
+			current_position = width + height * bitmap_width;
+		}
+		
 		public Bitmap_Slice(double width, double height)
 		{
-
-			this.bitmap = new Bitmap(get_int_dimension(width), get_int_dimension(height));
-			Pen_Fine = new System.Drawing.Pen(bitmap_color, PEN_FINE_WIDTH);
-			Pen_Robust = new System.Drawing.Pen(bitmap_color, PEN_ROBUST_WIDTH);
+			bitmap = new Bitmap(get_int_dimension(width), get_int_dimension(height));
 			graphics = Graphics.FromImage(bitmap);
+			bitmap_width = bitmap.Width;
+			bool_array = new bool[bitmap.Height * bitmap_width];
 		}
 
 		public Bitmap_Slice(Bitmap bitmap)
 		{
 			this.bitmap = bitmap;
+			bitmap_width = bitmap.Width;
+			bool_array = new bool[bitmap.Height * bitmap_width];
 		}
 
 
@@ -54,48 +66,65 @@ namespace IOTech_BitMap_Slicer
 			graphics.DrawLine(Pen_Robust, width, 0, 0, 0);
 		}
 
-		private static int count_1 = 0;
-		private static int count_2 = 0;
-		private static int count_3 = 0;
-		private static int count_4 = 0;
+		public static int recursive_count = 0;
+		//private static int count_1 = 0;
+		//private static int count_2 = 0;
+		//private static int count_3 = 0;
+		//private static int count_4 = 0;
 
-		public void flood_fill_recursive(ref Color objective_color, int begin_x, int begin_y)
+		public void flood_fill_recursive()
 		{
-			Color curren_colort = bitmap.GetPixel(begin_x, begin_y);
+			recursive_count++;
 
-			if (!check_color_equal(curren_colort, objective_color))
+			int current_x = current_position % bitmap_width;
+			int current_y = current_position / bitmap_width;
+
+			bool_array[current_x + current_y * bitmap_width] = true;
+
+			if (!check_color_equal(bitmap.GetPixel(current_x, current_y), bitmap_color))
 			{
-				bitmap.SetPixel(begin_x, begin_y, objective_color);
+				bitmap.SetPixel(current_x, current_y, bitmap_color);
 			}
 			else
 			{
 				return;
 			}
 
-			if (count_3 == 3273)
+			if (current_x > 0)
 			{
-				Trace.WriteLine("yo yo babyyy");
+				current_position = (current_x - 1) + current_y * bitmap_width;
+				if (!bool_array[current_position])
+				{
+					//count_1++;
+					flood_fill_recursive();
+				}
 			}
-
-			if (begin_x > 0)
+			if (current_y > 0)
 			{
-				count_1++;
-				flood_fill_recursive(ref objective_color, begin_x - 1, begin_y);
+				current_position = current_x + (current_y - 1) * bitmap_width;
+				if (!bool_array[current_position])
+				{
+					//count_2++;
+					flood_fill_recursive();
+				}
 			}
-			if (begin_y > 0)
+			if (current_x < bitmap.Size.Width - 1)
 			{
-				count_2++;
-				flood_fill_recursive(ref objective_color, begin_x, begin_y - 1);
+				current_position = (current_x + 1) + current_y * bitmap_width;
+				if (!bool_array[current_position])
+				{
+					//count_3++;
+					flood_fill_recursive();
+				}
 			}
-			if (begin_x < bitmap.Size.Width - 1)
+			if (current_y < bitmap.Size.Height - 1)
 			{
-				count_3++;
-				flood_fill_recursive(ref objective_color, begin_x + 1, begin_y);
-			}
-			if (begin_y < bitmap.Size.Height - 1)
-			{
-				count_2++;
-				flood_fill_recursive(ref objective_color, begin_x, begin_y + 1);
+				current_position = current_x + (current_y + 1) * bitmap_width;
+				if (!bool_array[current_position])
+				{
+					//count_4++;
+					flood_fill_recursive();
+				}
 			}
 		}
 

@@ -69,20 +69,14 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Bitmap_Slice.cs" />
-    <Compile Include="QueueLinearFloodFiller.cs" />
-    <Compile Include="The_Code.cs" />
-    <Compile Include="UnsafeQueueLinearFloodFiller.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="AbstractFloodFiller.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="EditableBitmap.cs" />
-    <Compile Include="FloodFillRangeQueue.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

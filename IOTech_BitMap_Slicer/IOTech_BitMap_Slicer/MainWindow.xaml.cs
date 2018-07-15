@@ -24,8 +24,9 @@ using System.IO;
 using Svg;
 using System.Drawing.Drawing2D;
 using System.Diagnostics;
-using PictureBoxScroll;
-using FloodFill2;
+using System.Threading;
+//using PictureBoxScroll;
+//using FloodFill2;
 
 namespace IOTech_BitMap_Slicer
 {
@@ -52,7 +53,7 @@ namespace IOTech_BitMap_Slicer
 
 		private string TMP_DIR = @"Desktop\TMP Directory";
 
-		private const int SCALE_FACTOR = 8;
+		private const int SCALE_FACTOR = 10;
 		private const double NUM_OF_SLICES = 4;
 		private const Axis SLICING_AXIS = Axis.Y;
 		
@@ -84,6 +85,7 @@ namespace IOTech_BitMap_Slicer
 		private Bitmap bitmap;
 		private Bitmap_Slice bitmap_slice;
 
+		internal Stopwatch watch = new Stopwatch();
 
 		private static int Slice_Count = 1;
 
@@ -99,7 +101,8 @@ namespace IOTech_BitMap_Slicer
 			Bitmap_Slice.bitmap_color = bitmap_color;
 			Bitmap_Slice.PEN_FINE_WIDTH = (int)PEN_FINE_WIDTH;
 			Bitmap_Slice.PEN_ROBUST_WIDTH = PEN_ROBUST_WIDTH;
-
+			Bitmap_Slice.Pen_Fine = new System.Drawing.Pen(bitmap_color, PEN_FINE_WIDTH);
+			Bitmap_Slice.Pen_Robust = new System.Drawing.Pen(bitmap_color, PEN_ROBUST_WIDTH);
 			Trace.WriteLine("wasssup broooo????");
 
 			// Open STL file and create DMesh3 objects
@@ -171,15 +174,22 @@ namespace IOTech_BitMap_Slicer
 			{
 				plane_cut_cross_section = new MeshPlaneCut(new DMesh3(Imported_STL_mesh), SLICING_DIRECTION_UNIT * slice_step, SLICING_DIRECTION_UNIT);
 				plane_cut_cross_section.Cut();
-				//Create_Bitmap(plane_cut_cross_section);
+				Create_Bitmap(plane_cut_cross_section);
 				//Create_Bitmap2(plane_cut_cross_section);
-				my_flood_fill_bitmap_recursive();
 
-				Create_SVG(plane_cut_cross_section);
+
+				//Create_SVG(plane_cut_cross_section);
 			}
 
+			watch.Reset();
+			watch.Start();
+
+			my_flood_fill_bitmap_recursive();
+
+			watch.Stop();
+
 			//flood_fill_bitmap();
-			my_flood_fill_botmap();
+			//my_flood_fill_botmap();
 			//second_cross_section = new MeshPlaneCut(main_cross_section.Mesh, plane_origine - 0.01F, SLICING_NORMAL * -1);
 			//second_cross_section.Cut();
 #if RUN_VISUAL
@@ -232,18 +242,50 @@ namespace IOTech_BitMap_Slicer
 			my_3d_view.RotateGesture = new MouseGesture(MouseAction.LeftClick);
 			my_3d_view.Children.Add(device3D);
 #endif
-
+			Trace.WriteLine(Bitmap_Slice.recursive_count);
+			TimeSpan ts = watch.Elapsed;
+			string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+			ts.Hours, ts.Minutes, ts.Seconds,
+			ts.Milliseconds / 10);
+			Trace.WriteLine("RunTime: " + elapsedTime);
 		}
 
 		private void my_flood_fill_bitmap_recursive()
 		{
 			bitmap_slice = new Bitmap_Slice(new Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1" + BITMAP_PATH_SUFIX));
 
-			System.Drawing.Color begin_color = bitmap_slice.bitmap.GetPixel(100, 100);
+			int begin_x = bitmap_slice.bitmap.Width / 2;
+			int begin_y = bitmap_slice.bitmap.Height / 2;
+			int mark_length = 20;
 
-			bitmap_slice.flood_fill_recursive(ref begin_color, 0, 100);
+			var stackSize = 100000000;  // max Int32 = 2147483648 
+			bitmap_slice.set_starting_point(begin_x, begin_y);
+
+			Thread thread = new Thread(new ThreadStart(bitmap_slice.flood_fill_recursive), stackSize);
+			thread.Start();
+			thread.Join();
 
 			bitmap_slice.bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "flood_fill_Bitmap" + BITMAP_PATH_SUFIX, System.Drawing.Imaging.ImageFormat.Png);
+
+			Bitmap bitmap_flood = new Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1" + BITMAP_PATH_SUFIX);
+
+			using (var graphics = Graphics.FromImage(bitmap_flood))
+			{
+				graphics.DrawLine(Pen_Fine, begin_x - mark_length, begin_y, begin_x + mark_length, begin_y);
+				graphics.DrawLine(Pen_Fine, begin_x, begin_y - mark_length, begin_x, begin_y + mark_length);
+				//graphics.DrawEllipse(Pen_Fine, new RectangleF(floodfill_x - 5, floodfill_y - 5, 100, 100));
+			}
+
+			//Bitmap bitmap_flood = new Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1" + BITMAP_PATH_SUFIX);
+
+			//using (var graphics = Graphics.FromImage(bitmap_flood))
+			//{
+			//	graphics.DrawLine(new System.Drawing.Pen(System.Drawing.Color.Yellow, PEN_FINE_WIDTH), 0, 0, 2, 2);
+			//	//graphics.DrawLine(new System.Drawing.Pen(System.Drawing.Color.Yellow, PEN_FINE_WIDTH), 0, 0, bitmap_flood.Height - 10, bitmap_flood.Width - 10);
+			//	graphics.DrawLine(new System.Drawing.Pen(System.Drawing.Color.Green, PEN_FINE_WIDTH), bitmap_flood.Width - 20, 0, bitmap_flood.Width - 10, 0);
+			//}
+
+			bitmap_flood.Save(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1_2" + BITMAP_PATH_SUFIX, System.Drawing.Imaging.ImageFormat.Png);
 
 		}
 
@@ -365,8 +407,8 @@ namespace IOTech_BitMap_Slicer
 
 		private void flood_fill_bitmap()
 		{
-			AbstractFloodFiller floodFiller;
-			floodFiller = new The_Code_Class();
+			//AbstractFloodFiller floodFiller;
+			//floodFiller = new The_Code_Class();
 			Bitmap floodFiller_bitmap;
 
 			var floodfill_x = 100;
@@ -399,7 +441,7 @@ namespace IOTech_BitMap_Slicer
 					floodFiller_bitmap.PixelFormat == System.Drawing.Imaging.PixelFormat.Format8bppIndexed)
 				{
 					//TODO: Right now only 32bpp is supported. We may also want to allow for other pixel formats.
-					floodFiller.Bitmap = new EditableBitmap(floodFiller_bitmap, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+					//floodFiller.Bitmap = new EditableBitmap(floodFiller_bitmap, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 					// panel.Image=floodFiller.Bitmap;
 					// panel.AutoScrollMinSize = new Size(panel.Image.Bitmap.Width, panel.Image.Bitmap.Height);
 				}
@@ -413,10 +455,10 @@ namespace IOTech_BitMap_Slicer
 				Environment.Exit(EXIT_CODE);
 			}
 
-			floodFiller.FillColor = bitmap_color;
-			floodFiller.FloodFill(new System.Drawing.Point(floodfill_x, floodfill_y));
+			//floodFiller.FillColor = bitmap_color;
+			//floodFiller.FloodFill(new System.Drawing.Point(floodfill_x, floodfill_y));
 
-			floodFiller_bitmap = floodFiller.Bitmap.Bitmap;
+			//floodFiller_bitmap = floodFiller.Bitmap.Bitmap;
 
 
 #if SHOW_STARTING_POINT
