@@ -81,7 +81,7 @@ namespace IOTech_BitMap_Slicer
 		private DMesh3 Imported_STL_mesh;
 		private SVGWriter my_SVGWriter;
 		private Model3D HelixToolkit_Model3D = null;
-		//private Bitmap bitmap;
+		private Bitmap bitmap;
 		private Bitmap_Slice bitmap_slice;
 
 
@@ -171,8 +171,9 @@ namespace IOTech_BitMap_Slicer
 			{
 				plane_cut_cross_section = new MeshPlaneCut(new DMesh3(Imported_STL_mesh), SLICING_DIRECTION_UNIT * slice_step, SLICING_DIRECTION_UNIT);
 				plane_cut_cross_section.Cut();
-				Create_Bitmap(plane_cut_cross_section);
-
+				//Create_Bitmap(plane_cut_cross_section);
+				Create_Bitmap2(plane_cut_cross_section);
+				
 				Create_SVG(plane_cut_cross_section);
 			}
 
@@ -393,6 +394,75 @@ namespace IOTech_BitMap_Slicer
 		}
 
 
+		private void Create_Bitmap2(MeshPlaneCut cross_section)
+		{
+			List<EdgeLoop> cutLoops = cross_section.CutLoops;
+			List<EdgeSpan> cutSpans = cross_section.CutSpans;
+
+			int loop_count = 1;
+
+			// how come we do not need Bitmap_dimensions.x * SCALE_FACTOR I simply dont understand. After all we do multiply in
+			//							loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR + PEN_WIDTH);
+			// bitmap_slice = new Bitmap_Slice(Bitmap_dimensions.x, Bitmap_dimensions.y);
+			bitmap = new Bitmap(get_int_dimension(Bitmap_dimensions.x + PEN_ROBUST_WIDTH * 2),
+				get_int_dimension(Bitmap_dimensions.y + PEN_ROBUST_WIDTH * 2));
+			
+
+#if PAINT_BITMAP_BORDERS
+			//bitmap_slice.Draw_rectangle(bitmap_slice.bitmap.Width, bitmap_slice.bitmap.Height);
+			using (var graphics = Graphics.FromImage(bitmap))
+			{
+				graphics.DrawLine(Pen_Robust, 0, 0, 0, bitmap.Height);
+				graphics.DrawLine(Pen_Robust, 0, bitmap.Height, bitmap.Width, bitmap.Height);
+				graphics.DrawLine(Pen_Robust, bitmap.Width, bitmap.Height, bitmap.Width, 0);
+				graphics.DrawLine(Pen_Robust, bitmap.Width, 0, 0, 0);
+			}
+#endif
+			foreach (EdgeLoop edgeLoop in cutLoops)
+			{
+
+				DCurve3 cutLoop_Curve = edgeLoop.ToCurve();
+				List<Vector2d> loop_vertices = new List<Vector2d>();
+
+				foreach (Vector3d vec3d in cutLoop_Curve.Vertices)
+				{
+					loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR + PEN_ROBUST_WIDTH);
+				}
+
+				for (int i = 0; i < cutLoop_Curve.VertexCount; i++)
+				{
+					DrawLineInt(bitmap, Pen_Robust, loop_vertices[i], loop_vertices[(i + 1) % cutLoop_Curve.VertexCount]);
+					// bitmap_slice.DrawLineInt(loop_vertices[i], loop_vertices[(i + 1) % cutLoop_Curve.VertexCount]);
+				}
+			}
+
+			try
+			{
+				bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "slice_" + (Slice_Count) + "_loop_" + (loop_count++) + BITMAP_PATH_SUFIX,
+						System.Drawing.Imaging.ImageFormat.Png);
+			}
+			catch (Exception)
+			{
+				throw;
+			}
+			
+			Slice_Count++;
+		}
+
+		public void DrawLineInt(Bitmap bitmap, System.Drawing.Pen Pen_Robust, Vector2d origin_vec, Vector2d dest_vec)
+		{
+			using (var graphics = Graphics.FromImage(bitmap))
+			{
+				graphics.DrawLine(Pen_Fine, (float)origin_vec.x, (float)(bitmap.Size.Height - origin_vec.y),
+											(float)dest_vec.x, (float)(bitmap.Size.Height - dest_vec.y));
+			}
+		}
+
+		private Int32 get_int_dimension(double in_double)
+		{
+			return (Int32)Math.Ceiling(in_double) * SCALE_FACTOR;
+		}
+
 		private void Create_Bitmap(MeshPlaneCut cross_section)
 		{
 			List<EdgeLoop> cutLoops = cross_section.CutLoops;
@@ -405,6 +475,7 @@ namespace IOTech_BitMap_Slicer
 			bitmap_slice = new Bitmap_Slice(Bitmap_dimensions.x, Bitmap_dimensions.y);
 			//bitmap = new Bitmap(Map_and_scale_double_to_Int32(Bitmap_dimensions.x + PEN_ROBUST_WIDTH * 2),
 			//Map_and_scale_double_to_Int32(Bitmap_dimensions.y + PEN_ROBUST_WIDTH * 2));
+			
 
 #if PAINT_BITMAP_BORDERS
 			bitmap_slice.Draw_rectangle(bitmap_slice.bitmap.Width, bitmap_slice.bitmap.Height);
