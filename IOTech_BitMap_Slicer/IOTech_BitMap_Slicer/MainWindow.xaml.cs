@@ -52,10 +52,10 @@ namespace IOTech_BitMap_Slicer
 
 		private string TMP_DIR = @"Desktop\TMP Directory";
 
-		private const int SCALE_FACTOR = 2;
+		private const int SCALE_FACTOR = 8;
 		private const double NUM_OF_SLICES = 4;
 		private const Axis SLICING_AXIS = Axis.Y;
-
+		
 		private const float SVG_WIDTH = 0.1f;
 		private const int EXIT_CODE = 10;
 
@@ -81,7 +81,9 @@ namespace IOTech_BitMap_Slicer
 		private DMesh3 Imported_STL_mesh;
 		private SVGWriter my_SVGWriter;
 		private Model3D HelixToolkit_Model3D = null;
-		private Bitmap bitmap;
+		//private Bitmap bitmap;
+		private Bitmap_Slice bitmap_slice;
+
 
 		private static int Slice_Count = 1;
 
@@ -92,6 +94,11 @@ namespace IOTech_BitMap_Slicer
 			InitializeComponent();
 
 			Check_directories();
+
+			Bitmap_Slice.SCALE_FACTOR = SCALE_FACTOR;
+			Bitmap_Slice.bitmap_color = bitmap_color;
+			Bitmap_Slice.PEN_FINE_WIDTH = (int)PEN_FINE_WIDTH;
+			Bitmap_Slice.PEN_ROBUST_WIDTH = PEN_ROBUST_WIDTH;
 
 			Trace.WriteLine("wasssup broooo????");
 
@@ -111,7 +118,6 @@ namespace IOTech_BitMap_Slicer
 				Environment.Exit(EXIT_CODE);
 			}
 
-			//Imported_STL_mesh.CachedBounds.MoveMin(Vector3d.Zero);
 			Vector3d STL_mesh_Diagonal = Imported_STL_mesh.CachedBounds.Diagonal;
 
 			Slice_Enumerator = Range_Enumerator(Imported_STL_mesh.CachedBounds.Min[(int)SLICING_AXIS],
@@ -156,11 +162,11 @@ namespace IOTech_BitMap_Slicer
 				default:
 					break;
 			}
+
 			// Cut mesh model and save as STL file
-
 			MeshPlaneCut plane_cut_cross_section = null;
+	
 			//MeshPlaneCut second_cross_section;
-
 			foreach (double slice_step in Slice_Enumerator)
 			{
 				plane_cut_cross_section = new MeshPlaneCut(new DMesh3(Imported_STL_mesh), SLICING_DIRECTION_UNIT * slice_step, SLICING_DIRECTION_UNIT);
@@ -170,7 +176,7 @@ namespace IOTech_BitMap_Slicer
 				Create_SVG(plane_cut_cross_section);
 			}
 
-			flood_fill_botmap();
+			flood_fill_bitmap();
 
 			//second_cross_section = new MeshPlaneCut(main_cross_section.Mesh, plane_origine - 0.01F, SLICING_NORMAL * -1);
 			//second_cross_section.Cut();
@@ -309,7 +315,7 @@ namespace IOTech_BitMap_Slicer
 		}
 
 
-		private void flood_fill_botmap()
+		private void flood_fill_bitmap()
 		{
 			AbstractFloodFiller floodFiller;
 			floodFiller = new The_Code_Class();
@@ -396,17 +402,12 @@ namespace IOTech_BitMap_Slicer
 
 			// how come we do not need Bitmap_dimensions.x * SCALE_FACTOR I simply dont understand. After all we do multiply in
 			//							loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR + PEN_WIDTH);
-			bitmap = new Bitmap(Map_and_scale_double_to_Int32(Bitmap_dimensions.x + PEN_ROBUST_WIDTH * 2),
-						   Map_and_scale_double_to_Int32(Bitmap_dimensions.y + PEN_ROBUST_WIDTH * 2));
+			bitmap_slice = new Bitmap_Slice(Bitmap_dimensions.x, Bitmap_dimensions.y);
+			//bitmap = new Bitmap(Map_and_scale_double_to_Int32(Bitmap_dimensions.x + PEN_ROBUST_WIDTH * 2),
+			//Map_and_scale_double_to_Int32(Bitmap_dimensions.y + PEN_ROBUST_WIDTH * 2));
 
 #if PAINT_BITMAP_BORDERS
-			using (var graphics = Graphics.FromImage(bitmap))
-			{
-				graphics.DrawLine(Pen_Robust, 0, 0, 0, bitmap.Height);
-				graphics.DrawLine(Pen_Robust, 0, bitmap.Height, bitmap.Width, bitmap.Height);
-				graphics.DrawLine(Pen_Robust, bitmap.Width, bitmap.Height, bitmap.Width, 0);
-				graphics.DrawLine(Pen_Robust, bitmap.Width, 0, 0, 0);
-			}
+			bitmap_slice.Draw_rectangle(bitmap_slice.bitmap.Width, bitmap_slice.bitmap.Height);
 #endif
 			foreach (EdgeLoop edgeLoop in cutLoops)
 			{
@@ -421,13 +422,13 @@ namespace IOTech_BitMap_Slicer
 
 				for (int i = 0; i < cutLoop_Curve.VertexCount; i++)
 				{
-					DrawLineInt(bitmap, Pen_Robust, loop_vertices[i], loop_vertices[(i + 1) % cutLoop_Curve.VertexCount]);
+					bitmap_slice.DrawLineInt(loop_vertices[i], loop_vertices[(i + 1) % cutLoop_Curve.VertexCount]);
 				}
 			}
 
 			try
 			{
-				bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "slice_" + (Slice_Count) + "_loop_" + (loop_count++) + BITMAP_PATH_SUFIX,
+				bitmap_slice.bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "slice_" + (Slice_Count) + "_loop_" + (loop_count++) + BITMAP_PATH_SUFIX,
 						System.Drawing.Imaging.ImageFormat.Png);
 			}
 			catch (Exception)
@@ -438,19 +439,7 @@ namespace IOTech_BitMap_Slicer
 			Slice_Count++;
 		}
 
-		public void DrawLineInt(Bitmap bmp, System.Drawing.Pen Bitmap_pen, Vector2d origin_vec, Vector2d dest_vec)
-		{
-			using (var graphics = Graphics.FromImage(bmp))
-			{
-				graphics.DrawLine(Bitmap_pen, (float)origin_vec.x, (float)(bitmap.Size.Height - origin_vec.y), 
-											(float)dest_vec.x, (float)(bitmap.Size.Height - dest_vec.y));
-			}                                          
-		}
 
-		private Int32 Map_and_scale_double_to_Int32(double in_double)
-		{
-			return (Int32)Math.Ceiling(in_double) * SCALE_FACTOR;
-		}
 
 		private void Create_SVG(MeshPlaneCut cross_section)
 		{
