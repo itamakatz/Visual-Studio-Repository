@@ -37,19 +37,30 @@ namespace IOTech_BitMap_Slicer
 
 		private string TMP_DIR = @"Desktop\TMP Directory";
 
-		private const int SCALE_FACTOR = 2;
+		private const int SCALE_FACTOR = 10;
 		private const double NUM_OF_SLICES = 4;
 		private const Axis SLICING_AXIS = Axis.Y;
-		
+
 		private const int EXIT_CODE = 10;
 
 		private const int PEN_FINE_WIDTH = 1;
-		private const int PEN_ROBUST_WIDTH = 3;
 
 		private static System.Drawing.Color bitmap_color = System.Drawing.Color.Blue;
 
-		private static System.Drawing.Pen Pen_Robust = new System.Drawing.Pen(bitmap_color, PEN_ROBUST_WIDTH);
-		private static System.Drawing.Pen Pen_Fine = new System.Drawing.Pen(bitmap_color, PEN_FINE_WIDTH);
+		/* CAN NOT BE OF THE FORMAT TYPE : (see https://stackoverflow.com/questions/11368412/lowering-bitmap-quality-produces-outofmemoryexception)
+		 * Undefined
+		 * DontCare
+		 * Format16bppArgb1555
+		 * Format16bppGrayScale
+		 * Format1bppIndexed
+		 * Format4bppIndexed
+		 * Format8bppIndexed
+		 */
+		// maybe should varify the image is infact Format32bppRgb
+		// all the formats below work perfectly
+		//PixelFormat IMAGE_FORMAT = System.Drawing.Imaging.PixelFormat.Format32bppRgb;
+		//PixelFormat IMAGE_FORMAT = System.Drawing.Imaging.PixelFormat.Format24bppRgb;
+		PixelFormat IMAGE_FORMAT = System.Drawing.Imaging.PixelFormat.Format16bppRgb555; // best format I found
 
 		//private const Int32 stackSize = 2147483647;  // max Int32 = 2147483647 
 		private const Int32 stackSize = 1000000000;  // max Int32 = 2147483647 
@@ -57,11 +68,13 @@ namespace IOTech_BitMap_Slicer
 		// ***** Initialization of other variables ***** //
 
 		private string USER_PATH = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-		 
+
 		private Vector2d Bitmap_dimensions = new Vector2d();
 		private Vector2d Mesh_min_dimensions = new Vector2d();
-		
+
 		private Bitmap_Slice bitmap_slice;
+
+
 
 		internal Stopwatch watch = new Stopwatch();
 
@@ -82,10 +95,11 @@ namespace IOTech_BitMap_Slicer
 
 			Bitmap_Slice.SCALE_FACTOR = SCALE_FACTOR;
 			Bitmap_Slice.bitmap_color = bitmap_color;
-			Bitmap_Slice.PEN_FINE_WIDTH = (int)PEN_FINE_WIDTH;
-			Bitmap_Slice.PEN_ROBUST_WIDTH = PEN_ROBUST_WIDTH;
-			Bitmap_Slice.Pen_Fine = new System.Drawing.Pen(bitmap_color, PEN_FINE_WIDTH);
-			Bitmap_Slice.Pen_Robust = new System.Drawing.Pen(bitmap_color, PEN_ROBUST_WIDTH);
+			Bitmap_Slice.PEN_WIDTH = (int) PEN_FINE_WIDTH;
+			Bitmap_Slice.Pen = new System.Drawing.Pen(bitmap_color, PEN_FINE_WIDTH);
+			Bitmap_Slice.IMAGE_FORMAT = IMAGE_FORMAT;
+
+			Util.EXIT_CODE = EXIT_CODE;
 
 			Trace.WriteLine("wasssup broooo????");
 
@@ -99,7 +113,7 @@ namespace IOTech_BitMap_Slicer
 			}
 			else
 			{
-				exit_messege(new string[] { "DMesh3Builder faild to open stl model" ,
+				Util.exit_messege(new string[] { "DMesh3Builder faild to open stl model" ,
 					"USER_PATH is - " + USER_PATH ,
 					"MODEL_IN_PATH is - " + MODEL_IN_PATH });
 			}
@@ -151,7 +165,7 @@ namespace IOTech_BitMap_Slicer
 
 			// Cut mesh model and save as STL file
 			MeshPlaneCut plane_cut_cross_section = null;
-	
+
 			//MeshPlaneCut second_cross_section;
 			foreach (double slice_step in Slice_Enumerator)
 			{
@@ -185,7 +199,7 @@ namespace IOTech_BitMap_Slicer
 			catch (Exception e)
 			{
 				// MessageBox.Show("Exception Error : " + e.StackTrace);
-				exit_messege(new string[] { "Exception loading HelixToolkit Model3D" }, e);
+				Util.exit_messege(new string[] { "Exception loading HelixToolkit Model3D" }, e);
 			}
 
 #if SHOW_BOUNDS
@@ -224,7 +238,7 @@ namespace IOTech_BitMap_Slicer
 			my_3d_view.Children.Add(device3D);
 #endif
 			Trace.WriteLine(Bitmap_Slice.recursive_count);
-			print_elapsed(watch.Elapsed);
+			Util.Print_elapsed(watch.Elapsed);
 		}
 
 		private void Create_Bitmap(MeshPlaneCut cross_section)
@@ -249,7 +263,7 @@ namespace IOTech_BitMap_Slicer
 
 				foreach (Vector3d vec3d in cutLoop_Curve.Vertices)
 				{
-					loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR + PEN_ROBUST_WIDTH);
+					loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR + PEN_FINE_WIDTH);
 				}
 
 				for (int i = 0; i < cutLoop_Curve.VertexCount; i++)
@@ -265,7 +279,7 @@ namespace IOTech_BitMap_Slicer
 			}
 			catch (Exception e)
 			{
-				exit_messege(new string[] { "Error saving bitmap" }, e);
+				Util.exit_messege(new string[] { "Error saving bitmap" }, e);
 			}
 
 			Slice_Count++;
@@ -296,16 +310,16 @@ namespace IOTech_BitMap_Slicer
 				thread.Start();
 				thread.Join();
 
-				//bitmap_slice.get_bitmap_from_byte().Save(BITMAP_DIR_PREFIX + @"\" + "flood_fill_Bitmap" + BITMAP_PATH_SUFIX, image_format);
 				bitmap_slice.bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "flood_fill_Bitmap" + BITMAP_PATH_SUFIX, image_format);
+				//bitmap_slice.save_byte_array_to_bitmap_image(BITMAP_DIR_PREFIX + @"\" + "flood_fill_Bitmap2" + BITMAP_PATH_SUFIX, image_format);
 			}
 			catch (ArgumentException e)
 			{
-				exit_messege(new string[] { "Starting point of flood fill out of bounds.", "begin_x: " + begin_x, "begin_y: " + begin_y }, e);
+				Util.exit_messege(new string[] { "Starting point of flood fill out of bounds.", "begin_x: " + begin_x, "begin_y: " + begin_y }, e);
 			}
 			catch (Exception e)
 			{
-				exit_messege(new string[] { "Faild to flood fill bitmap" }, e);
+				Util.exit_messege(new string[] { "Faild to flood fill bitmap" }, e);
 			}
 		}
 
@@ -341,64 +355,8 @@ namespace IOTech_BitMap_Slicer
 			}
 			catch (Exception e)
 			{
-				exit_messege(new string[] { "Check_directories faild" }, e);
+				Util.exit_messege(new string[] { "Check_directories faild" }, e);
 			}
-		}
-
-		public void Clear_dir(String path)
-		{
-			DirectoryInfo di = new DirectoryInfo(path);
-			foreach (FileInfo file in di.EnumerateFiles())
-			{
-				file.Delete();
-			}
-			foreach (DirectoryInfo dir in di.EnumerateDirectories())
-			{
-				dir.Delete(true);
-			}
-		}
-
-		public static void exit_messege(string[] messages)
-		{
-			// possibly use:
-			// MessageBox.Show("Exception Error : " + e.StackTrace);
-			Trace.WriteLine("\n");
-
-			foreach (string msg in messages)
-			{
-				Trace.WriteLine(msg);
-			}
-
-			Trace.WriteLine("\n");
-
-			Environment.Exit(EXIT_CODE);
-		}
-
-		public static void exit_messege(string[] messages, Exception e)
-		{
-			// possibly use:
-			// MessageBox.Show("Exception Error : " + e.StackTrace);
-			Trace.WriteLine("\n");
-
-			foreach (string msg in messages)
-			{
-				Trace.WriteLine(msg);
-			}
-
-			Trace.WriteLine("\n");
-
-			Trace.WriteLine(e.StackTrace);
-			Trace.WriteLine(e.Message);
-
-			Environment.Exit(EXIT_CODE);
-		}
-
-		private static void print_elapsed(TimeSpan time_stamp)
-		{
-			string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-			time_stamp.Hours, time_stamp.Minutes, time_stamp.Seconds,
-			time_stamp.Milliseconds / 10);
-			Trace.WriteLine("RunTime: " + elapsedTime);
 		}
 	}
 }
