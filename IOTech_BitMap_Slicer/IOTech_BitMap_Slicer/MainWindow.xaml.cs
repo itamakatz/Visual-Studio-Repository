@@ -33,19 +33,20 @@ namespace IOTech_BitMap_Slicer
 
 		private string BITMAP_DIR_PREFIX = @"Desktop\BITMAP_slice";
 		private const string BITMAP_PATH_SUFIX = @".Bmp";
-		System.Drawing.Imaging.ImageFormat image_format = System.Drawing.Imaging.ImageFormat.Bmp;
+		ImageFormat IMAGE_FORMAT_EXTENSION = ImageFormat.Bmp;
 
 		private string TMP_DIR = @"Desktop\TMP Directory";
 
-		private const int SCALE_FACTOR = 10;
+		private const int SCALE_FACTOR = 20;
 		private const double NUM_OF_SLICES = 4;
 		private const Axis SLICING_AXIS = Axis.Y;
 
 		private const int EXIT_CODE = 10;
 
-		private const int PEN_FINE_WIDTH = 1;
+		private const int PEN_FINE_WIDTH = 2;
 
-		private static System.Drawing.Color bitmap_color = System.Drawing.Color.Blue;
+		private static Color bitmap_color = Color.Magenta;
+		//private static Color bitmap_color = Color.White;
 
 		/* CAN NOT BE OF THE FORMAT TYPE : (see https://stackoverflow.com/questions/11368412/lowering-bitmap-quality-produces-outofmemoryexception)
 		 * Undefined
@@ -59,8 +60,8 @@ namespace IOTech_BitMap_Slicer
 		// maybe should varify the image is infact Format32bppRgb
 		// all the formats below work perfectly
 		//PixelFormat IMAGE_FORMAT = System.Drawing.Imaging.PixelFormat.Format32bppRgb;
-		//PixelFormat IMAGE_FORMAT = System.Drawing.Imaging.PixelFormat.Format24bppRgb;
-		PixelFormat IMAGE_FORMAT = System.Drawing.Imaging.PixelFormat.Format16bppRgb555; // best format I found
+		PixelFormat PIXEL_FORMAT = PixelFormat.Format24bppRgb; // best format I found
+		//PixelFormat IMAGE_FORMAT = System.Drawing.Imaging.PixelFormat.Format16bppRgb555; // dangerous whern comparing colors
 
 		//private const Int32 stackSize = 2147483647;  // max Int32 = 2147483647 
 		private const Int32 stackSize = 1000000000;  // max Int32 = 2147483647 
@@ -94,10 +95,10 @@ namespace IOTech_BitMap_Slicer
 			Vector3d SLICING_DIRECTION_UNIT;
 
 			Bitmap_Slice.SCALE_FACTOR = SCALE_FACTOR;
-			Bitmap_Slice.bitmap_color = bitmap_color;
+			Bitmap_Slice.Bitmap_Color = bitmap_color;
 			Bitmap_Slice.PEN_WIDTH = (int) PEN_FINE_WIDTH;
 			Bitmap_Slice.Pen = new System.Drawing.Pen(bitmap_color, PEN_FINE_WIDTH);
-			Bitmap_Slice.IMAGE_FORMAT = IMAGE_FORMAT;
+			Bitmap_Slice.PIXEL_FORMAT = PIXEL_FORMAT;
 
 			Util.EXIT_CODE = EXIT_CODE;
 
@@ -275,7 +276,7 @@ namespace IOTech_BitMap_Slicer
 			try
 			{
 				//bitmap_slice.get_bitmap_from_byte().Save(BITMAP_DIR_PREFIX + @"\" + "slice_" + (Slice_Count) + "_loop_" + (loop_count++) + BITMAP_PATH_SUFIX, image_format);
-				bitmap_slice.bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "slice_" + (Slice_Count) + "_loop_" + (loop_count++) + BITMAP_PATH_SUFIX, image_format);
+				bitmap_slice.bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "slice_" + (Slice_Count) + "_loop_" + (loop_count++) + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
 			}
 			catch (Exception e)
 			{
@@ -288,30 +289,34 @@ namespace IOTech_BitMap_Slicer
 		private void flood_fill_bitmap()
 		{
 			bitmap_slice = new Bitmap_Slice(new Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1" + BITMAP_PATH_SUFIX));
+			//Bitmap bitmap_starting_point = new Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1" + BITMAP_PATH_SUFIX);
 
 			int begin_x = bitmap_slice.bitmap.Width / 2;
 			int begin_y = bitmap_slice.bitmap.Height / 2;
 			int mark_length = 3;
 
 #if SHOW_LOCATION_OF_FLOOD_STARTING_POINT
-			using (var graphics = Graphics.FromImage(bitmap_slice.bitmap))
-			{
-				graphics.DrawLine(new System.Drawing.Pen(System.Drawing.Color.Yellow, PEN_FINE_WIDTH), begin_x - mark_length, begin_y - mark_length, begin_x + mark_length, begin_y + mark_length);
-				graphics.DrawLine(new System.Drawing.Pen(System.Drawing.Color.Yellow, PEN_FINE_WIDTH), begin_x + mark_length, begin_y - mark_length, begin_x - mark_length, begin_y + mark_length);
-			}
-			bitmap_slice.bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1_2" + BITMAP_PATH_SUFIX, image_format);
+
+			bitmap_slice.graphics.DrawLine(new System.Drawing.Pen(System.Drawing.Color.Yellow, PEN_FINE_WIDTH), begin_x - mark_length, begin_y - mark_length, begin_x + mark_length, begin_y + mark_length);
+			bitmap_slice.graphics.DrawLine(new System.Drawing.Pen(System.Drawing.Color.Yellow, PEN_FINE_WIDTH), begin_x + mark_length, begin_y - mark_length, begin_x - mark_length, begin_y + mark_length);
+
+			bitmap_slice.bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1_2" + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
 
 			bitmap_slice = new Bitmap_Slice(new Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1" + BITMAP_PATH_SUFIX));
 #endif
 			try
 			{
 				bitmap_slice.set_starting_point(begin_x, begin_y);
+				bitmap_slice.Switch_to_byte_manipulation();
+
 				Thread thread = new Thread(new ThreadStart(bitmap_slice.flood_fill_recursive), stackSize);
 				thread.Start();
 				thread.Join();
 
-				bitmap_slice.bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "flood_fill_Bitmap" + BITMAP_PATH_SUFIX, image_format);
-				//bitmap_slice.save_byte_array_to_bitmap_image(BITMAP_DIR_PREFIX + @"\" + "flood_fill_Bitmap2" + BITMAP_PATH_SUFIX, image_format);
+				//bitmap_slice.Dispose_GC();
+				//bitmap_slice.bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "flood_fill_Bitmap" + BITMAP_PATH_SUFIX, image_format);
+				bitmap_slice.Switch_to_bitmap_manipulation();
+				bitmap_slice.bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "flood_fill_Bitmap2" + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
 			}
 			catch (ArgumentException e)
 			{
