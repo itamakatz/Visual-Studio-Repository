@@ -62,14 +62,5 @@ namespace FloodFill2
 			}
 			return range;
 		}
-
-		/// <summary>Remove all FloodFillRanges from the queue.</summary>
-		/*public void Clear() 
-		{
-			if (size > 0)
-				Array.Clear(array, 0, size);
-			size = 0;
-		}*/
-
 	}
 }

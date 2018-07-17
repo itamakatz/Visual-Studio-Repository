@@ -238,7 +238,6 @@ namespace IOTech_BitMap_Slicer
 			my_3d_view.RotateGesture = new MouseGesture(MouseAction.LeftClick);
 			my_3d_view.Children.Add(device3D);
 #endif
-			Trace.WriteLine(Bitmap_Slice.recursive_count);
 			Util.Print_elapsed(watch.Elapsed);
 		}
 
@@ -269,13 +268,12 @@ namespace IOTech_BitMap_Slicer
 
 				for (int i = 0; i < cutLoop_Curve.VertexCount; i++)
 				{
-					bitmap_slice.DrawLineInt(loop_vertices[i], loop_vertices[(i + 1) % cutLoop_Curve.VertexCount]);
+					bitmap_slice.Draw_Line_On_Bitmap(loop_vertices[i], loop_vertices[(i + 1) % cutLoop_Curve.VertexCount]);
 				}
 			}
 
 			try
 			{
-				//bitmap_slice.get_bitmap_from_byte().Save(BITMAP_DIR_PREFIX + @"\" + "slice_" + (Slice_Count) + "_loop_" + (loop_count++) + BITMAP_PATH_SUFIX, image_format);
 				bitmap_slice.bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "slice_" + (Slice_Count) + "_loop_" + (loop_count++) + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
 			}
 			catch (Exception e)
@@ -289,13 +287,12 @@ namespace IOTech_BitMap_Slicer
 		private void flood_fill_bitmap()
 		{
 			bitmap_slice = new Bitmap_Slice(new Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1" + BITMAP_PATH_SUFIX));
-			//Bitmap bitmap_starting_point = new Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1" + BITMAP_PATH_SUFIX);
 
 			int begin_x = bitmap_slice.bitmap.Width / 2;
 			int begin_y = bitmap_slice.bitmap.Height / 2;
-			int mark_length = 3;
 
 #if SHOW_LOCATION_OF_FLOOD_STARTING_POINT
+			int mark_length = 3;
 
 			bitmap_slice.graphics.DrawLine(new System.Drawing.Pen(System.Drawing.Color.Yellow, PEN_FINE_WIDTH), begin_x - mark_length, begin_y - mark_length, begin_x + mark_length, begin_y + mark_length);
 			bitmap_slice.graphics.DrawLine(new System.Drawing.Pen(System.Drawing.Color.Yellow, PEN_FINE_WIDTH), begin_x + mark_length, begin_y - mark_length, begin_x - mark_length, begin_y + mark_length);
@@ -306,17 +303,15 @@ namespace IOTech_BitMap_Slicer
 #endif
 			try
 			{
-				bitmap_slice.set_starting_point(begin_x, begin_y);
 				bitmap_slice.Switch_to_byte_manipulation();
 
-				Thread thread = new Thread(new ThreadStart(bitmap_slice.flood_fill_recursive), stackSize);
+				Thread thread = new Thread(() => bitmap_slice.Flood_Fill(begin_x, begin_y), stackSize);
 				thread.Start();
 				thread.Join();
 
-				//bitmap_slice.Dispose_GC();
-				//bitmap_slice.bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "flood_fill_Bitmap" + BITMAP_PATH_SUFIX, image_format);
 				bitmap_slice.Switch_to_bitmap_manipulation();
-				bitmap_slice.bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "flood_fill_Bitmap2" + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
+
+				bitmap_slice.bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "flood_fill_Bitmap" + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
 			}
 			catch (ArgumentException e)
 			{
