@@ -1,6 +1,5 @@
 ﻿//#define PAINT_BITMAP_BORDERS
 //#define RUN_VISUAL
-#define SHOW_STARTING_POINT
 #define SHOW_LOCATION_OF_FLOOD_STARTING_POINT
 
 using g3;
@@ -17,6 +16,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Threading;
 using System.Drawing.Imaging;
+using System.Windows.Input;
 
 namespace IOTech_BitMap_Slicer
 {
@@ -37,13 +37,13 @@ namespace IOTech_BitMap_Slicer
 
 		private string TMP_DIR = @"Desktop\TMP Directory";
 
-		private const int SCALE_FACTOR = 20;
+		private const int SCALE_FACTOR = 10;
 		private const double NUM_OF_SLICES = 4;
 		private const Axis SLICING_AXIS = Axis.Y;
 
 		private const int EXIT_CODE = 10;
 
-		private const int PEN_FINE_WIDTH = 2;
+		private const int PEN_FINE_WIDTH = 1;
 
 		private static Color bitmap_color = Color.Magenta;
 		//private static Color bitmap_color = Color.White;
@@ -73,18 +73,17 @@ namespace IOTech_BitMap_Slicer
 		private Vector2d Bitmap_dimensions = new Vector2d();
 		private Vector2d Mesh_min_dimensions = new Vector2d();
 
-		private Bitmap_Slice bitmap_slice;
-
-
-
 		internal Stopwatch watch = new Stopwatch();
-
+		internal Stopwatch watch_all_program = new Stopwatch();
+		
 		private static int Slice_Count = 1;
 
 		private enum Axis { X, Y, Z };
 
 		public MainWindow()
 		{
+			watch_all_program.Reset();
+			watch_all_program.Start();
 			// initialization and declaration of variables
 			InitializeComponent();
 
@@ -238,7 +237,10 @@ namespace IOTech_BitMap_Slicer
 			my_3d_view.RotateGesture = new MouseGesture(MouseAction.LeftClick);
 			my_3d_view.Children.Add(device3D);
 #endif
+			watch_all_program.Stop();
+
 			Util.Print_elapsed(watch.Elapsed);
+			Util.Print_elapsed(watch_all_program.Elapsed);
 		}
 
 		private void Create_Bitmap(MeshPlaneCut cross_section)
@@ -250,7 +252,8 @@ namespace IOTech_BitMap_Slicer
 
 			// how come we do not need Bitmap_dimensions.x * SCALE_FACTOR I simply dont understand. After all we do multiply in
 			//							loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR + PEN_WIDTH);
-			bitmap_slice = new Bitmap_Slice(Bitmap_dimensions.x, Bitmap_dimensions.y);
+			Bitmap_Slice main_bitmap = new Bitmap_Slice(Bitmap_dimensions.x, Bitmap_dimensions.y);
+			Bitmap_Slice temp_bitmap = new Bitmap_Slice(Bitmap_dimensions.x, Bitmap_dimensions.y);
 
 #if PAINT_BITMAP_BORDERS
 			bitmap_slice.Draw_rectangle(bitmap_slice.bitmap.Width, bitmap_slice.bitmap.Height);
@@ -268,13 +271,30 @@ namespace IOTech_BitMap_Slicer
 
 				for (int i = 0; i < cutLoop_Curve.VertexCount; i++)
 				{
-					bitmap_slice.Draw_Line_On_Bitmap(loop_vertices[i], loop_vertices[(i + 1) % cutLoop_Curve.VertexCount]);
+					temp_bitmap.Draw_Line(loop_vertices[i], loop_vertices[(i + 1) % cutLoop_Curve.VertexCount]);
 				}
+
+				Thread thread = new Thread(() => temp_bitmap.Flood_Fill(loop_vertices[0], loop_vertices[1]), stackSize);
+				thread.Start();
+				thread.Join();
+
+				int mark_length = 3;
+
+				temp_bitmap.Draw_X(loop_vertices[0], mark_length, Color.Yellow);
+				temp_bitmap.Draw_X(loop_vertices[1], mark_length, Color.Green);
+				temp_bitmap.Draw_X(new Vector2d(302, 196), mark_length, Color.Blue);
+				temp_bitmap.Draw_X(new Vector2d(305, 199), mark_length, Color.Red);
+
+				temp_bitmap.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + (Slice_Count) + "_loop_" + (loop_count) + "_temp_bitmap" + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
+
+				main_bitmap.Byte_XOR(ref temp_bitmap);
+				temp_bitmap = new Bitmap_Slice(Bitmap_dimensions.x, Bitmap_dimensions.y);
+
+				main_bitmap.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + (Slice_Count) + "_loop_" + (loop_count++) + "_main_bitmap" + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
 			}
 
 			try
 			{
-				bitmap_slice.bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "slice_" + (Slice_Count) + "_loop_" + (loop_count++) + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
 			}
 			catch (Exception e)
 			{
@@ -286,7 +306,7 @@ namespace IOTech_BitMap_Slicer
 
 		private void flood_fill_bitmap()
 		{
-			bitmap_slice = new Bitmap_Slice(new Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1" + BITMAP_PATH_SUFIX));
+			Bitmap_Slice bitmap_slice = new Bitmap_Slice(new Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "2" + "_main_bitmap" + BITMAP_PATH_SUFIX));
 
 			int begin_x = bitmap_slice.bitmap.Width / 2;
 			int begin_y = bitmap_slice.bitmap.Height / 2;
@@ -294,24 +314,20 @@ namespace IOTech_BitMap_Slicer
 #if SHOW_LOCATION_OF_FLOOD_STARTING_POINT
 			int mark_length = 3;
 
-			bitmap_slice.graphics.DrawLine(new System.Drawing.Pen(System.Drawing.Color.Yellow, PEN_FINE_WIDTH), begin_x - mark_length, begin_y - mark_length, begin_x + mark_length, begin_y + mark_length);
-			bitmap_slice.graphics.DrawLine(new System.Drawing.Pen(System.Drawing.Color.Yellow, PEN_FINE_WIDTH), begin_x + mark_length, begin_y - mark_length, begin_x - mark_length, begin_y + mark_length);
+			bitmap_slice.Draw_Line(begin_x - mark_length, begin_y - mark_length, begin_x + mark_length, begin_y + mark_length, Color.Yellow);
+			bitmap_slice.Draw_Line(begin_x + mark_length, begin_y - mark_length, begin_x - mark_length, begin_y + mark_length, Color.Yellow);
 
-			bitmap_slice.bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1_2" + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
+			bitmap_slice.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1_2" + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
 
-			bitmap_slice = new Bitmap_Slice(new Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1" + BITMAP_PATH_SUFIX));
+			bitmap_slice = new Bitmap_Slice(new Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "2" + "_main_bitmap" + BITMAP_PATH_SUFIX));
 #endif
 			try
 			{
-				bitmap_slice.Switch_to_byte_manipulation();
-
-				Thread thread = new Thread(() => bitmap_slice.Flood_Fill(begin_x, begin_y), stackSize);
+				Thread thread = new Thread(() => bitmap_slice.Flood_Fill(new Vector2d(begin_x - 1, begin_y - 1), new Vector2d(begin_x + 1, begin_y + 1)), stackSize);
 				thread.Start();
 				thread.Join();
 
-				bitmap_slice.Switch_to_bitmap_manipulation();
-
-				bitmap_slice.bitmap.Save(BITMAP_DIR_PREFIX + @"\" + "flood_fill_Bitmap" + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
+				bitmap_slice.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "flood_fill_Bitmap" + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
 			}
 			catch (ArgumentException e)
 			{
