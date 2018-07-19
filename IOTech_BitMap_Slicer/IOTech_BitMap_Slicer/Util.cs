@@ -70,5 +70,36 @@ namespace IOTech_BitMap_Slicer
 			time_stamp.Milliseconds / 10);
 			Trace.WriteLine("RunTime: " + elapsedTime);
 		}
+
+		public static void Check_directories()
+		{
+			try
+			{
+				// ****
+				// maybe switch to this relative path
+				//string filePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\sample.svg");
+
+				// adjust all path's relative to specific pc
+				MainWindow.MODEL_IN_PATH = Path.Combine(MainWindow.USER_PATH, MainWindow.MODEL_IN_PATH);
+				MainWindow.MODEL_OUT_PATH = Path.Combine(MainWindow.USER_PATH, MainWindow.MODEL_OUT_PATH);
+				MainWindow.BITMAP_DIR_PREFIX = Path.Combine(MainWindow.USER_PATH, MainWindow.BITMAP_DIR_PREFIX);
+
+				if (!File.Exists(MainWindow.BITMAP_DIR_PREFIX))
+				{
+					Directory.CreateDirectory(MainWindow.BITMAP_DIR_PREFIX);
+				}
+			}
+			catch (Exception e)
+			{
+				Util.exit_messege(new string[] { "Check_directories faild" }, e);
+			}
+		}
+
+		public static IEnumerable<double> Range_Enumerator(double start, double end, int num_of_slices)
+		{
+			double increment = (end - start) / num_of_slices;
+			for (double i = start + increment; i < end; i += increment)
+				yield return i;
+		}
 	}
 }

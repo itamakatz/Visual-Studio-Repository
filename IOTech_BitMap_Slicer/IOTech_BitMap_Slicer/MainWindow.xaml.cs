@@ -1,6 +1,8 @@
 ﻿//#define PAINT_BITMAP_BORDERS
 //#define RUN_VISUAL
 #define SHOW_LOCATION_OF_FLOOD_STARTING_POINT
+//#define DEBUG_FILLING_POINT
+//#define DEBUG_XOR
 
 using g3;
 using System;
@@ -28,16 +30,14 @@ namespace IOTech_BitMap_Slicer
 
 		// ***** Variables that can be changed ***** //
 
-		private string MODEL_IN_PATH = @"Desktop\CorvinCastle.stl";
-		private string MODEL_OUT_PATH = @"Desktop\CorvinCastle_new.stl";
+		internal static string MODEL_IN_PATH = @"Desktop\BitMap_Slicer\CorvinCastle.stl";
+		internal static string MODEL_OUT_PATH = @"Desktop\BitMap_Slicer\CorvinCastle_new.stl";
 
-		private string BITMAP_DIR_PREFIX = @"Desktop\BITMAP_slice";
+		internal static string BITMAP_DIR_PREFIX = @"Desktop\BitMap_Slicer\BITMAP_slice";
 		private const string BITMAP_PATH_SUFIX = @".Bmp";
-		ImageFormat IMAGE_FORMAT_EXTENSION = ImageFormat.Bmp;
+		private static ImageFormat IMAGE_FORMAT_EXTENSION = ImageFormat.Bmp;
 
-		private string TMP_DIR = @"Desktop\TMP Directory";
-
-		private const int SCALE_FACTOR = 10;
+		private const int SCALE_FACTOR = 15;
 		private const double NUM_OF_SLICES = 4;
 		private const Axis SLICING_AXIS = Axis.Y;
 
@@ -56,38 +56,43 @@ namespace IOTech_BitMap_Slicer
 		 * Format1bppIndexed
 		 * Format4bppIndexed
 		 * Format8bppIndexed
+		 * 
+		 * Formats that work well:
+		 * Format32bppRgb - works but contains unnecessary alpha channel
+		 * Format24bppRgb - best option. only has RGB color (though in reversed order namely BGR)
+		 * Format16bppRgb555 - works and uses even less bytes thought for the comparison of the colors the implementation is complicated
 		 */
-		// maybe should varify the image is infact Format32bppRgb
-		// all the formats below work perfectly
-		//PixelFormat IMAGE_FORMAT = System.Drawing.Imaging.PixelFormat.Format32bppRgb;
-		PixelFormat PIXEL_FORMAT = PixelFormat.Format24bppRgb; // best format I found
-		//PixelFormat IMAGE_FORMAT = System.Drawing.Imaging.PixelFormat.Format16bppRgb555; // dangerous whern comparing colors
+		// maybe should varify the image is infact Format32bppRgb?
+		private static PixelFormat PIXEL_FORMAT = PixelFormat.Format24bppRgb; // best format I found
 
-		//private const Int32 stackSize = 2147483647;  // max Int32 = 2147483647 
-		private const Int32 stackSize = 1000000000;  // max Int32 = 2147483647 
+		//private const int stackSize = 2147483647;  // max Int32 = 2147483647 
+		private const int stackSize = 1000000000;  // max Int32 = 2147483647 
 
 		// ***** Initialization of other variables ***** //
 
-		private string USER_PATH = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+		internal static string USER_PATH = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
-		private Vector2d Bitmap_dimensions = new Vector2d();
-		private Vector2d Mesh_min_dimensions = new Vector2d();
+		private static Tuple<double, double> Bitmap_dimensions;
+		private static Tuple<double, double> Mesh_min_dimensions;
 
-		internal Stopwatch watch = new Stopwatch();
-		internal Stopwatch watch_all_program = new Stopwatch();
-		
-		private static int Slice_Count = 1;
+		internal static int slice_count = 1;
+		internal static int loop_count = 1;
 
 		private enum Axis { X, Y, Z };
 
 		public MainWindow()
 		{
+
+			// initialization and declaration of variables
+
+			Stopwatch watch_all_program = new Stopwatch();
+
 			watch_all_program.Reset();
 			watch_all_program.Start();
-			// initialization and declaration of variables
-			InitializeComponent();
 
-			Check_directories();
+			InitializeComponent(); // default initialization of WPF
+
+			Util.Check_directories();
 
 			DMesh3 Imported_STL_mesh = null;
 			Model3D HelixToolkit_Model3D = null;
@@ -96,12 +101,12 @@ namespace IOTech_BitMap_Slicer
 			Bitmap_Slice.SCALE_FACTOR = SCALE_FACTOR;
 			Bitmap_Slice.Bitmap_Color = bitmap_color;
 			Bitmap_Slice.PEN_WIDTH = (int) PEN_FINE_WIDTH;
-			Bitmap_Slice.Pen = new System.Drawing.Pen(bitmap_color, PEN_FINE_WIDTH);
+			Bitmap_Slice.Pen = new Pen(bitmap_color, PEN_FINE_WIDTH);
 			Bitmap_Slice.PIXEL_FORMAT = PIXEL_FORMAT;
 
 			Util.EXIT_CODE = EXIT_CODE;
 
-			Trace.WriteLine("wasssup broooo????");
+			System.IO.File.WriteAllText(@"C:\Users\admin\Desktop\BitMap_Slicer\debug.txt", string.Empty);
 
 			// Open STL file and create DMesh3 objects
 			DMesh3Builder DMesh3_builder = new DMesh3Builder();
@@ -113,48 +118,38 @@ namespace IOTech_BitMap_Slicer
 			}
 			else
 			{
-				Util.exit_messege(new string[] { "DMesh3Builder faild to open stl model" ,
-					"USER_PATH is - " + USER_PATH ,
-					"MODEL_IN_PATH is - " + MODEL_IN_PATH });
+				Util.exit_messege(new string[] { "DMesh3Builder faild to open stl model" , "USER_PATH is - " + USER_PATH , "MODEL_IN_PATH is - " + MODEL_IN_PATH });
 			}
 
 			Vector3d STL_mesh_Diagonal = Imported_STL_mesh.CachedBounds.Diagonal;
 
-			IEnumerable<double> Slice_Enumerator = Range_Enumerator(Imported_STL_mesh.CachedBounds.Min[(int)SLICING_AXIS],
+			IEnumerable<double> Slice_Enumerator = Util.Range_Enumerator(
+									Imported_STL_mesh.CachedBounds.Min[(int)SLICING_AXIS],
 									Imported_STL_mesh.CachedBounds.Max[(int)SLICING_AXIS],
-									STL_mesh_Diagonal[(int)SLICING_AXIS] / NUM_OF_SLICES);
+									NUM_OF_SLICES);
 
 			switch (SLICING_AXIS)
 			{
 				case Axis.X:
 
-					Bitmap_dimensions.x = STL_mesh_Diagonal.y;
-					Mesh_min_dimensions.x = Imported_STL_mesh.CachedBounds.Min.y;
-
-					Bitmap_dimensions.y = STL_mesh_Diagonal.z;
-					Mesh_min_dimensions.y = Imported_STL_mesh.CachedBounds.Min.z;
+					Bitmap_dimensions = Tuple.Create(STL_mesh_Diagonal.y, STL_mesh_Diagonal.z);
+					Mesh_min_dimensions = Tuple.Create(Imported_STL_mesh.CachedBounds.Min.y, Imported_STL_mesh.CachedBounds.Min.z);
 
 					SLICING_DIRECTION_UNIT = Vector3d.AxisX;
 
 					break;
 				case Axis.Y:
 
-					Bitmap_dimensions.x = STL_mesh_Diagonal.x;
-					Mesh_min_dimensions.x = Imported_STL_mesh.CachedBounds.Min.x;
-
-					Bitmap_dimensions.y = STL_mesh_Diagonal.z;
-					Mesh_min_dimensions.y = Imported_STL_mesh.CachedBounds.Min.z;
+					Bitmap_dimensions = Tuple.Create(STL_mesh_Diagonal.x, STL_mesh_Diagonal.z);
+					Mesh_min_dimensions = Tuple.Create(Imported_STL_mesh.CachedBounds.Min.x, Imported_STL_mesh.CachedBounds.Min.z);
 
 					SLICING_DIRECTION_UNIT = Vector3d.AxisY;
 
 					break;
 				case Axis.Z:
 
-					Bitmap_dimensions.x = STL_mesh_Diagonal.x;
-					Mesh_min_dimensions.x = Imported_STL_mesh.CachedBounds.Min.x;
-
-					Bitmap_dimensions.y = STL_mesh_Diagonal.y;
-					Mesh_min_dimensions.y = Imported_STL_mesh.CachedBounds.Min.y;
+					Bitmap_dimensions = Tuple.Create(STL_mesh_Diagonal.x, STL_mesh_Diagonal.y);
+					Mesh_min_dimensions = Tuple.Create(Imported_STL_mesh.CachedBounds.Min.x, Imported_STL_mesh.CachedBounds.Min.y);
 
 					SLICING_DIRECTION_UNIT = Vector3d.AxisZ;
 
@@ -165,22 +160,12 @@ namespace IOTech_BitMap_Slicer
 
 			// Cut mesh model and save as STL file
 			MeshPlaneCut plane_cut_cross_section = null;
-
-			//MeshPlaneCut second_cross_section;
 			foreach (double slice_step in Slice_Enumerator)
 			{
 				plane_cut_cross_section = new MeshPlaneCut(new DMesh3(Imported_STL_mesh), SLICING_DIRECTION_UNIT * slice_step, SLICING_DIRECTION_UNIT);
 				plane_cut_cross_section.Cut();
 				Create_Bitmap(plane_cut_cross_section);
 			}
-
-			watch.Reset();
-			watch.Start();
-
-			flood_fill_bitmap();
-
-			watch.Stop();
-
 
 #if RUN_VISUAL
 
@@ -229,7 +214,6 @@ namespace IOTech_BitMap_Slicer
 
 #endif
 
-
 			// ORIGINAL view port
 			device3D.Content = HelixToolkit_Model3D;
 
@@ -239,34 +223,61 @@ namespace IOTech_BitMap_Slicer
 #endif
 			watch_all_program.Stop();
 
-			Util.Print_elapsed(watch.Elapsed);
 			Util.Print_elapsed(watch_all_program.Elapsed);
 		}
 
-		private void Create_Bitmap(MeshPlaneCut cross_section)
+		private static void Create_Bitmap(MeshPlaneCut cross_section)
 		{
 			List<EdgeLoop> cutLoops = cross_section.CutLoops;
 			List<EdgeSpan> cutSpans = cross_section.CutSpans;
 
-			int loop_count = 1;
+			loop_count = 1;
 
 			// how come we do not need Bitmap_dimensions.x * SCALE_FACTOR I simply dont understand. After all we do multiply in
 			//							loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR + PEN_WIDTH);
-			Bitmap_Slice main_bitmap = new Bitmap_Slice(Bitmap_dimensions.x, Bitmap_dimensions.y);
-			Bitmap_Slice temp_bitmap = new Bitmap_Slice(Bitmap_dimensions.x, Bitmap_dimensions.y);
+			Bitmap_Slice main_bitmap = new Bitmap_Slice(Bitmap_dimensions.Item1, Bitmap_dimensions.Item2);
+			Bitmap_Slice temp_bitmap = new Bitmap_Slice(Bitmap_dimensions.Item1, Bitmap_dimensions.Item2);
 
 #if PAINT_BITMAP_BORDERS
-			bitmap_slice.Draw_rectangle(bitmap_slice.bitmap.Width, bitmap_slice.bitmap.Height);
+
+			temp_bitmap.Draw_rectangle(bitmap_slice.bitmap.Width, bitmap_slice.bitmap.Height);
+
 #endif
+
+
 			foreach (EdgeLoop edgeLoop in cutLoops)
 			{
 
 				DCurve3 cutLoop_Curve = edgeLoop.ToCurve();
 				List<Vector2d> loop_vertices = new List<Vector2d>();
 
+				Tuple<double, double> create_Vector2d = new Tuple<double, double>(0,0);
+
+				double x, y, z;
+
 				foreach (Vector3d vec3d in cutLoop_Curve.Vertices)
 				{
-					loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR + PEN_FINE_WIDTH);
+					switch (SLICING_AXIS)
+					{
+						case Axis.X:
+							y = (vec3d.y - Mesh_min_dimensions.Item1) * SCALE_FACTOR + PEN_FINE_WIDTH;
+							//z = temp_bitmap.bitmap_height - (vec3d.z - Mesh_min_dimensions.Item2) * SCALE_FACTOR + PEN_FINE_WIDTH;
+							z = (vec3d.z - Mesh_min_dimensions.Item2) * SCALE_FACTOR + PEN_FINE_WIDTH;
+							loop_vertices.Add(new Vector2d(y, z));
+							break;
+						case Axis.Y:
+							x = (vec3d.x - Mesh_min_dimensions.Item1) * SCALE_FACTOR + PEN_FINE_WIDTH;
+							z = (vec3d.z - Mesh_min_dimensions.Item2) * SCALE_FACTOR + PEN_FINE_WIDTH;
+							loop_vertices.Add(new Vector2d(x, z));
+							break;
+						case Axis.Z:
+							x = (vec3d.x - Mesh_min_dimensions.Item1) * SCALE_FACTOR + PEN_FINE_WIDTH;
+							y = (vec3d.y - Mesh_min_dimensions.Item2) * SCALE_FACTOR + PEN_FINE_WIDTH;
+							loop_vertices.Add(new Vector2d(x, y));
+							break;
+						default:
+							break;
+					}
 				}
 
 				for (int i = 0; i < cutLoop_Curve.VertexCount; i++)
@@ -274,105 +285,120 @@ namespace IOTech_BitMap_Slicer
 					temp_bitmap.Draw_Line(loop_vertices[i], loop_vertices[(i + 1) % cutLoop_Curve.VertexCount]);
 				}
 
+#if DEBUG_FILLING_POINT
+				Debug_Filling_Point(new Bitmap_Slice(temp_bitmap.Bitmap), loop_vertices[0], loop_vertices[1]);
+#endif
 				Thread thread = new Thread(() => temp_bitmap.Flood_Fill(loop_vertices[0], loop_vertices[1]), stackSize);
 				thread.Start();
 				thread.Join();
 
-				int mark_length = 3;
-
-				temp_bitmap.Draw_X(loop_vertices[0], mark_length, Color.Yellow);
-				temp_bitmap.Draw_X(loop_vertices[1], mark_length, Color.Green);
-				temp_bitmap.Draw_X(new Vector2d(302, 196), mark_length, Color.Blue);
-				temp_bitmap.Draw_X(new Vector2d(305, 199), mark_length, Color.Red);
-
-				temp_bitmap.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + (Slice_Count) + "_loop_" + (loop_count) + "_temp_bitmap" + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
 
 				main_bitmap.Byte_XOR(ref temp_bitmap);
-				temp_bitmap = new Bitmap_Slice(Bitmap_dimensions.x, Bitmap_dimensions.y);
 
-				main_bitmap.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + (Slice_Count) + "_loop_" + (loop_count++) + "_main_bitmap" + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
-			}
-
-			try
-			{
-			}
-			catch (Exception e)
-			{
-				Util.exit_messege(new string[] { "Error saving bitmap" }, e);
-			}
-
-			Slice_Count++;
-		}
-
-		private void flood_fill_bitmap()
-		{
-			Bitmap_Slice bitmap_slice = new Bitmap_Slice(new Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "2" + "_main_bitmap" + BITMAP_PATH_SUFIX));
-
-			int begin_x = bitmap_slice.bitmap.Width / 2;
-			int begin_y = bitmap_slice.bitmap.Height / 2;
-
-#if SHOW_LOCATION_OF_FLOOD_STARTING_POINT
-			int mark_length = 3;
-
-			bitmap_slice.Draw_Line(begin_x - mark_length, begin_y - mark_length, begin_x + mark_length, begin_y + mark_length, Color.Yellow);
-			bitmap_slice.Draw_Line(begin_x + mark_length, begin_y - mark_length, begin_x - mark_length, begin_y + mark_length, Color.Yellow);
-
-			bitmap_slice.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "1_2" + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
-
-			bitmap_slice = new Bitmap_Slice(new Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + "2" + "_loop_" + "2" + "_main_bitmap" + BITMAP_PATH_SUFIX));
+#if DEBUG_XOR
+				temp_bitmap.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + (slice_count) + "_loop_" + (loop_count) + "_b_temp_bitmap" + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
+				main_bitmap.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + (slice_count) + "_loop_" + (loop_count++) + "_c_main_bitmap" + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
 #endif
-			try
-			{
-				Thread thread = new Thread(() => bitmap_slice.Flood_Fill(new Vector2d(begin_x - 1, begin_y - 1), new Vector2d(begin_x + 1, begin_y + 1)), stackSize);
-				thread.Start();
-				thread.Join();
+				temp_bitmap = new Bitmap_Slice(Bitmap_dimensions.Item1, Bitmap_dimensions.Item2);
+			}
 
-				bitmap_slice.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "flood_fill_Bitmap" + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
-			}
-			catch (ArgumentException e)
-			{
-				Util.exit_messege(new string[] { "Starting point of flood fill out of bounds.", "begin_x: " + begin_x, "begin_y: " + begin_y }, e);
-			}
-			catch (Exception e)
-			{
-				Util.exit_messege(new string[] { "Faild to flood fill bitmap" }, e);
-			}
+			main_bitmap.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + (slice_count) + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
+			slice_count++;
 		}
 
-		private IEnumerable<double> Range_Enumerator(double start, double end, double increment)
+#if DEBUG_FILLING_POINT
+		private static void Debug_Filling_Point(Bitmap_Slice debug_bitmap, Vector2d _loop_vertex_1, Vector2d _loop_vertex_2)
 		{
-			for (double i = start + increment; i < end; i += increment)
-				yield return i;
-		}
+			debug_bitmap.update_bool_array();
 
-		void Check_directories()
-		{
-			try
+			using (StreamWriter file = new StreamWriter(@"C:\Users\admin\Desktop\BitMap_Slicer\debug.txt", true))
 			{
-				// ****
-				// maybe switch to this relative path
-				//string filePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\sample.svg");
+				int mark_length = 1;
 
-				// adjust all path's relative to specific pc
-				MODEL_IN_PATH = System.IO.Path.Combine(USER_PATH, MODEL_IN_PATH);
-				MODEL_OUT_PATH = System.IO.Path.Combine(USER_PATH, MODEL_OUT_PATH);
-				BITMAP_DIR_PREFIX = System.IO.Path.Combine(USER_PATH, BITMAP_DIR_PREFIX);
-				TMP_DIR = System.IO.Path.Combine(USER_PATH, TMP_DIR);
+				int near_point_x1;
+				int near_point_x2;
+				int near_point_y1;
+				int near_point_y2;
 
-				if (!File.Exists(BITMAP_DIR_PREFIX))
+				int on_loop_x1 = (int)Math.Floor(_loop_vertex_1.x);
+				int on_loop_y1 = (int)Math.Floor(_loop_vertex_1.y);
+
+				int on_loop_x2 = (int)Math.Floor(_loop_vertex_2.x);
+				int on_loop_y2 = (int)Math.Floor(_loop_vertex_2.y);
+
+				get_dear_indices(_loop_vertex_1, _loop_vertex_2);
+
+				int bool_on_i_1 = debug_bitmap.Bool_Index(on_loop_x1, on_loop_y1);
+				int bool_on_i_2 = debug_bitmap.Bool_Index(on_loop_x2, on_loop_y2);
+
+				int bool_near_i_1 = debug_bitmap.Bool_Index(near_point_x1, near_point_y1);
+				int bool_near_i_2 = debug_bitmap.Bool_Index(near_point_x2, near_point_y2);
+
+
+				int byte_on_i_1 = debug_bitmap.Byte_Index(on_loop_x1, on_loop_y1);
+				int byte_on_i_2 = debug_bitmap.Byte_Index(on_loop_x2, on_loop_y2);
+
+				int byte_near_i_1 = debug_bitmap.Byte_Index(near_point_x1, near_point_y1);
+				int byte_near_i_2 = debug_bitmap.Byte_Index(near_point_x2, near_point_y2);
+
+				debug_bitmap.Draw_X(_loop_vertex_1, mark_length, Color.Yellow);
+				debug_bitmap.Draw_X(_loop_vertex_2, mark_length, Color.Green);
+				debug_bitmap.Draw_X(new Vector2d(near_point_x1, near_point_y1), mark_length, Color.Blue);
+				debug_bitmap.Draw_X(new Vector2d(near_point_x2, near_point_y2), mark_length, Color.Red);
+
+				debug_bitmap.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + (slice_count) + "_loop_" + (loop_count) + "_a_debug_bitmap_colored" + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
+
+				file.WriteLine("On Loop Points:");
+				file.WriteLine("(" + on_loop_x1 + ", " + on_loop_y1 + ") - Colored in Yellow");
+				file.WriteLine("(" + on_loop_x2 + ", " + on_loop_y2 + ") - Colored in Green");
+
+				file.WriteLine();
+
+				file.WriteLine("Lookinh For Point Inside Loop (near_points):");
+				file.WriteLine("(" + near_point_x1 + ", " + near_point_y1 + ") - Colored in Blue");
+				file.WriteLine("(" + near_point_x2 + ", " + near_point_y2 + ") - Colored in Red");
+
+				file.WriteLine();
+
+				file.WriteLine("bool_array indices and values for all points:");
+				file.WriteLine("Index: " + bool_on_i_1 + ", Value: " + debug_bitmap.bool_array[bool_on_i_1]);
+				file.WriteLine("Index: " + bool_on_i_2 + ", Value: " + debug_bitmap.bool_array[bool_on_i_2]);
+				file.WriteLine("Index: " + bool_near_i_1 + ", Value: " + debug_bitmap.bool_array[bool_near_i_1]);
+				file.WriteLine("Index: " + bool_near_i_2 + ", Value: " + debug_bitmap.bool_array[bool_near_i_2]);
+
+				file.WriteLine();
+
+				file.WriteLine("bitmap_byte_array indices and values for all points:");
+				file.WriteLine("Index: " + byte_on_i_1 + ", Value: " + debug_bitmap.bitmap_byte_array[byte_on_i_1]);
+				file.WriteLine("Index: " + byte_on_i_2 + ", Value: " + debug_bitmap.bitmap_byte_array[byte_on_i_2]);
+				file.WriteLine("Index: " + byte_near_i_1 + ", Value: " + debug_bitmap.bitmap_byte_array[byte_near_i_1]);
+				file.WriteLine("Index: " + byte_near_i_2 + ", Value: " + debug_bitmap.bitmap_byte_array[byte_near_i_2]);
+
+				file.WriteLine();
+				file.WriteLine("************ End of loop " + loop_count + " ************");
+				file.WriteLine();
+
+				void get_dear_indices(Vector2d origin_vec, Vector2d dest_vec)
 				{
-					Directory.CreateDirectory(BITMAP_DIR_PREFIX);
-				}
+					double mid_x = Math.Abs(origin_vec.x + dest_vec.x) / 2;
+					double mid_y = Math.Abs(origin_vec.y + dest_vec.y) / 2;
 
-				if (!File.Exists(TMP_DIR))
-				{
-					Directory.CreateDirectory(TMP_DIR);
+					near_point_x1 = (int)Math.Floor(mid_x) - 1;
+					near_point_x2 = (int)Math.Ceiling(mid_x) + 1;
+
+					if (origin_vec.y > dest_vec.y && origin_vec.x > dest_vec.x)
+					{
+						near_point_y1 = (int)Math.Ceiling(mid_y) + 1;
+						near_point_y2 = (int)Math.Floor(mid_y) - 1;
+					}
+					else
+					{
+						near_point_y1 = (int)Math.Floor(mid_y) - 1;
+						near_point_y2 = (int)Math.Ceiling(mid_y) + 1;
+					}
 				}
 			}
-			catch (Exception e)
-			{
-				Util.exit_messege(new string[] { "Check_directories faild" }, e);
-			}
 		}
+#endif
 	}
 }

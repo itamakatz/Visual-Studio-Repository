@@ -15,9 +15,10 @@ namespace IOTech_BitMap_Slicer
 {
 	class Bitmap_Slice
 	{
-		public Bitmap bitmap { get; }
+		private Bitmap bitmap;
 		public byte[] bitmap_byte_array;
-		private bool[] bool_array;
+		public bool[] bool_array;
+		[NonSerialized]
 		private Graphics graphics;
 		private BitmapData bitmap_data;
 
@@ -27,7 +28,7 @@ namespace IOTech_BitMap_Slicer
 		private int im_num_of_bytes;
 
 		private readonly int bitmap_width;
-		private readonly int bitmap_height;
+		public readonly int bitmap_height;
 
 		public bool Scaled { get; set; }
 		private bool On_byte_Manupulation { get; set; }
@@ -88,20 +89,20 @@ namespace IOTech_BitMap_Slicer
 
 		}
 
-		private void update_bool_array()
+		public void update_bool_array()
 		{
-			for (int bool_arr_i = 0, x = 0, y = 0; bool_arr_i < bool_array.Length; bool_arr_i++)
+			for (int x = 0; x < bitmap_width; x++)
 			{
-				x = bool_arr_i % bitmap_width;
-				y = bool_arr_i / bitmap_width;
-
-				for (int i = 0; i < single_pixel_num_of_byte; i++)
+				for (int y = 0; y < bitmap_height; y++)
 				{
-					if (bitmap_byte_array [x * single_pixel_num_of_byte + y * stride] != 0)
-					{
-						bool_array[bool_arr_i] = true;
-						break;
-					}
+					if (bitmap_byte_array[Byte_Index(x, y)] != 0)
+						bool_array[Bool_Index(x, y)] = true;
+
+					if (bitmap_byte_array[Byte_Index(x, y) + 1] != 0)
+						bool_array[Bool_Index(x, y)] = true;
+
+					if (bitmap_byte_array[Byte_Index(x, y) + 2] != 0)
+						bool_array[Bool_Index(x, y)] = true;
 				}
 			}
 		}
@@ -145,25 +146,25 @@ namespace IOTech_BitMap_Slicer
 			bitmap.Save(path, IMAGE_FORMAT_EXTENSION);
 		}
 
-		public void Flood_fill_recursive(int current_x, int current_y)
+		public void Flood_fill_recursive(int x, int y)
 		{
-			bool_array[current_x + current_y * bitmap_width] = true;
+			bool_array[Bool_Index(x, y)] = true;
 
-			if (RGB_Equal(current_x * single_pixel_num_of_byte + current_y * stride)) return;
+			if (RGB_Equal(x, y)) return;
 
-			Set_RGB(current_x * single_pixel_num_of_byte + current_y * stride);
+			Set_RGB(x, y);
 
-			if (current_x > 0 && !bool_array[(current_x - 1) + current_y * bitmap_width])
-				Flood_fill_recursive(current_x - 1, current_y);
+			if (x > 0 && !bool_array[Bool_Index(x - 1, y)])
+				Flood_fill_recursive(x - 1, y);
 
-			if (current_y > 0 && !bool_array[current_x + (current_y - 1) * bitmap_width])
-				Flood_fill_recursive(current_x, current_y - 1);
+			if (y > 0 && !bool_array[Bool_Index(x, y - 1)])
+				Flood_fill_recursive(x, y - 1);
 
-			if (current_x < (bitmap_width - 1) && !bool_array[(current_x + 1) + current_y * bitmap_width])
-				Flood_fill_recursive(current_x + 1, current_y);
+			if (x < (bitmap_width - 1) && !bool_array[Bool_Index(x + 1, y)])
+				Flood_fill_recursive(x + 1, y);
 
-			if (current_y < (bitmap_height - 1) && !bool_array[current_x + (current_y + 1) * bitmap_width])
-				Flood_fill_recursive(current_x, current_y + 1);
+			if (y < (bitmap_height - 1) && !bool_array[Bool_Index(x, y + 1)])
+				Flood_fill_recursive(x, y + 1);
 		}
 
 		public void Flood_Fill(Vector2d origin_vec, Vector2d dest_vec)
@@ -194,13 +195,17 @@ namespace IOTech_BitMap_Slicer
 			try
 			{
 				int i = start_x1;
-				while (!bool_array[i + start_y1 * bitmap_width] && !RGB_Equal(i * single_pixel_num_of_byte + start_y1 * stride)) { i--; }
+				//while (!bool_array[Bool_Index(i, start_y1)] && !RGB_Equal(i, start_y1)) { i--; }
+				while (!RGB_Equal(i, start_y1)) { i--; }
 				i = start_x1;
-				while (!bool_array[i + start_y1 * bitmap_width] && !RGB_Equal(i * single_pixel_num_of_byte + start_y1 * stride)) { i++; }
+				//while (!bool_array[Bool_Index(i, start_y1)] && !RGB_Equal(i, start_y1)) { i++; }
+				while (!RGB_Equal(i, start_y1)) { i++; }
 				i = start_y1;
-				while (!bool_array[start_x1 + i * bitmap_width] && !RGB_Equal(start_x1 * single_pixel_num_of_byte + i * stride)) { i--; }
+				//while (!bool_array[Bool_Index(start_x1, i)] && !RGB_Equal(start_x1, i)) { i--; }
+				while (!RGB_Equal(start_x1, i)) { i--; }
 				i = start_y1;
-				while (!bool_array[start_x1 + i * bitmap_width] && !RGB_Equal(start_x1 * single_pixel_num_of_byte + i * stride)) { i++; }
+				//while (!bool_array[Bool_Index(start_x1, i)] && !RGB_Equal(start_x1, i)) { i++; }
+				while (!RGB_Equal(start_x1, i)) { i++; }
 
 			}
 			catch (Exception)
@@ -208,13 +213,17 @@ namespace IOTech_BitMap_Slicer
 				try
 				{
 					int i = start_x2;
-					while (!bool_array[i + start_y2 * bitmap_width] && !RGB_Equal(i * single_pixel_num_of_byte + start_y2 * stride)) { i--; }
+					//while (!bool_array[Bool_Index(i, start_y2)] && !RGB_Equal(i, start_y2)) { i--; }
+					while (!RGB_Equal(i, start_y2)) { i--; }
 					i = start_x2;
-					while (!bool_array[i + start_y2 * bitmap_width] && !RGB_Equal(i * single_pixel_num_of_byte + start_y2 * stride)) { i++; }
+					//while (!bool_array[Bool_Index(i, start_y2)] && !RGB_Equal(i, start_y2)) { i++; }
+					while (!RGB_Equal(i, start_y2)) { i++; }
 					i = start_y2;
-					while (!bool_array[start_x2 + i * bitmap_width] && !RGB_Equal(start_x2 * single_pixel_num_of_byte + i * stride)) { i--; }
+					//while (!bool_array[Bool_Index(start_x2, i)] && !RGB_Equal(start_x2, i)) { i--; }
+					while (!RGB_Equal(start_x2, i)) { i--; }
 					i = start_y2;
-					while (!bool_array[start_x2 + i * bitmap_width] && !RGB_Equal(start_x2 * single_pixel_num_of_byte + i * stride)) { i++; }
+					//while (!bool_array[Bool_Index(start_x2, i)] && !RGB_Equal(start_x2, i)) { i++; }
+					while (!RGB_Equal(start_x2, i)) { i++; }
 
 				}
 				catch (Exception)
@@ -229,8 +238,10 @@ namespace IOTech_BitMap_Slicer
 			Flood_fill_recursive(start_x1, start_y1);
 		}
 
-		private bool RGB_Equal(int byte_array_index)
+		private bool RGB_Equal(int x, int y)
 		{
+			int byte_array_index = x * single_pixel_num_of_byte + (bitmap_height - y - 1) * stride;
+
 			if (PIXEL_FORMAT == PixelFormat.Format24bppRgb)
 			{
 				return (byte_color[0] == bitmap_byte_array[byte_array_index] &&
@@ -244,8 +255,10 @@ namespace IOTech_BitMap_Slicer
 			}
 		}
 
-		private void Set_RGB(int byte_array_index, bool set_black = false)
+		private void Set_RGB(int x, int y, bool set_black = false)
 		{
+			int byte_array_index = x * single_pixel_num_of_byte + (bitmap_height - y - 1) * stride;
+
 			if (!set_black)
 			{
 				bitmap_byte_array[byte_array_index] = byte_color[0];
@@ -283,6 +296,7 @@ namespace IOTech_BitMap_Slicer
 		{
 			int w = x1 - x0;
 			int h = y1 - y0;
+
 			int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
 			if (w < 0) dx1 = -1; else if (w > 0) dx1 = 1;
 			if (h < 0) dy1 = -1; else if (h > 0) dy1 = 1;
@@ -299,8 +313,8 @@ namespace IOTech_BitMap_Slicer
 			int numerator = longest >> 1;
 			for (int i = 0; i <= longest; i++)
 			{
-				Set_RGB(x0 * single_pixel_num_of_byte + (bitmap_height - y0) * stride);
-				bool_array[x0 + (bitmap_height - y0) * bitmap_width] = true;
+				Set_RGB(x0, y0);
+				bool_array[Bool_Index(x0, y0)] = true;
 				Draw_Line_pixel_count++;
 				numerator += shortest;
 				if (!(numerator < longest))
@@ -389,25 +403,37 @@ namespace IOTech_BitMap_Slicer
 				Util.exit_messege(new string[] { "XOR failed. Dimensions are not equal" });
 			}
 
-			int current_x;
-			int current_y;
-
-			for (int bool_arr_i = 0; bool_arr_i < this.bool_array.Length; bool_arr_i++)
+			for (int x = 0; x < bitmap_width; x++)
 			{
-				current_x = bool_arr_i % this.bitmap_width;
-				current_y = bool_arr_i / this.bitmap_width;
-				if (this.bool_array[bool_arr_i] != XOR.bool_array[bool_arr_i])
+				for (int y = 0; y < bitmap_height; y++)
 				{
-					this.bool_array[bool_arr_i] = true;
-					this.Set_RGB(current_x * this.single_pixel_num_of_byte + current_y * this.stride);
-				}
-				else if (!this.bool_array[bool_arr_i])
-				{
-					this.bool_array[bool_arr_i] = false;
-					this.Set_RGB(current_x * this.single_pixel_num_of_byte + current_y * this.stride, true);
+					if (this.bool_array[Bool_Index(x, y)] != XOR.bool_array[Bool_Index(x, y)])
+					{
+						this.bool_array[Bool_Index(x, y)] = true;
+						this.Set_RGB(x, y);
+					}
+					else if (this.bool_array[Bool_Index(x, y)])
+					{
+						this.bool_array[Bool_Index(x, y)] = false;
+						this.Set_RGB(x, y, true); // true - set the color to black
+					}
 				}
 			}
 		}
+
+		public Bitmap Bitmap
+		{
+			get {
+				Switch_to_bitmap_manipulation();
+				Bitmap return_bitmap = new Bitmap(bitmap);
+				Switch_to_byte_manipulation();
+				return return_bitmap;
+				}
+		}
+
+		// implemented for debugging. not used in actual algorithms due to heavy decrease in speed
+		public int Bool_Index(int x, int y) { return x + (bitmap_height - y - 1) * bitmap_width; }
+		public int Byte_Index(int x, int y) { return x * single_pixel_num_of_byte + (bitmap_height - y - 1) * stride; }
 
 		public static void Run(double[] a, double[] b, int N)
 		{
