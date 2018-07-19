@@ -40,19 +40,6 @@ namespace IOTech_BitMap_Slicer
 		public static Pen Pen;
 		private static byte[] byte_color;
 		private static Color bitmap_color;
-		public static Color Bitmap_Color
-		{
-			get
-			{
-				return bitmap_color;
-			}
-			set
-			{
-				bitmap_color = value;
-				// why the hell is it ordered BGR and not RGB god knows even though in the docs it says RGB
-				byte_color = new byte[] { bitmap_color.B, bitmap_color.G, bitmap_color.R };
-			}
-		}
 
 		public Bitmap_Slice(double width, double height)
 		{
@@ -89,19 +76,35 @@ namespace IOTech_BitMap_Slicer
 
 		}
 
+		public Bitmap Bitmap
+		{
+			get
+			{
+				Switch_to_bitmap_manipulation();
+				Bitmap return_bitmap = new Bitmap(bitmap);
+				Switch_to_byte_manipulation();
+				return return_bitmap;
+			}
+		}
+
+		public static Color Bitmap_Color
+		{
+			get { return bitmap_color; }
+			set
+			{
+				bitmap_color = value;
+				byte_color = new byte[] { bitmap_color.B, bitmap_color.G, bitmap_color.R }; // BGR not RGB
+			}
+		}
+
 		public void update_bool_array()
 		{
 			for (int x = 0; x < bitmap_width; x++)
 			{
 				for (int y = 0; y < bitmap_height; y++)
 				{
-					if (bitmap_byte_array[Byte_Index(x, y)] != 0)
-						bool_array[Bool_Index(x, y)] = true;
-
-					if (bitmap_byte_array[Byte_Index(x, y) + 1] != 0)
-						bool_array[Bool_Index(x, y)] = true;
-
-					if (bitmap_byte_array[Byte_Index(x, y) + 2] != 0)
+					int index = Byte_Index(x, y);
+					if (bitmap_byte_array[index] != 0 || bitmap_byte_array[index + 1] != 0 || bitmap_byte_array[index + 2] != 0)
 						bool_array[Bool_Index(x, y)] = true;
 				}
 			}
@@ -171,6 +174,9 @@ namespace IOTech_BitMap_Slicer
 		{
 			Switch_to_byte_manipulation();
 
+			//use ConcurrentQueue for parallelizm
+			Queue<Tuple<int,int>> starting_points = new Queue<Tuple<int, int>>();
+
 			double mid_x = Math.Abs(origin_vec.x + dest_vec.x) / 2;
 			double mid_y = Math.Abs(origin_vec.y + dest_vec.y) / 2;
 
@@ -179,7 +185,6 @@ namespace IOTech_BitMap_Slicer
 
 			int start_y1;
 			int start_y2;
-
 
 			if (origin_vec.y > dest_vec.y && origin_vec.x > dest_vec.x)
 			{
@@ -192,50 +197,58 @@ namespace IOTech_BitMap_Slicer
 				start_y2 = (int) Math.Ceiling(mid_y) + 1;
 			}
 
-			try
+			for (int i = -1; i <= 1; i++)
 			{
-				int i = start_x1;
-				//while (!bool_array[Bool_Index(i, start_y1)] && !RGB_Equal(i, start_y1)) { i--; }
-				while (!RGB_Equal(i, start_y1)) { i--; }
-				i = start_x1;
-				//while (!bool_array[Bool_Index(i, start_y1)] && !RGB_Equal(i, start_y1)) { i++; }
-				while (!RGB_Equal(i, start_y1)) { i++; }
-				i = start_y1;
-				//while (!bool_array[Bool_Index(start_x1, i)] && !RGB_Equal(start_x1, i)) { i--; }
-				while (!RGB_Equal(start_x1, i)) { i--; }
-				i = start_y1;
-				//while (!bool_array[Bool_Index(start_x1, i)] && !RGB_Equal(start_x1, i)) { i++; }
-				while (!RGB_Equal(start_x1, i)) { i++; }
-
+				for (int j = -1; j <= 1; j++)
+				{
+					starting_points.Enqueue(new Tuple<int, int>(start_x1 + i, start_y1 + j));
+					starting_points.Enqueue(new Tuple<int, int>(start_x2 + i, start_y2 + j));
+				}
 			}
-			catch (Exception)
+
+			Tuple<int, int> starting_point = fin_starting_point(starting_points.Dequeue());
+			Flood_fill_recursive(start_x2, start_y2);
+
+			Tuple<int, int> fin_starting_point(Tuple<int, int> check_pair)
 			{
+				int check_x = check_pair.Item1;
+				int check_y = check_pair.Item2;
+
 				try
 				{
-					int i = start_x2;
-					//while (!bool_array[Bool_Index(i, start_y2)] && !RGB_Equal(i, start_y2)) { i--; }
-					while (!RGB_Equal(i, start_y2)) { i--; }
-					i = start_x2;
-					//while (!bool_array[Bool_Index(i, start_y2)] && !RGB_Equal(i, start_y2)) { i++; }
-					while (!RGB_Equal(i, start_y2)) { i++; }
-					i = start_y2;
-					//while (!bool_array[Bool_Index(start_x2, i)] && !RGB_Equal(start_x2, i)) { i--; }
-					while (!RGB_Equal(start_x2, i)) { i--; }
-					i = start_y2;
-					//while (!bool_array[Bool_Index(start_x2, i)] && !RGB_Equal(start_x2, i)) { i++; }
-					while (!RGB_Equal(start_x2, i)) { i++; }
+					int i = start_x1;
+					while (!bool_array[Bool_Index(i, start_y1)] && !RGB_Equal(i, start_y1)) { i--; }
+					i = start_x1;
+					while (!bool_array[Bool_Index(i, start_y1)] && !RGB_Equal(i, start_y1)) { i++; }
+					i = start_y1;
+					while (!bool_array[Bool_Index(start_x1, i)] && !RGB_Equal(start_x1, i)) { i--; }
+					i = start_y1;
+					while (!bool_array[Bool_Index(start_x1, i)] && !RGB_Equal(start_x1, i)) { i++; }
+
+					//int i = check_x;
+					//while (!RGB_Equal(i, check_y)) { i--; }
+					//i = check_x;
+					//while (!RGB_Equal(i, check_y)) { i++; }
+					//i = check_y;
+					//while (!RGB_Equal(check_x, i)) { i--; }
+					//i = check_y;
+					//while (!RGB_Equal(check_x, i)) { i++; }
 
 				}
 				catch (Exception)
 				{
-					throw new System.ArgumentException("Starting coordiantes for flood fill are not bound");
+					if (starting_points.Count > 0)
+					{
+						fin_starting_point(starting_points.Dequeue());
+					}
+					else
+					{
+						throw new System.ArgumentException("Starting coordiantes for flood fill are not bound");
+					}
 				}
 
-				Flood_fill_recursive(start_x2, start_y2);
-				return;
+				return check_pair;
 			}
-
-			Flood_fill_recursive(start_x1, start_y1);
 		}
 
 		private bool RGB_Equal(int x, int y)
@@ -421,24 +434,8 @@ namespace IOTech_BitMap_Slicer
 			}
 		}
 
-		public Bitmap Bitmap
-		{
-			get {
-				Switch_to_bitmap_manipulation();
-				Bitmap return_bitmap = new Bitmap(bitmap);
-				Switch_to_byte_manipulation();
-				return return_bitmap;
-				}
-		}
-
 		// implemented for debugging. not used in actual algorithms due to heavy decrease in speed
 		public int Bool_Index(int x, int y) { return x + (bitmap_height - y - 1) * bitmap_width; }
 		public int Byte_Index(int x, int y) { return x * single_pixel_num_of_byte + (bitmap_height - y - 1) * stride; }
-
-		public static void Run(double[] a, double[] b, int N)
-		{
-			Parallel.For(0, N, i => { a[i] += b[i]; });
-		}
-
 	}
 }

@@ -38,8 +38,8 @@ namespace IOTech_BitMap_Slicer
 		private static ImageFormat IMAGE_FORMAT_EXTENSION = ImageFormat.Bmp;
 
 		private const int SCALE_FACTOR = 15;
-		private const double NUM_OF_SLICES = 4;
-		private const Axis SLICING_AXIS = Axis.Y;
+		private const int NUM_OF_SLICES = 3;
+		private const Axis SLICING_AXIS = Axis.X;
 
 		private const int EXIT_CODE = 10;
 
@@ -243,7 +243,6 @@ namespace IOTech_BitMap_Slicer
 			temp_bitmap.Draw_rectangle(bitmap_slice.bitmap.Width, bitmap_slice.bitmap.Height);
 
 #endif
-
 
 			foreach (EdgeLoop edgeLoop in cutLoops)
 			{

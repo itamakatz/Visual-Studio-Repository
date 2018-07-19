@@ -97,9 +97,18 @@ namespace IOTech_BitMap_Slicer
 
 		public static IEnumerable<double> Range_Enumerator(double start, double end, int num_of_slices)
 		{
-			double increment = (end - start) / num_of_slices;
-			for (double i = start + increment; i < end; i += increment)
-				yield return i;
+			//double increment = (end - start) / num_of_slices;
+			//for (double i = start + increment; i < end; i += increment)
+			//	yield return i;
+
+			double increment = (end - start) / (num_of_slices + 2);
+			for (double current = start + increment, i = 0; i < num_of_slices; current += increment, i++)
+				yield return current;
+		}
+
+		public static void Run(double[] a, double[] b, int N)
+		{
+			Parallel.For(0, N, i => { a[i] += b[i]; });
 		}
 	}
 }
