@@ -158,10 +158,11 @@ namespace IOTech_BitMap_Slicer
 
 		public void Save_Bitmap(string path, ImageFormat IMAGE_FORMAT_EXTENSION)
 		{
-			byte_color = new byte[] { Color.Yellow.B, Color.Yellow.G, Color.Yellow.R };
-			Set_RGB(120, 178);
-			bool_array[Bool_Index(121, 178)] = false;
-			byte_color = new byte[] { bitmap_color.B, bitmap_color.G, bitmap_color.R };
+			// color point
+			//byte_color = new byte[] { Color.Yellow.B, Color.Yellow.G, Color.Yellow.R };
+			//Set_RGB(120, 178);
+			//bool_array[Bool_Index(121, 178)] = false;
+			//byte_color = new byte[] { bitmap_color.B, bitmap_color.G, bitmap_color.R };
 			Switch_to_bitmap_manipulation();
 			bitmap.Save(path, IMAGE_FORMAT_EXTENSION);
 		}
@@ -176,27 +177,6 @@ namespace IOTech_BitMap_Slicer
 			if (y > 0) { Flood_fill_recursive(x, y - 1); }
 			if (x < (bitmap_width - 1)) { Flood_fill_recursive(x + 1, y); }
 			if (y < (bitmap_height - 1)) { Flood_fill_recursive(x, y + 1); }
-		}
-
-		private void Flood_fill_byte_recursive(int x, int y)
-		{
-			bool_array[Bool_Index(x, y)] = true;
-
-			if (RGB_Equal(x, y)) return;
-
-			Set_RGB(x, y);
-
-			if (x > 0 && !bool_array[Bool_Index(x - 1, y)])
-				Flood_fill_recursive(x - 1, y);
-
-			if (y > 0 && !bool_array[Bool_Index(x, y - 1)])
-				Flood_fill_recursive(x, y - 1);
-
-			if (x < (bitmap_width - 1) && !bool_array[Bool_Index(x + 1, y)])
-				Flood_fill_recursive(x + 1, y);
-
-			if (y < (bitmap_height - 1) && !bool_array[Bool_Index(x, y + 1)])
-				Flood_fill_recursive(x, y + 1);
 		}
 
 		public void Flood_Fill(Vector2d origin_vec, Vector2d dest_vec)
@@ -235,45 +215,25 @@ namespace IOTech_BitMap_Slicer
 				}
 			}
 
-			Tuple<int, int> starting_point = fin_starting_point(starting_points.Dequeue());
+			Tuple<int, int> starting_point = find_starting_point(starting_points.Dequeue());
 			Flood_fill_recursive(starting_point.Item1, starting_point.Item2);
 
-			Tuple<int, int> fin_starting_point(Tuple<int, int> check_pair)
+			Tuple<int, int> find_starting_point(Tuple<int, int> check_pair)
 			{
 				int check_x = check_pair.Item1;
 				int check_y = check_pair.Item2;
 
-				try
-				{
-					for (int j = check_x; 0 <= j; j--)				{ if (bool_array[Bool_Index(j, check_y)]) { break; } }
-					for (int j = check_y; 0 <= j; j--)				{ if (bool_array[Bool_Index(check_x, j)]) { break; } }
-					for (int j = check_x; j < bitmap_width; j++)	{ if (bool_array[Bool_Index(j, check_y)]) { break; } }
-					for (int j = check_y; j < bitmap_height; j++)	{ if (bool_array[Bool_Index(check_x, j)]) { break; } }
-				}
-				catch (Exception)
-				{
-					if (starting_points.Count > 0) { fin_starting_point(starting_points.Dequeue()); }
-					else { throw new System.ArgumentException("Starting coordiantes for flood fill are not bound"); }
-				}
+				bool x_right = false, x_left_ = false, y_up___ = false, y_down_ = false;
 
-				return check_pair;
-			}
-		}
+				for (int j = check_x; 0 <= j; j--)				{ if (bool_array[Bool_Index(j, check_y)]) { x_left_ = true; break; } }
+				for (int j = check_y; 0 <= j; j--)				{ if (bool_array[Bool_Index(check_x, j)]) { y_down_ = true; break; } }
+				for (int j = check_x; j < bitmap_width; j++)	{ if (bool_array[Bool_Index(j, check_y)]) { x_right = true; break; } }
+				for (int j = check_y; j < bitmap_height; j++)	{ if (bool_array[Bool_Index(check_x, j)]) { y_up___ = true; break; } }
 
-		private bool RGB_Equal(int x, int y)
-		{
-			int byte_array_index = x * single_pixel_num_of_byte + (bitmap_height - y - 1) * stride;
+				if (x_right && x_left_ && y_up___ && y_down_) { return check_pair; }
+				else if (starting_points.Count > 0) { return find_starting_point(starting_points.Dequeue()); }
 
-			if (PIXEL_FORMAT == PixelFormat.Format24bppRgb)
-			{
-				return (byte_color[0] == bitmap_byte_array[byte_array_index] &&
-						byte_color[1] == bitmap_byte_array[byte_array_index + 1] &&
-						byte_color[2] == bitmap_byte_array[byte_array_index + 2]) ? true : false;
-			}
-			else
-			{
-				Util.exit_messege(new string[] { "cant compare non 24 RGB Format" });
-				return false;
+				throw new System.ArgumentException("Starting coordiantes for flood fill are not bound");
 			}
 		}
 
