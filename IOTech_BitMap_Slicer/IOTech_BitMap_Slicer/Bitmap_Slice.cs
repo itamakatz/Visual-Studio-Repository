@@ -164,7 +164,8 @@ namespace IOTech_BitMap_Slicer
 			//bool_array[Bool_Index(121, 178)] = false;
 			//byte_color = new byte[] { bitmap_color.B, bitmap_color.G, bitmap_color.R };
 			Switch_to_bitmap_manipulation();
-			bitmap.Save(path, IMAGE_FORMAT_EXTENSION);
+			var bitmap2 = new Bitmap(bitmap);
+			bitmap2.Save(path, IMAGE_FORMAT_EXTENSION);
 		}
 
 		private void Flood_fill_recursive(int x, int y)
@@ -198,12 +199,22 @@ namespace IOTech_BitMap_Slicer
 					int check_x = check_pair.Item1;
 					int check_y = check_pair.Item2;
 
+					if (check_x < 0 || check_y < 0 || check_x >= bitmap_width || check_y >= bitmap_height)
+					{
+						if (starting_points.Count > 0) { return find_starting_point(starting_points.Dequeue()); }
+						else
+						{
+							//Util.Print_Messege(new string[] { "Starting coordiantes for flood fill are not bound" });
+							return null;
+						}
+					}
+
 					if (bool_array[Bool_Index(check_x, check_y)])
 					{
 						if (starting_points.Count > 0) { return find_starting_point(starting_points.Dequeue()); }
 						else
 						{
-							Util.Print_Messege(new string[] { "Starting coordiantes for flood fill are not bound" });
+							//Util.Print_Messege(new string[] { "Starting coordiantes for flood fill are not bound" });
 							return null;
 						}
 					}
@@ -232,7 +243,7 @@ namespace IOTech_BitMap_Slicer
 					if (x_right && x_left_ && y_up___ && y_down_) { return check_pair; }
 					else if (starting_points.Count > 0) { return find_starting_point(starting_points.Dequeue()); }
 
-					Util.Print_Messege(new string[] { "Starting coordiantes for flood fill are not bound" });
+					//Util.Print_Messege(new string[] { "Starting coordiantes for flood fill are not bound" });
 					return null;
 				}
 			}
@@ -246,8 +257,11 @@ namespace IOTech_BitMap_Slicer
 			double mid_x = Math.Abs(origin_vec.x + dest_vec.x) / 2;
 			double mid_y = Math.Abs(origin_vec.y + dest_vec.y) / 2;
 
-			int start_x1 = (int)Math.Floor(mid_x) - 1;
-			int start_x2 = (int)Math.Ceiling(mid_x) + 1;
+			int start_x1 = (int)Math.Floor(mid_x);
+			int start_x2 = (int)Math.Ceiling(mid_x);
+
+			//int start_x1 = (int)Math.Floor(mid_x) - 1;
+			//int start_x2 = (int)Math.Ceiling(mid_x) + 1;
 
 			int start_y1;
 			int start_y2;
@@ -263,12 +277,20 @@ namespace IOTech_BitMap_Slicer
 				start_y2 = (int)Math.Ceiling(mid_y) + 1;
 			}
 
-			for (int i = -1; i <= 1; i++)
+			int range = 3;
+			for (int i = -range; i <= range; i++)
 			{
-				for (int j = -1; j <= 1; j++)
+				for (int j = -range; j <= range; j++)
 				{
-					starting_points.Enqueue(new Tuple<int, int>(start_x1 + i, start_y1 + j));
-					starting_points.Enqueue(new Tuple<int, int>(start_x2 + i, start_y2 + j));
+					if (start_x1 + i >= 0 && start_y1 + j >= 0 && start_x1 + i < bitmap_width && start_y1 + j < bitmap_height)
+					{
+						starting_points.Enqueue(new Tuple<int, int>(start_x1 + i, start_y1 + j));
+					}
+
+					if (start_x2 + i >= 0 && start_y2 + j >= 0 && start_x2 + i < bitmap_width && start_y2 + j < bitmap_height)
+					{
+						starting_points.Enqueue(new Tuple<int, int>(start_x2 + i, start_y2 + j));
+					}
 				}
 			}
 

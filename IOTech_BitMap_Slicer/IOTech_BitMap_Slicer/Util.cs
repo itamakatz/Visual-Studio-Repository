@@ -109,7 +109,8 @@ namespace IOTech_BitMap_Slicer
 			//	yield return i;
 
 			double increment = (end - start) / (num_of_slices + 2);
-			for (double current = start + increment, i = 0; i < num_of_slices; current += increment, i++)
+			//for (double current = start + increment, i = 0; i < num_of_slices; current += increment, i++)
+			for (double current = end - increment, i = 0; i < num_of_slices; current -= increment, i++)
 				yield return current;
 		}
 

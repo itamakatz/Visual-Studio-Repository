@@ -19,6 +19,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Drawing.Imaging;
 using System.Windows.Input;
+using System.Collections.Concurrent;
 
 namespace IOTech_BitMap_Slicer
 {
@@ -37,7 +38,7 @@ namespace IOTech_BitMap_Slicer
 		private const string BITMAP_PATH_SUFIX = @".Bmp";
 		private static ImageFormat IMAGE_FORMAT_EXTENSION = ImageFormat.Bmp;
 
-		private const int SCALE_FACTOR = 5;
+		private const int SCALE_FACTOR = 20;
 		private const int NUM_OF_SLICES = 50;
 		private const Axis SLICING_AXIS = Axis.Y;
 
@@ -45,7 +46,7 @@ namespace IOTech_BitMap_Slicer
 
 		private const int PEN_FINE_WIDTH = 1;
 
-		private static Color bitmap_color = Color.Magenta;
+		private static Color bitmap_color = Color.Blue;
 		//private static Color bitmap_color = Color.White;
 
 		/* CAN NOT BE OF THE FORMAT TYPE : (see https://stackoverflow.com/questions/11368412/lowering-bitmap-quality-produces-outofmemoryexception)
@@ -77,8 +78,12 @@ namespace IOTech_BitMap_Slicer
 
 		internal static int slice_count = 1;
 		internal static int loop_count = 1;
+		internal static int saved_bitmaps = 0;
 
 		private enum Axis { X, Y, Z };
+
+		static ConcurrentQueue<Bitmap_Slice> Bitmap_Slice_Queue = new ConcurrentQueue<Bitmap_Slice>();
+		static ConcurrentQueue<int> Bitmap_Index_Queue = new ConcurrentQueue<int>();
 
 		public MainWindow()
 		{
@@ -100,7 +105,7 @@ namespace IOTech_BitMap_Slicer
 
 			Bitmap_Slice.SCALE_FACTOR = SCALE_FACTOR;
 			Bitmap_Slice.Bitmap_Color = bitmap_color;
-			Bitmap_Slice.PEN_WIDTH = (int) PEN_FINE_WIDTH;
+			Bitmap_Slice.PEN_WIDTH = (int)PEN_FINE_WIDTH;
 			Bitmap_Slice.Pen = new Pen(bitmap_color, PEN_FINE_WIDTH);
 			Bitmap_Slice.PIXEL_FORMAT = PIXEL_FORMAT;
 
@@ -118,7 +123,7 @@ namespace IOTech_BitMap_Slicer
 			}
 			else
 			{
-				Util.exit_messege(new string[] { "DMesh3Builder faild to open stl model" , "USER_PATH is - " + USER_PATH , "MODEL_IN_PATH is - " + MODEL_IN_PATH });
+				Util.exit_messege(new string[] { "DMesh3Builder faild to open stl model", "USER_PATH is - " + USER_PATH, "MODEL_IN_PATH is - " + MODEL_IN_PATH });
 			}
 
 			Vector3d STL_mesh_Diagonal = Imported_STL_mesh.CachedBounds.Diagonal;
@@ -160,12 +165,52 @@ namespace IOTech_BitMap_Slicer
 
 			// Cut mesh model and save as STL file
 			MeshPlaneCut plane_cut_cross_section = null;
+			//MeshPlaneCut plane_cut_cross_section = new MeshPlaneCut(new DMesh3(Imported_STL_mesh), SLICING_DIRECTION_UNIT * Imported_STL_mesh.CachedBounds.Min[(int)SLICING_AXIS], SLICING_DIRECTION_UNIT);
+			int enumerator_count = 0;
+			List<Tuple<MeshPlaneCut,int>> all_bitmaps = new List<Tuple<MeshPlaneCut, int>>();
 			foreach (double slice_step in Slice_Enumerator)
 			{
 				plane_cut_cross_section = new MeshPlaneCut(new DMesh3(Imported_STL_mesh), SLICING_DIRECTION_UNIT * slice_step, SLICING_DIRECTION_UNIT);
 				plane_cut_cross_section.Cut();
-				Create_Bitmap(plane_cut_cross_section);
+				all_bitmaps.Add(Tuple.Create(plane_cut_cross_section, enumerator_count));
+				//Create_Bitmap(plane_cut_cross_section);
+
+				if (enumerator_count++ % 5 == 0)
+				{
+					Parallel.ForEach(all_bitmaps, bitmap => Create_Bitmap(bitmap));
+					all_bitmaps = new List<Tuple<MeshPlaneCut, int>>();
+				}
 			}
+
+			//Thread thread = new Thread(() => Create_Bitmap(all_bitmaps[0]));
+			//ThreadStart childref = new ThreadStart(() => Create_Bitmap(all_bitmaps[0]));
+			// thread;
+			Thread[] f = new Thread[5];
+
+			foreach (var bitmap_pair in all_bitmaps)
+			{
+				for (int i = 0; i < f.Length; i++)
+				{
+					if (f[i] == null || !f[i].IsAlive)
+					{
+						f[i] = new Thread(() => Create_Bitmap(bitmap_pair));
+						f[i].Start();
+						break;
+					}
+				}
+			}
+
+			//Parallel.ForEach(all_bitmaps, bitmap => Create_Bitmap(bitmap));
+
+			//while (!Bitmap_Slice_Queue.IsEmpty)
+			//{
+			//	Bitmap_Slice Bitmap_Slice_element;
+			//	int Bitmap_index;
+			//	if (Bitmap_Slice_Queue.TryDequeue(out Bitmap_Slice_element) && Bitmap_Index_Queue.TryDequeue(out Bitmap_index))
+			//	{
+			//		Bitmap_Slice_element.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + (Bitmap_index) + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
+			//	}
+			//}
 
 #if RUN_VISUAL
 
@@ -226,10 +271,13 @@ namespace IOTech_BitMap_Slicer
 			Util.Print_elapsed(watch_all_program.Elapsed);
 		}
 
-		private static void Create_Bitmap(MeshPlaneCut cross_section)
+		//private static void Create_Bitmap(MeshPlaneCut mesh_slice)
+		private static void Create_Bitmap(Tuple<MeshPlaneCut, int> cross_section_pair)
 		{
-			List<EdgeLoop> cutLoops = cross_section.CutLoops;
-			List<EdgeSpan> cutSpans = cross_section.CutSpans;
+			List<EdgeLoop> cutLoops = cross_section_pair.Item1.CutLoops;
+			List<EdgeSpan> cutSpans = cross_section_pair.Item1.CutSpans;
+			//List<EdgeLoop> cutLoops = mesh_slice.CutLoops;
+			//List<EdgeSpan> cutSpans = mesh_slice.CutSpans;
 
 			loop_count = 1;
 
@@ -302,7 +350,10 @@ namespace IOTech_BitMap_Slicer
 				temp_bitmap = new Bitmap_Slice(Bitmap_dimensions.Item1, Bitmap_dimensions.Item2);
 			}
 
-			main_bitmap.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + (slice_count) + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
+			//main_bitmap.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + (slice_count) + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
+			main_bitmap.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + (cross_section_pair.Item2) + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
+			//Bitmap_Slice_Queue.Enqueue(main_bitmap);
+			//Bitmap_Index_Queue.Enqueue(cross_section_pair.Item2);
 			slice_count++;
 		}
 
