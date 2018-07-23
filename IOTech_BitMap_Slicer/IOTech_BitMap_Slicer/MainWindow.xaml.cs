@@ -1,7 +1,7 @@
 ﻿//#define PAINT_BITMAP_BORDERS
 //#define RUN_VISUAL
 #define SHOW_LOCATION_OF_FLOOD_STARTING_POINT
-//#define DEBUG_FILLING_POINT
+#define DEBUG_FILLING_POINT
 //#define DEBUG_XOR
 
 using g3;
@@ -37,9 +37,9 @@ namespace IOTech_BitMap_Slicer
 		private const string BITMAP_PATH_SUFIX = @".Bmp";
 		private static ImageFormat IMAGE_FORMAT_EXTENSION = ImageFormat.Bmp;
 
-		private const int SCALE_FACTOR = 15;
-		private const int NUM_OF_SLICES = 3;
-		private const Axis SLICING_AXIS = Axis.X;
+		private const int SCALE_FACTOR = 4;
+		private const int NUM_OF_SLICES = 1;
+		private const Axis SLICING_AXIS = Axis.Y;
 
 		private const int EXIT_CODE = 10;
 

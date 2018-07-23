@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace IOTech_BitMap_Slicer
 {
-	class Bitmap_Slice
+	partial class Bitmap_Slice
 	{
 		private Bitmap bitmap;
 		public byte[] bitmap_byte_array;
@@ -110,7 +110,19 @@ namespace IOTech_BitMap_Slicer
 			}
 		}
 
-		public void Switch_to_byte_manipulation()
+		private void update_byte_array()
+		{
+			for (int x = 0; x < bitmap_width; x++)
+			{
+				for (int y = 0; y < bitmap_height; y++)
+				{
+					if (bool_array[Bool_Index(x, y)])
+						Set_RGB(x, y);
+				}
+			}
+		}
+
+		private void Switch_to_byte_manipulation()
 		{
 			if (!On_byte_Manupulation)
 			{ 
@@ -132,10 +144,11 @@ namespace IOTech_BitMap_Slicer
 			}
 		}
 
-		public void Switch_to_bitmap_manipulation()
+		private void Switch_to_bitmap_manipulation()
 		{
 			if (On_byte_Manupulation)
 			{
+				update_byte_array();
 				Marshal.Copy(bitmap_byte_array, 0, pointer, im_num_of_bytes);
 				bitmap.UnlockBits(bitmap_data);
 				graphics = Graphics.FromImage(bitmap);
@@ -145,11 +158,27 @@ namespace IOTech_BitMap_Slicer
 
 		public void Save_Bitmap(string path, ImageFormat IMAGE_FORMAT_EXTENSION)
 		{
+			byte_color = new byte[] { Color.Yellow.B, Color.Yellow.G, Color.Yellow.R };
+			Set_RGB(120, 178);
+			bool_array[Bool_Index(121, 178)] = false;
+			byte_color = new byte[] { bitmap_color.B, bitmap_color.G, bitmap_color.R };
 			Switch_to_bitmap_manipulation();
 			bitmap.Save(path, IMAGE_FORMAT_EXTENSION);
 		}
 
-		public void Flood_fill_recursive(int x, int y)
+		private void Flood_fill_recursive(int x, int y)
+		{
+			if (bool_array[Bool_Index(x, y)]) { return; }
+
+			bool_array[Bool_Index(x, y)] = true;
+
+			if (x > 0) { Flood_fill_recursive(x - 1, y); }
+			if (y > 0) { Flood_fill_recursive(x, y - 1); }
+			if (x < (bitmap_width - 1)) { Flood_fill_recursive(x + 1, y); }
+			if (y < (bitmap_height - 1)) { Flood_fill_recursive(x, y + 1); }
+		}
+
+		private void Flood_fill_byte_recursive(int x, int y)
 		{
 			bool_array[Bool_Index(x, y)] = true;
 
@@ -174,7 +203,7 @@ namespace IOTech_BitMap_Slicer
 		{
 			Switch_to_byte_manipulation();
 
-			//use ConcurrentQueue for parallelizm
+			// possibly use ConcurrentQueue for parallelizm
 			Queue<Tuple<int,int>> starting_points = new Queue<Tuple<int, int>>();
 
 			double mid_x = Math.Abs(origin_vec.x + dest_vec.x) / 2;
@@ -207,7 +236,7 @@ namespace IOTech_BitMap_Slicer
 			}
 
 			Tuple<int, int> starting_point = fin_starting_point(starting_points.Dequeue());
-			Flood_fill_recursive(start_x2, start_y2);
+			Flood_fill_recursive(starting_point.Item1, starting_point.Item2);
 
 			Tuple<int, int> fin_starting_point(Tuple<int, int> check_pair)
 			{
@@ -216,35 +245,15 @@ namespace IOTech_BitMap_Slicer
 
 				try
 				{
-					int i = start_x1;
-					while (!bool_array[Bool_Index(i, start_y1)] && !RGB_Equal(i, start_y1)) { i--; }
-					i = start_x1;
-					while (!bool_array[Bool_Index(i, start_y1)] && !RGB_Equal(i, start_y1)) { i++; }
-					i = start_y1;
-					while (!bool_array[Bool_Index(start_x1, i)] && !RGB_Equal(start_x1, i)) { i--; }
-					i = start_y1;
-					while (!bool_array[Bool_Index(start_x1, i)] && !RGB_Equal(start_x1, i)) { i++; }
-
-					//int i = check_x;
-					//while (!RGB_Equal(i, check_y)) { i--; }
-					//i = check_x;
-					//while (!RGB_Equal(i, check_y)) { i++; }
-					//i = check_y;
-					//while (!RGB_Equal(check_x, i)) { i--; }
-					//i = check_y;
-					//while (!RGB_Equal(check_x, i)) { i++; }
-
+					for (int j = check_x; 0 <= j; j--)				{ if (bool_array[Bool_Index(j, check_y)]) { break; } }
+					for (int j = check_y; 0 <= j; j--)				{ if (bool_array[Bool_Index(check_x, j)]) { break; } }
+					for (int j = check_x; j < bitmap_width; j++)	{ if (bool_array[Bool_Index(j, check_y)]) { break; } }
+					for (int j = check_y; j < bitmap_height; j++)	{ if (bool_array[Bool_Index(check_x, j)]) { break; } }
 				}
 				catch (Exception)
 				{
-					if (starting_points.Count > 0)
-					{
-						fin_starting_point(starting_points.Dequeue());
-					}
-					else
-					{
-						throw new System.ArgumentException("Starting coordiantes for flood fill are not bound");
-					}
+					if (starting_points.Count > 0) { fin_starting_point(starting_points.Dequeue()); }
+					else { throw new System.ArgumentException("Starting coordiantes for flood fill are not bound"); }
 				}
 
 				return check_pair;
@@ -285,123 +294,10 @@ namespace IOTech_BitMap_Slicer
 			bitmap_byte_array[byte_array_index + 2] = 0;
 		}
 
-		public void Draw_Line_On_Bitmap(Vector2d origin_vec, Vector2d dest_vec)
-		{
-			graphics.DrawLine(Pen, (float)origin_vec.x, (float)(bitmap_height - origin_vec.y),
-							(float)dest_vec.x, (float)(bitmap_height - dest_vec.y));
-		}
-
-
-
-		public void Draw_Line(Vector2d origin_vec, Vector2d dest_vec)
-		{
-			// ****** Possibly change to Ceiling or Round ****** //
-			int x0 = (int) Math.Floor(origin_vec.x);
-			int y0 = (int) Math.Floor(origin_vec.y);
-			int x1 = (int) Math.Floor(dest_vec.x);
-			int y1 = (int) Math.Floor(dest_vec.y);
-			Draw_Line(x0, y0, x1, y1);
-		}
-
-		public static int Draw_Line_pixel_count = 0;
-
-		public void Draw_Line(int x0, int y0, int x1, int y1)
-		{
-			int w = x1 - x0;
-			int h = y1 - y0;
-
-			int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
-			if (w < 0) dx1 = -1; else if (w > 0) dx1 = 1;
-			if (h < 0) dy1 = -1; else if (h > 0) dy1 = 1;
-			if (w < 0) dx2 = -1; else if (w > 0) dx2 = 1;
-			int longest = Math.Abs(w);
-			int shortest = Math.Abs(h);
-			if (!(longest > shortest))
-			{
-				longest = Math.Abs(h);
-				shortest = Math.Abs(w);
-				if (h < 0) dy2 = -1; else if (h > 0) dy2 = 1;
-				dx2 = 0;
-			}
-			int numerator = longest >> 1;
-			for (int i = 0; i <= longest; i++)
-			{
-				Set_RGB(x0, y0);
-				bool_array[Bool_Index(x0, y0)] = true;
-				Draw_Line_pixel_count++;
-				numerator += shortest;
-				if (!(numerator < longest))
-				{
-					numerator -= longest;
-					x0 += dx1;
-					y0 += dy1;
-				}
-				else
-				{
-					x0 += dx2;
-					y0 += dy2;
-				}
-			}
-		}
-
-		public void Draw_Line(int x0, int y0, int x1, int y1, Color temp_color)
-		{
-			byte_color = new byte[] { temp_color.B, temp_color.G, temp_color.R };
-			Draw_Line(x0, y0, x1, y1);
-			byte_color = new byte[] { bitmap_color.B, bitmap_color.G, bitmap_color.R };
-		}
-
-		public void Draw_Line(Vector2d origin_vec, Vector2d dest_vec, Color temp_color)
-		{
-			// ****** Possibly change to Ceiling or Round ****** //
-			int x0 = (int) Math.Floor(origin_vec.x);
-			int y0 = (int) Math.Floor(origin_vec.y);
-			int x1 = (int) Math.Floor(dest_vec.x);
-			int y1 = (int) Math.Floor(dest_vec.y);
-			Draw_Line(x0, y0, x1, y1, temp_color);
-		}
-
-		internal void Draw_rectangle(int width, int height)
-		{
-			if (Scaled)
-			{
-				height = height * SCALE_FACTOR - 1;
-				width = width * SCALE_FACTOR - 1;
-			}
-			else
-			{
-				height = height - 1;
-				width = width - 1;
-			}
-
-			// might already be in that state, but it is checked there
-			Switch_to_byte_manipulation();
-
-			Draw_Line(0, 0, 0, height);
-			Draw_Line(0, height, width, height);
-			Draw_Line(width, height, width, 0);
-			Draw_Line(width, 0, 0, 0);
-		}
-
-		internal void Draw_X(Vector2d point, int length, Color color)
-		{
-			// might already be in that state, but it is checked there
-			Switch_to_byte_manipulation();
-
-			Draw_Line(new Vector2d (point.x - length, point.y - length), new Vector2d(point.x + length, point.y + length), color);
-			Draw_Line(new Vector2d (point.x + length, point.y - length), new Vector2d(point.x - length, point.y + length), color);
-		}
-
 		private int Get_Int_Dimension(double in_double)
 		{
-			if (Scaled)
-			{
-				return (int) Math.Ceiling(in_double + PEN_WIDTH * 2) * SCALE_FACTOR;
-			}
-			else
-			{
-				return (int) Math.Ceiling(in_double + PEN_WIDTH * 2);
-			}
+			if (Scaled) { return (int) Math.Ceiling(in_double + PEN_WIDTH * 2) * SCALE_FACTOR; }
+			else		{ return (int) Math.Ceiling(in_double + PEN_WIDTH * 2); }
 		}
 
 		public void Byte_XOR(ref Bitmap_Slice XOR)
@@ -412,9 +308,7 @@ namespace IOTech_BitMap_Slicer
 			if (this.bitmap_width != XOR.bitmap_width ||
 				this.bitmap_height != XOR.bitmap_height ||
 				this.im_num_of_bytes != XOR.im_num_of_bytes)
-			{
-				Util.exit_messege(new string[] { "XOR failed. Dimensions are not equal" });
-			}
+			{ Util.exit_messege(new string[] { "XOR failed. Dimensions are not equal" }); }
 
 			for (int x = 0; x < bitmap_width; x++)
 			{
@@ -423,12 +317,12 @@ namespace IOTech_BitMap_Slicer
 					if (this.bool_array[Bool_Index(x, y)] != XOR.bool_array[Bool_Index(x, y)])
 					{
 						this.bool_array[Bool_Index(x, y)] = true;
-						this.Set_RGB(x, y);
+						//this.Set_RGB(x, y);
 					}
 					else if (this.bool_array[Bool_Index(x, y)])
 					{
 						this.bool_array[Bool_Index(x, y)] = false;
-						this.Set_RGB(x, y, true); // true - set the color to black
+						//this.Set_RGB(x, y, true); // true - set the color to black
 					}
 				}
 			}
