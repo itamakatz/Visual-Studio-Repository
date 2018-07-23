@@ -18,7 +18,7 @@ namespace IOTech_BitMap_Slicer
 		private Bitmap bitmap;
 		public byte[] bitmap_byte_array;
 		public bool[] bool_array;
-		[NonSerialized]
+
 		private Graphics graphics;
 		private BitmapData bitmap_data;
 
@@ -28,7 +28,7 @@ namespace IOTech_BitMap_Slicer
 		private int im_num_of_bytes;
 
 		private readonly int bitmap_width;
-		public readonly int bitmap_height;
+		private readonly int bitmap_height;
 
 		public bool Scaled { get; set; }
 		private bool On_byte_Manupulation { get; set; }
@@ -71,9 +71,6 @@ namespace IOTech_BitMap_Slicer
 			bool_array = new bool[bitmap_width * bitmap_height];
 
 			Switch_to_byte_manipulation();
-
-			//update_bool_array();
-
 		}
 
 		public Bitmap Bitmap
@@ -105,7 +102,7 @@ namespace IOTech_BitMap_Slicer
 				{
 					int index = Byte_Index(x, y);
 					if (bitmap_byte_array[index] != 0 || bitmap_byte_array[index + 1] != 0 || bitmap_byte_array[index + 2] != 0)
-						bool_array[Bool_Index(x, y)] = true;
+						{ bool_array[Bool_Index(x, y)] = true; }
 				}
 			}
 		}
@@ -116,8 +113,7 @@ namespace IOTech_BitMap_Slicer
 			{
 				for (int y = 0; y < bitmap_height; y++)
 				{
-					if (bool_array[Bool_Index(x, y)])
-						Set_RGB(x, y);
+					if (bool_array[Bool_Index(x, y)]) { Set_RGB(x, y); }
 				}
 			}
 		}
@@ -158,11 +154,6 @@ namespace IOTech_BitMap_Slicer
 
 		public void Save_Bitmap(string path, ImageFormat IMAGE_FORMAT_EXTENSION)
 		{
-			// color point
-			//byte_color = new byte[] { Color.Yellow.B, Color.Yellow.G, Color.Yellow.R };
-			//Set_RGB(120, 178);
-			//bool_array[Bool_Index(121, 178)] = false;
-			//byte_color = new byte[] { bitmap_color.B, bitmap_color.G, bitmap_color.R };
 			Switch_to_bitmap_manipulation();
 			var bitmap2 = new Bitmap(bitmap);
 			bitmap2.Save(path, IMAGE_FORMAT_EXTENSION);
@@ -202,21 +193,13 @@ namespace IOTech_BitMap_Slicer
 					if (check_x < 0 || check_y < 0 || check_x >= bitmap_width || check_y >= bitmap_height)
 					{
 						if (starting_points.Count > 0) { return find_starting_point(starting_points.Dequeue()); }
-						else
-						{
-							//Util.Print_Messege(new string[] { "Starting coordiantes for flood fill are not bound" });
-							return null;
-						}
+						else { return null; }
 					}
 
 					if (bool_array[Bool_Index(check_x, check_y)])
 					{
 						if (starting_points.Count > 0) { return find_starting_point(starting_points.Dequeue()); }
-						else
-						{
-							//Util.Print_Messege(new string[] { "Starting coordiantes for flood fill are not bound" });
-							return null;
-						}
+						else { return null; }
 					}
 
 					bool x_right = false, x_left_ = false, y_up___ = false, y_down_ = false;
@@ -243,7 +226,6 @@ namespace IOTech_BitMap_Slicer
 					if (x_right && x_left_ && y_up___ && y_down_) { return check_pair; }
 					else if (starting_points.Count > 0) { return find_starting_point(starting_points.Dequeue()); }
 
-					//Util.Print_Messege(new string[] { "Starting coordiantes for flood fill are not bound" });
 					return null;
 				}
 			}
@@ -337,12 +319,10 @@ namespace IOTech_BitMap_Slicer
 					if (this.bool_array[Bool_Index(x, y)] != XOR.bool_array[Bool_Index(x, y)])
 					{
 						this.bool_array[Bool_Index(x, y)] = true;
-						//this.Set_RGB(x, y);
 					}
 					else if (this.bool_array[Bool_Index(x, y)])
 					{
 						this.bool_array[Bool_Index(x, y)] = false;
-						//this.Set_RGB(x, y, true); // true - set the color to black
 					}
 				}
 			}

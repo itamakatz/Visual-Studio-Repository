@@ -1,16 +1,11 @@
 ﻿using g3;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IOTech_BitMap_Slicer
 {
 	partial class Bitmap_Slice
 	{
-
 		public void Draw_Line(int x0, int y0, int x1, int y1, bool draw_color = false)
 		{
 			int w = x1 - x0;
@@ -64,7 +59,6 @@ namespace IOTech_BitMap_Slicer
 			Draw_Line(x0, y0, x1, y1, draw_color);
 		}
 
-
 		public void Draw_Line_Color(int x0, int y0, int x1, int y1, Color temp_color)
 		{
 			byte_color = new byte[] { temp_color.B, temp_color.G, temp_color.R };
@@ -72,14 +66,14 @@ namespace IOTech_BitMap_Slicer
 			byte_color = new byte[] { bitmap_color.B, bitmap_color.G, bitmap_color.R };
 		}
 
-		public void Draw_Line_Color(Vector2d origin_vec, Vector2d dest_vec, Color temp_color)
+		public void Draw_Line_Color(Vector2d origin_vec, Vector2d dest_vec, Color color)
 		{
 			// ****** Possibly change to Ceiling or Round ****** //
 			int x0 = (int)Math.Floor(origin_vec.x);
 			int y0 = (int)Math.Floor(origin_vec.y);
 			int x1 = (int)Math.Floor(dest_vec.x);
 			int y1 = (int)Math.Floor(dest_vec.y);
-			Draw_Line_Color(x0, y0, x1, y1, temp_color);
+			Draw_Line_Color(x0, y0, x1, y1, color);
 		}
 
 
@@ -96,7 +90,6 @@ namespace IOTech_BitMap_Slicer
 				width = width - 1;
 			}
 
-			// might already be in that state, but it is checked there
 			Switch_to_byte_manipulation();
 
 			Draw_Line(0, 0, 0, height);
@@ -107,18 +100,16 @@ namespace IOTech_BitMap_Slicer
 
 		internal void Draw_X(Vector2d point, int length, Color color)
 		{
-			// might already be in that state, but it is checked there
 			Switch_to_byte_manipulation();
 
 			Draw_Line_Color(new Vector2d(point.x - length, point.y - length), new Vector2d(point.x + length, point.y + length), color);
 			Draw_Line_Color(new Vector2d(point.x + length, point.y - length), new Vector2d(point.x - length, point.y + length), color);
 		}
 
-
 		public void Draw_Line_With_Graphics(Vector2d origin_vec, Vector2d dest_vec)
 		{
 			graphics.DrawLine(Pen, (float)origin_vec.x, (float)(bitmap_height - origin_vec.y),
-							(float)dest_vec.x, (float)(bitmap_height - dest_vec.y));
+									(float)dest_vec.x, (float)(bitmap_height - dest_vec.y));
 		}
 	}
 }

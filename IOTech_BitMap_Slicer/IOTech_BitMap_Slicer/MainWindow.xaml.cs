@@ -38,7 +38,7 @@ namespace IOTech_BitMap_Slicer
 		private const string BITMAP_PATH_SUFIX = @".Bmp";
 		private static ImageFormat IMAGE_FORMAT_EXTENSION = ImageFormat.Bmp;
 
-		private const int SCALE_FACTOR = 20;
+		private const int SCALE_FACTOR = 5;
 		private const int NUM_OF_SLICES = 50;
 		private const Axis SLICING_AXIS = Axis.Y;
 
@@ -47,7 +47,6 @@ namespace IOTech_BitMap_Slicer
 		private const int PEN_FINE_WIDTH = 1;
 
 		private static Color bitmap_color = Color.Blue;
-		//private static Color bitmap_color = Color.White;
 
 		/* CAN NOT BE OF THE FORMAT TYPE : (see https://stackoverflow.com/questions/11368412/lowering-bitmap-quality-produces-outofmemoryexception)
 		 * Undefined
@@ -66,7 +65,6 @@ namespace IOTech_BitMap_Slicer
 		// maybe should varify the image is infact Format32bppRgb?
 		private static PixelFormat PIXEL_FORMAT = PixelFormat.Format24bppRgb; // best format I found
 
-		//private const int stackSize = 2147483647;  // max Int32 = 2147483647 
 		private const int stackSize = 1000000000;  // max Int32 = 2147483647 
 
 		// ***** Initialization of other variables ***** //
@@ -78,7 +76,6 @@ namespace IOTech_BitMap_Slicer
 
 		internal static int slice_count = 1;
 		internal static int loop_count = 1;
-		internal static int saved_bitmaps = 0;
 
 		private enum Axis { X, Y, Z };
 
@@ -139,41 +136,33 @@ namespace IOTech_BitMap_Slicer
 
 					Bitmap_dimensions = Tuple.Create(STL_mesh_Diagonal.y, STL_mesh_Diagonal.z);
 					Mesh_min_dimensions = Tuple.Create(Imported_STL_mesh.CachedBounds.Min.y, Imported_STL_mesh.CachedBounds.Min.z);
-
 					SLICING_DIRECTION_UNIT = Vector3d.AxisX;
-
 					break;
+
 				case Axis.Y:
 
 					Bitmap_dimensions = Tuple.Create(STL_mesh_Diagonal.x, STL_mesh_Diagonal.z);
 					Mesh_min_dimensions = Tuple.Create(Imported_STL_mesh.CachedBounds.Min.x, Imported_STL_mesh.CachedBounds.Min.z);
-
 					SLICING_DIRECTION_UNIT = Vector3d.AxisY;
-
 					break;
+
 				case Axis.Z:
 
 					Bitmap_dimensions = Tuple.Create(STL_mesh_Diagonal.x, STL_mesh_Diagonal.y);
 					Mesh_min_dimensions = Tuple.Create(Imported_STL_mesh.CachedBounds.Min.x, Imported_STL_mesh.CachedBounds.Min.y);
-
 					SLICING_DIRECTION_UNIT = Vector3d.AxisZ;
-
-					break;
-				default:
 					break;
 			}
 
 			// Cut mesh model and save as STL file
-			MeshPlaneCut plane_cut_cross_section = null;
-			//MeshPlaneCut plane_cut_cross_section = new MeshPlaneCut(new DMesh3(Imported_STL_mesh), SLICING_DIRECTION_UNIT * Imported_STL_mesh.CachedBounds.Min[(int)SLICING_AXIS], SLICING_DIRECTION_UNIT);
 			int enumerator_count = 0;
+			MeshPlaneCut plane_cut_cross_section = null;
 			List<Tuple<MeshPlaneCut,int>> all_bitmaps = new List<Tuple<MeshPlaneCut, int>>();
 			foreach (double slice_step in Slice_Enumerator)
 			{
 				plane_cut_cross_section = new MeshPlaneCut(new DMesh3(Imported_STL_mesh), SLICING_DIRECTION_UNIT * slice_step, SLICING_DIRECTION_UNIT);
 				plane_cut_cross_section.Cut();
 				all_bitmaps.Add(Tuple.Create(plane_cut_cross_section, enumerator_count));
-				//Create_Bitmap(plane_cut_cross_section);
 
 				if (enumerator_count++ % 5 == 0)
 				{
@@ -182,35 +171,7 @@ namespace IOTech_BitMap_Slicer
 				}
 			}
 
-			//Thread thread = new Thread(() => Create_Bitmap(all_bitmaps[0]));
-			//ThreadStart childref = new ThreadStart(() => Create_Bitmap(all_bitmaps[0]));
-			// thread;
-			Thread[] f = new Thread[5];
-
-			foreach (var bitmap_pair in all_bitmaps)
-			{
-				for (int i = 0; i < f.Length; i++)
-				{
-					if (f[i] == null || !f[i].IsAlive)
-					{
-						f[i] = new Thread(() => Create_Bitmap(bitmap_pair));
-						f[i].Start();
-						break;
-					}
-				}
-			}
-
-			//Parallel.ForEach(all_bitmaps, bitmap => Create_Bitmap(bitmap));
-
-			//while (!Bitmap_Slice_Queue.IsEmpty)
-			//{
-			//	Bitmap_Slice Bitmap_Slice_element;
-			//	int Bitmap_index;
-			//	if (Bitmap_Slice_Queue.TryDequeue(out Bitmap_Slice_element) && Bitmap_Index_Queue.TryDequeue(out Bitmap_index))
-			//	{
-			//		Bitmap_Slice_element.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + (Bitmap_index) + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
-			//	}
-			//}
+			Parallel.ForEach(all_bitmaps, bitmap => Create_Bitmap(bitmap));
 
 #if RUN_VISUAL
 
@@ -335,7 +296,6 @@ namespace IOTech_BitMap_Slicer
 #if DEBUG_FILLING_POINT
 				Debug_Filling_Point(new Bitmap_Slice(temp_bitmap.Bitmap), loop_vertices[0], loop_vertices[1]);
 #endif
-				//Thread thread = new Thread(() => temp_bitmap.Flood_Fill(loop_vertices[0], loop_vertices[1]), stackSize);
 				Thread thread = new Thread(() => temp_bitmap.Flood_Fill(loop_vertices), stackSize);
 				thread.Start();
 				thread.Join();
