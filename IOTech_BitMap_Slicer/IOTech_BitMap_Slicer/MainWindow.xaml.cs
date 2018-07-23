@@ -1,7 +1,7 @@
 ﻿//#define PAINT_BITMAP_BORDERS
 //#define RUN_VISUAL
-#define SHOW_LOCATION_OF_FLOOD_STARTING_POINT
-#define DEBUG_FILLING_POINT
+//#define SHOW_LOCATION_OF_FLOOD_STARTING_POINT
+//#define DEBUG_FILLING_POINT
 //#define DEBUG_XOR
 
 using g3;
@@ -37,8 +37,8 @@ namespace IOTech_BitMap_Slicer
 		private const string BITMAP_PATH_SUFIX = @".Bmp";
 		private static ImageFormat IMAGE_FORMAT_EXTENSION = ImageFormat.Bmp;
 
-		private const int SCALE_FACTOR = 4;
-		private const int NUM_OF_SLICES = 1;
+		private const int SCALE_FACTOR = 5;
+		private const int NUM_OF_SLICES = 50;
 		private const Axis SLICING_AXIS = Axis.Y;
 
 		private const int EXIT_CODE = 10;
@@ -287,7 +287,8 @@ namespace IOTech_BitMap_Slicer
 #if DEBUG_FILLING_POINT
 				Debug_Filling_Point(new Bitmap_Slice(temp_bitmap.Bitmap), loop_vertices[0], loop_vertices[1]);
 #endif
-				Thread thread = new Thread(() => temp_bitmap.Flood_Fill(loop_vertices[0], loop_vertices[1]), stackSize);
+				//Thread thread = new Thread(() => temp_bitmap.Flood_Fill(loop_vertices[0], loop_vertices[1]), stackSize);
+				Thread thread = new Thread(() => temp_bitmap.Flood_Fill(loop_vertices), stackSize);
 				thread.Start();
 				thread.Join();
 
@@ -326,6 +327,7 @@ namespace IOTech_BitMap_Slicer
 				int on_loop_y2 = (int)Math.Floor(_loop_vertex_2.y);
 
 				get_dear_indices(_loop_vertex_1, _loop_vertex_2);
+				Queue<Tuple<int, int>> starting_points = debug_bitmap.get_starting_queue(_loop_vertex_1, _loop_vertex_2);
 
 				int bool_on_i_1 = debug_bitmap.Bool_Index(on_loop_x1, on_loop_y1);
 				int bool_on_i_2 = debug_bitmap.Bool_Index(on_loop_x2, on_loop_y2);

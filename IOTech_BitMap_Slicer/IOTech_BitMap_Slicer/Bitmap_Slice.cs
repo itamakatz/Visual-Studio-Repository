@@ -179,31 +179,88 @@ namespace IOTech_BitMap_Slicer
 			if (y < (bitmap_height - 1)) { Flood_fill_recursive(x, y + 1); }
 		}
 
-		public void Flood_Fill(Vector2d origin_vec, Vector2d dest_vec)
+		public void Flood_Fill(List<Vector2d> loop_vertices)
 		{
 			Switch_to_byte_manipulation();
 
+			for (int i = 0; i < loop_vertices.Count; i++)
+			{
+				Vector2d origin_vec = loop_vertices[i];
+				Vector2d dest_vec = loop_vertices[(i + 1) % loop_vertices.Count];
+
+				Queue<Tuple<int, int>> starting_points = get_starting_queue(origin_vec, dest_vec);
+
+				Tuple<int, int> starting_point = find_starting_point(starting_points.Dequeue());
+				if (starting_point != null) { Flood_fill_recursive(starting_point.Item1, starting_point.Item2); return; }
+
+				Tuple<int, int> find_starting_point(Tuple<int, int> check_pair)
+				{
+					int check_x = check_pair.Item1;
+					int check_y = check_pair.Item2;
+
+					if (bool_array[Bool_Index(check_x, check_y)])
+					{
+						if (starting_points.Count > 0) { return find_starting_point(starting_points.Dequeue()); }
+						else
+						{
+							Util.Print_Messege(new string[] { "Starting coordiantes for flood fill are not bound" });
+							return null;
+						}
+					}
+
+					bool x_right = false, x_left_ = false, y_up___ = false, y_down_ = false;
+
+
+					for (int j = check_x; 0 <= j; j--)
+					{
+						if (bool_array[Bool_Index(j, check_y)] && j < bitmap_width - 1 && !bool_array[Bool_Index(j + 1, check_y)]) { x_left_ = !x_left_; }
+					}
+					for (int j = check_x; j < bitmap_width; j++)
+					{
+						if (bool_array[Bool_Index(j, check_y)] && 0 < j && !bool_array[Bool_Index(j - 1, check_y)]) { x_right = !x_right; }
+					}
+
+					for (int j = check_y; 0 <= j; j--)
+					{
+						if (bool_array[Bool_Index(check_x, j)] && j < bitmap_height - 1 && !bool_array[Bool_Index(check_x, j + 1)]) { y_down_ = !y_down_; }
+					}
+					for (int j = check_y; j < bitmap_height; j++)
+					{
+						if (bool_array[Bool_Index(check_x, j)] && 0 < j && !bool_array[Bool_Index(check_x, j - 1)]) { y_up___ = !y_up___; }
+					}
+
+					if (x_right && x_left_ && y_up___ && y_down_) { return check_pair; }
+					else if (starting_points.Count > 0) { return find_starting_point(starting_points.Dequeue()); }
+
+					Util.Print_Messege(new string[] { "Starting coordiantes for flood fill are not bound" });
+					return null;
+				}
+			}
+		}
+
+		public Queue<Tuple<int, int>> get_starting_queue(Vector2d origin_vec, Vector2d dest_vec)
+		{
 			// possibly use ConcurrentQueue for parallelizm
-			Queue<Tuple<int,int>> starting_points = new Queue<Tuple<int, int>>();
+			Queue<Tuple<int, int>> starting_points = new Queue<Tuple<int, int>>();
 
 			double mid_x = Math.Abs(origin_vec.x + dest_vec.x) / 2;
 			double mid_y = Math.Abs(origin_vec.y + dest_vec.y) / 2;
 
-			int start_x1 = (int) Math.Floor(mid_x) - 1;
-			int start_x2 = (int) Math.Ceiling(mid_x) + 1;
+			int start_x1 = (int)Math.Floor(mid_x) - 1;
+			int start_x2 = (int)Math.Ceiling(mid_x) + 1;
 
 			int start_y1;
 			int start_y2;
 
 			if (origin_vec.y > dest_vec.y && origin_vec.x > dest_vec.x)
 			{
-				start_y1 = (int) Math.Ceiling(mid_y) + 1;
-				start_y2 = (int) Math.Floor(mid_y) - 1;
+				start_y1 = (int)Math.Ceiling(mid_y) + 1;
+				start_y2 = (int)Math.Floor(mid_y) - 1;
 			}
 			else
 			{
-				start_y1 = (int) Math.Floor(mid_y) - 1;
-				start_y2 = (int) Math.Ceiling(mid_y) + 1;
+				start_y1 = (int)Math.Floor(mid_y) - 1;
+				start_y2 = (int)Math.Ceiling(mid_y) + 1;
 			}
 
 			for (int i = -1; i <= 1; i++)
@@ -215,26 +272,7 @@ namespace IOTech_BitMap_Slicer
 				}
 			}
 
-			Tuple<int, int> starting_point = find_starting_point(starting_points.Dequeue());
-			Flood_fill_recursive(starting_point.Item1, starting_point.Item2);
-
-			Tuple<int, int> find_starting_point(Tuple<int, int> check_pair)
-			{
-				int check_x = check_pair.Item1;
-				int check_y = check_pair.Item2;
-
-				bool x_right = false, x_left_ = false, y_up___ = false, y_down_ = false;
-
-				for (int j = check_x; 0 <= j; j--)				{ if (bool_array[Bool_Index(j, check_y)]) { x_left_ = true; break; } }
-				for (int j = check_y; 0 <= j; j--)				{ if (bool_array[Bool_Index(check_x, j)]) { y_down_ = true; break; } }
-				for (int j = check_x; j < bitmap_width; j++)	{ if (bool_array[Bool_Index(j, check_y)]) { x_right = true; break; } }
-				for (int j = check_y; j < bitmap_height; j++)	{ if (bool_array[Bool_Index(check_x, j)]) { y_up___ = true; break; } }
-
-				if (x_right && x_left_ && y_up___ && y_down_) { return check_pair; }
-				else if (starting_points.Count > 0) { return find_starting_point(starting_points.Dequeue()); }
-
-				throw new System.ArgumentException("Starting coordiantes for flood fill are not bound");
-			}
+			return starting_points;
 		}
 
 		private void Set_RGB(int x, int y, bool set_black = false)

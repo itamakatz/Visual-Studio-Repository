@@ -26,7 +26,7 @@ namespace IOTech_BitMap_Slicer
 			}
 		}
 
-		public static void exit_messege(string[] messages)
+		public static void Print_Messege(string[] messages)
 		{
 			// possibly use:
 			// MessageBox.Show("Exception Error : " + e.StackTrace);
@@ -38,6 +38,11 @@ namespace IOTech_BitMap_Slicer
 			}
 
 			Trace.WriteLine("\n");
+		}
+
+		public static void exit_messege(string[] messages)
+		{
+			Print_Messege(messages);
 
 			Environment.Exit(EXIT_CODE);
 		}
@@ -62,6 +67,8 @@ namespace IOTech_BitMap_Slicer
 
 			//Environment.Exit(EXIT_CODE);
 		}
+
+
 
 		public static void Print_elapsed(TimeSpan time_stamp)
 		{

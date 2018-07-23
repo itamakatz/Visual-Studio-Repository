@@ -32,8 +32,13 @@ namespace IOTech_BitMap_Slicer
 			int numerator = longest >> 1;
 			for (int i = 0; i <= longest; i++)
 			{
-				if (draw_color) { Set_RGB(x0, y0); }
-				bool_array[Bool_Index(x0, y0)] = true;
+				if (draw_color)
+				{
+					Set_RGB(x0, y0);
+					bool_array[Bool_Index(x0, y0)] = false;
+				}
+				else { bool_array[Bool_Index(x0, y0)] = true; }
+
 				numerator += shortest;
 				if (!(numerator < longest))
 				{
