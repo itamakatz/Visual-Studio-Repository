@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IOTech_BitMap_Slicer
 {
@@ -63,8 +59,8 @@ namespace IOTech_BitMap_Slicer
 		public enum Axis { X, Y, Z };
 
 		public static int stride;
-		public static int single_pixel_num_of_byte;
 		public static int im_num_of_bytes;
+		public static int single_pixel_num_of_byte = Image.GetPixelFormatSize(PIXEL_FORMAT) / 8;
 
 		public static int Bitmap_Width;
 		public static int Bitmap_Height;

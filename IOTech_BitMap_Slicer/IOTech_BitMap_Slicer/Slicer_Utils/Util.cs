@@ -7,8 +7,6 @@ namespace IOTech_BitMap_Slicer
 {
 	class Util
 	{
-		public static int EXIT_CODE { get; set; }
-
 		public void Clear_dir(String path)
 		{
 			DirectoryInfo di = new DirectoryInfo(path);
@@ -27,7 +25,7 @@ namespace IOTech_BitMap_Slicer
 		public static void Exit_messege(string[] messages)
 		{
 			Print_Messege(messages);
-			Environment.Exit(EXIT_CODE);
+			Environment.Exit(V.EXIT_CODE);
 		}
 
 		public static void Exit_messege(string[] messages, Exception e)

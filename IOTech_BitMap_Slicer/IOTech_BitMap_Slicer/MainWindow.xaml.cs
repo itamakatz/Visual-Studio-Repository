@@ -5,8 +5,6 @@
 using g3;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Media3D;
@@ -15,7 +13,6 @@ using HelixToolkit.Wpf;
 using System.IO;
 using System.Diagnostics;
 using System.Threading;
-using System.Drawing.Imaging;
 using System.Windows.Input;
 using System.Collections.Concurrent;
 using IOTech_BitMap_Slicer.WPF_Classes;
@@ -50,29 +47,17 @@ namespace IOTech_BitMap_Slicer
 			Model3D HelixToolkit_Model3D = null;
 			Vector3d SLICING_DIRECTION_UNIT = new Vector3d();
 
-			Util.EXIT_CODE = V.EXIT_CODE;
-
 			File.WriteAllText(@"C:\Users\admin\Desktop\BitMap_Slicer\debug.txt", string.Empty);
 
 			// Open STL file and create DMesh3 objects
 			DMesh3Builder DMesh3_builder = new DMesh3Builder();
 			StandardMeshReader reader = new StandardMeshReader() { MeshBuilder = DMesh3_builder };
 			IOReadResult result = reader.Read(V.MODEL_IN_PATH, ReadOptions.Defaults);
-			if (result.code == IOCode.Ok)
-			{
-				Imported_STL_mesh = DMesh3_builder.Meshes[0];
-			}
-			else
-			{
-				Util.Exit_messege(new string[] { "DMesh3Builder faild to open stl model", "USER_PATH is - " + V.USER_PATH, "MODEL_IN_PATH is - " + V.MODEL_IN_PATH });
-			}
+
+			if (result.code == IOCode.Ok) { Imported_STL_mesh = DMesh3_builder.Meshes[0]; }
+			else { Util.Exit_messege(new string[] { "DMesh3Builder faild to open stl model", "USER_PATH is - " + V.USER_PATH, "MODEL_IN_PATH is - " + V.MODEL_IN_PATH }); }
 
 			Vector3d STL_mesh_Diagonal = Imported_STL_mesh.CachedBounds.Diagonal;
-
-			IEnumerable<double> Slice_Enumerator = Util.Range_Enumerator(
-									Imported_STL_mesh.CachedBounds.Min[(int)V.SLICING_AXIS],
-									Imported_STL_mesh.CachedBounds.Max[(int)V.SLICING_AXIS],
-									V.NUM_OF_SLICES);
 
 			switch (V.SLICING_AXIS)
 			{
@@ -97,6 +82,16 @@ namespace IOTech_BitMap_Slicer
 					SLICING_DIRECTION_UNIT = Vector3d.AxisZ;
 					break;
 			}
+
+			V.stride = V.Bitmap_Width * V.single_pixel_num_of_byte;
+			int padding = (V.stride % 4);
+			V.stride += padding == 0 ? 0 : 4 - padding; // pad out to multiple of 4 - CRITICAL
+			V.im_num_of_bytes = V.Bitmap_Height * Math.Abs(V.stride);
+
+			IEnumerable<double> Slice_Enumerator = Util.Range_Enumerator(
+						Imported_STL_mesh.CachedBounds.Min[(int)V.SLICING_AXIS],
+						Imported_STL_mesh.CachedBounds.Max[(int)V.SLICING_AXIS],
+						V.NUM_OF_SLICES);
 
 			// Cut mesh model and save as STL file
 			int enumerator_count = 0;
@@ -181,8 +176,6 @@ namespace IOTech_BitMap_Slicer
 		{
 			List<EdgeLoop> cutLoops = cross_section_pair.Item1.CutLoops;
 			List<EdgeSpan> cutSpans = cross_section_pair.Item1.CutSpans;
-			//List<EdgeLoop> cutLoops = mesh_slice.CutLoops;
-			//List<EdgeSpan> cutSpans = mesh_slice.CutSpans;
 
 			V.loop_count = 1;
 
@@ -207,7 +200,6 @@ namespace IOTech_BitMap_Slicer
 					{
 						case V.Axis.X:
 							y = (vec3d.y - V.Mesh_min_dimensions.Item1) * V.SCALE_FACTOR + V.PEN_FINE_WIDTH;
-							//z = temp_bitmap.bitmap_height - (vec3d.z - Mesh_min_dimensions.Item2) * SCALE_FACTOR + PEN_FINE_WIDTH;
 							z = (vec3d.z - V.Mesh_min_dimensions.Item2) * V.SCALE_FACTOR + V.PEN_FINE_WIDTH;
 							loop_vertices.Add(new Vector2d(y, z));
 							break;
@@ -243,18 +235,9 @@ namespace IOTech_BitMap_Slicer
 				temp_bitmap = new Bitmap_Slice();
 			}
 
-			//main_bitmap.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + (slice_count) + BITMAP_PATH_SUFIX);
 			main_bitmap.Save_Bitmap(V.BITMAP_DIR_PREFIX + @"\" + "slice_" + (cross_section_pair.Item2) + V.BITMAP_PATH_SUFIX);
-			//Bitmap_Slice_Queue.Enqueue(main_bitmap);
-			//Bitmap_Index_Queue.Enqueue(cross_section_pair.Item2);
 			V.slice_count++;
 		}
-
-
-		//private void Loaded_Function(object sender, RoutedEventArgs e)
-		//{
-		//	button_1.DataContext = button_1_binding;
-		//}
 
 		private void button_1_Click(object sender, RoutedEventArgs e)
 		{

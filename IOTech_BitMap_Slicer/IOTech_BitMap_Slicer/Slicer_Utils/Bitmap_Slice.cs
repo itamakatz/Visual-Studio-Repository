@@ -1,15 +1,9 @@
 ﻿using g3;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace IOTech_BitMap_Slicer
 {
@@ -119,14 +113,10 @@ namespace IOTech_BitMap_Slicer
 				graphics.Dispose();
 				Rectangle rect = new Rectangle(0, 0, V.Bitmap_Width, V.Bitmap_Height);
 
-				V.single_pixel_num_of_byte = Image.GetPixelFormatSize(V.PIXEL_FORMAT) / 8;
-				V.stride = V.Bitmap_Width * V.single_pixel_num_of_byte;
-				int padding = (V.stride % 4);
-				V.stride += padding == 0 ? 0 : 4 - padding; //pad out to multiple of 4 - CRITICAL
+				// CRITICAL - for the Stride it is critical to pad out to get a multiple of 4. Done in main function
 
 				bitmap_data = bitmap.LockBits(rect, ImageLockMode.ReadWrite, V.PIXEL_FORMAT);
 				pointer = bitmap_data.Scan0;
-				V.im_num_of_bytes = V.Bitmap_Height * Math.Abs(bitmap_data.Stride);
 				bitmap_byte_array = new byte[V.im_num_of_bytes];
 
 				Marshal.Copy(pointer, bitmap_byte_array, 0, V.im_num_of_bytes);
