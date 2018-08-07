@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IOTech_BitMap_Slicer
+namespace IOTech_BitMap_Slicer.WPF_Classes
 {
 	public class WPF_Button : ObservableObject
 	{

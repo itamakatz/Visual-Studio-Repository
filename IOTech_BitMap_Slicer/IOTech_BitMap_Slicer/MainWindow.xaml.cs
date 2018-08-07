@@ -1,5 +1,5 @@
 ﻿//#define PAINT_BITMAP_BORDERS
-#define RUN_VISUAL
+//#define RUN_VISUAL
 //#define SHOW_LOCATION_OF_FLOOD_STARTING_POINT
 //#define DEBUG_FILLING_POINT
 //#define DEBUG_XOR
@@ -24,64 +24,11 @@ using IOTech_BitMap_Slicer.WPF_Classes;
 
 namespace IOTech_BitMap_Slicer
 {
-	/// <summary>
-	/// Interaction logic for MainWindow.xaml
-	/// </summary>
+
 	public partial class MainWindow : Window
 	{
-
-		// ***** Variables that can be changed ***** //
-
-		internal static string MODEL_IN_PATH = @"Desktop\BitMap_Slicer\CorvinCastle.stl";
-		internal static string MODEL_OUT_PATH = @"Desktop\BitMap_Slicer\CorvinCastle_new.stl";
-
-		internal static string BITMAP_DIR_PREFIX = @"Desktop\BitMap_Slicer\BITMAP_slice";
-		private const string BITMAP_PATH_SUFIX = @".Bmp";
-		private static ImageFormat IMAGE_FORMAT_EXTENSION = ImageFormat.Bmp;
-
-		private const int SCALE_FACTOR = 1;
-		private const int NUM_OF_SLICES = 1;
-		private const Axis SLICING_AXIS = Axis.Y;
-
-		private const int EXIT_CODE = 10;
-
-		private const int PEN_FINE_WIDTH = 1;
-
-		private static Color bitmap_color = Color.Blue;
-
-		/* CAN NOT BE OF THE FORMAT TYPE : (see https://stackoverflow.com/questions/11368412/lowering-bitmap-quality-produces-outofmemoryexception)
-		 * Undefined
-		 * DontCare
-		 * Format16bppArgb1555
-		 * Format16bppGrayScale
-		 * Format1bppIndexed
-		 * Format4bppIndexed
-		 * Format8bppIndexed
-		 * 
-		 * Formats that work well:
-		 * Format32bppRgb - works but contains unnecessary alpha channel
-		 * Format24bppRgb - best option. only has RGB color (though in reversed order namely BGR)
-		 * Format16bppRgb555 - works and uses even less bytes thought for the comparison of the colors the implementation is complicated
-		 */
-		// maybe should varify the image is infact Format32bppRgb?
-		private static PixelFormat PIXEL_FORMAT = PixelFormat.Format24bppRgb; // best format I found
-
-		private const int stackSize = 1000000000;  // max Int32 = 2147483647 
-
-		// ***** Initialization of other variables ***** //
-
-		internal static string USER_PATH = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-
-		private static Tuple<double, double> Bitmap_dimensions;
-		private static Tuple<double, double> Mesh_min_dimensions;
-
-		internal static int slice_count = 1;
-		internal static int loop_count = 1;
-
-		private enum Axis { X, Y, Z };
-
-		static ConcurrentQueue<Bitmap_Slice> Bitmap_Slice_Queue = new ConcurrentQueue<Bitmap_Slice>();
-		static ConcurrentQueue<int> Bitmap_Index_Queue = new ConcurrentQueue<int>();
+		private static ConcurrentQueue<Bitmap_Slice> Bitmap_Slice_Queue = new ConcurrentQueue<Bitmap_Slice>();
+		public static ConcurrentQueue<int> Bitmap_Index_Queue = new ConcurrentQueue<int>();
 
 		private WPF_Button button_1_binding = new WPF_Button() { Bind_Name = "hi" };
 		private Main_View_Model windows_bindings = new Main_View_Model();
@@ -90,7 +37,7 @@ namespace IOTech_BitMap_Slicer
 		{
 
 			// initialization and declaration of variables
-
+			
 			Stopwatch watch_all_program = new Stopwatch();
 
 			watch_all_program.Reset();
@@ -103,58 +50,58 @@ namespace IOTech_BitMap_Slicer
 
 			DMesh3 Imported_STL_mesh = null;
 			Model3D HelixToolkit_Model3D = null;
-			Vector3d SLICING_DIRECTION_UNIT;
+			Vector3d SLICING_DIRECTION_UNIT = new Vector3d();
 
-			Bitmap_Slice.SCALE_FACTOR = SCALE_FACTOR;
-			Bitmap_Slice.Bitmap_Color = bitmap_color;
-			Bitmap_Slice.PEN_WIDTH = (int)PEN_FINE_WIDTH;
-			Bitmap_Slice.Pen = new Pen(bitmap_color, PEN_FINE_WIDTH);
-			Bitmap_Slice.PIXEL_FORMAT = PIXEL_FORMAT;
+			//Bitmap_Slice.SCALE_FACTOR = V.SCALE_FACTOR;
+			//Bitmap_Slice.Bitmap_Color = V.bitmap_color;
+			//Bitmap_Slice.PEN_WIDTH = (int)V.PEN_FINE_WIDTH;
+			//Bitmap_Slice.Pen = new Pen(V.bitmap_color, V.PEN_FINE_WIDTH);
+			//Bitmap_Slice.PIXEL_FORMAT = V.PIXEL_FORMAT;
 
-			Util.EXIT_CODE = EXIT_CODE;
+			Util.EXIT_CODE = V.EXIT_CODE;
 
 			System.IO.File.WriteAllText(@"C:\Users\admin\Desktop\BitMap_Slicer\debug.txt", string.Empty);
 
 			// Open STL file and create DMesh3 objects
 			DMesh3Builder DMesh3_builder = new DMesh3Builder();
 			StandardMeshReader reader = new StandardMeshReader() { MeshBuilder = DMesh3_builder };
-			IOReadResult result = reader.Read(MODEL_IN_PATH, ReadOptions.Defaults);
+			IOReadResult result = reader.Read(V.MODEL_IN_PATH, ReadOptions.Defaults);
 			if (result.code == IOCode.Ok)
 			{
 				Imported_STL_mesh = DMesh3_builder.Meshes[0];
 			}
 			else
 			{
-				Util.exit_messege(new string[] { "DMesh3Builder faild to open stl model", "USER_PATH is - " + USER_PATH, "MODEL_IN_PATH is - " + MODEL_IN_PATH });
+				Util.Exit_messege(new string[] { "DMesh3Builder faild to open stl model", "USER_PATH is - " + V.USER_PATH, "MODEL_IN_PATH is - " + V.MODEL_IN_PATH });
 			}
 
 			Vector3d STL_mesh_Diagonal = Imported_STL_mesh.CachedBounds.Diagonal;
 
 			IEnumerable<double> Slice_Enumerator = Util.Range_Enumerator(
-									Imported_STL_mesh.CachedBounds.Min[(int)SLICING_AXIS],
-									Imported_STL_mesh.CachedBounds.Max[(int)SLICING_AXIS],
-									NUM_OF_SLICES);
+									Imported_STL_mesh.CachedBounds.Min[(int)V.SLICING_AXIS],
+									Imported_STL_mesh.CachedBounds.Max[(int)V.SLICING_AXIS],
+									V.NUM_OF_SLICES);
 
-			switch (SLICING_AXIS)
+			switch (V.SLICING_AXIS)
 			{
-				case Axis.X:
+				case V.Axis.X:
 
-					Bitmap_dimensions = Tuple.Create(STL_mesh_Diagonal.y, STL_mesh_Diagonal.z);
-					Mesh_min_dimensions = Tuple.Create(Imported_STL_mesh.CachedBounds.Min.y, Imported_STL_mesh.CachedBounds.Min.z);
+					V.Bitmap_dimensions = Tuple.Create(STL_mesh_Diagonal.y, STL_mesh_Diagonal.z);
+					V.Mesh_min_dimensions = Tuple.Create(Imported_STL_mesh.CachedBounds.Min.y, Imported_STL_mesh.CachedBounds.Min.z);
 					SLICING_DIRECTION_UNIT = Vector3d.AxisX;
 					break;
 
-				case Axis.Y:
+				case V.Axis.Y:
 
-					Bitmap_dimensions = Tuple.Create(STL_mesh_Diagonal.x, STL_mesh_Diagonal.z);
-					Mesh_min_dimensions = Tuple.Create(Imported_STL_mesh.CachedBounds.Min.x, Imported_STL_mesh.CachedBounds.Min.z);
+					V.Bitmap_dimensions = Tuple.Create(STL_mesh_Diagonal.x, STL_mesh_Diagonal.z);
+					V.Mesh_min_dimensions = Tuple.Create(Imported_STL_mesh.CachedBounds.Min.x, Imported_STL_mesh.CachedBounds.Min.z);
 					SLICING_DIRECTION_UNIT = Vector3d.AxisY;
 					break;
 
-				case Axis.Z:
+				case V.Axis.Z:
 
-					Bitmap_dimensions = Tuple.Create(STL_mesh_Diagonal.x, STL_mesh_Diagonal.y);
-					Mesh_min_dimensions = Tuple.Create(Imported_STL_mesh.CachedBounds.Min.x, Imported_STL_mesh.CachedBounds.Min.y);
+					V.Bitmap_dimensions = Tuple.Create(STL_mesh_Diagonal.x, STL_mesh_Diagonal.y);
+					V.Mesh_min_dimensions = Tuple.Create(Imported_STL_mesh.CachedBounds.Min.x, Imported_STL_mesh.CachedBounds.Min.y);
 					SLICING_DIRECTION_UNIT = Vector3d.AxisZ;
 					break;
 			}
@@ -183,19 +130,19 @@ namespace IOTech_BitMap_Slicer
 			//second_cross_section = new MeshPlaneCut(main_cross_section.Mesh, plane_origine - 0.01F, SLICING_NORMAL * -1);
 			//second_cross_section.Cut();
 
-			StandardMeshWriter.WriteFile(MODEL_OUT_PATH, new List<WriteMesh>() { new WriteMesh(plane_cut_cross_section.Mesh) }, WriteOptions.Defaults);
+			StandardMeshWriter.WriteFile(V.MODEL_OUT_PATH, new List<WriteMesh>() { new WriteMesh(plane_cut_cross_section.Mesh) }, WriteOptions.Defaults);
 
 			// Using HelixToolkit show 3D object on GUI
 			ModelVisual3D device3D = new ModelVisual3D();
 			try
 			{
 				ModelImporter import = new ModelImporter();
-				HelixToolkit_Model3D = import.Load(MODEL_OUT_PATH);
+				HelixToolkit_Model3D = import.Load(V.MODEL_OUT_PATH);
 			}
 			catch (Exception e)
 			{
 				// MessageBox.Show("Exception Error : " + e.StackTrace);
-				Util.exit_messege(new string[] { "Exception loading HelixToolkit Model3D" }, e);
+				Util.Exit_messege(new string[] { "Exception loading HelixToolkit Model3D" }, e);
 			}
 
 #if SHOW_BOUNDS
@@ -245,16 +192,16 @@ namespace IOTech_BitMap_Slicer
 			//List<EdgeLoop> cutLoops = mesh_slice.CutLoops;
 			//List<EdgeSpan> cutSpans = mesh_slice.CutSpans;
 
-			loop_count = 1;
+			V.loop_count = 1;
 
 			// how come we do not need Bitmap_dimensions.x * SCALE_FACTOR I simply dont understand. After all we do multiply in
 			//							loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR + PEN_WIDTH);
-			Bitmap_Slice main_bitmap = new Bitmap_Slice(Bitmap_dimensions.Item1, Bitmap_dimensions.Item2);
-			Bitmap_Slice temp_bitmap = new Bitmap_Slice(Bitmap_dimensions.Item1, Bitmap_dimensions.Item2);
+			Bitmap_Slice main_bitmap = new Bitmap_Slice(V.Bitmap_dimensions.Item1, V.Bitmap_dimensions.Item2);
+			Bitmap_Slice temp_bitmap = new Bitmap_Slice(V.Bitmap_dimensions.Item1, V.Bitmap_dimensions.Item2);
 
 #if PAINT_BITMAP_BORDERS
 
-			temp_bitmap.Draw_rectangle(bitmap_slice.bitmap.Width, bitmap_slice.bitmap.Height);
+			temp_bitmap.Draw_rectangle(temp_bitmap.bitmap_width, temp_bitmap.bitmap_height);
 
 #endif
 
@@ -270,22 +217,22 @@ namespace IOTech_BitMap_Slicer
 
 				foreach (Vector3d vec3d in cutLoop_Curve.Vertices)
 				{
-					switch (SLICING_AXIS)
+					switch (V.SLICING_AXIS)
 					{
-						case Axis.X:
-							y = (vec3d.y - Mesh_min_dimensions.Item1) * SCALE_FACTOR + PEN_FINE_WIDTH;
+						case V.Axis.X:
+							y = (vec3d.y - V.Mesh_min_dimensions.Item1) * V.SCALE_FACTOR + V.PEN_FINE_WIDTH;
 							//z = temp_bitmap.bitmap_height - (vec3d.z - Mesh_min_dimensions.Item2) * SCALE_FACTOR + PEN_FINE_WIDTH;
-							z = (vec3d.z - Mesh_min_dimensions.Item2) * SCALE_FACTOR + PEN_FINE_WIDTH;
+							z = (vec3d.z - V.Mesh_min_dimensions.Item2) * V.SCALE_FACTOR + V.PEN_FINE_WIDTH;
 							loop_vertices.Add(new Vector2d(y, z));
 							break;
-						case Axis.Y:
-							x = (vec3d.x - Mesh_min_dimensions.Item1) * SCALE_FACTOR + PEN_FINE_WIDTH;
-							z = (vec3d.z - Mesh_min_dimensions.Item2) * SCALE_FACTOR + PEN_FINE_WIDTH;
+						case V.Axis.Y:
+							x = (vec3d.x - V.Mesh_min_dimensions.Item1) * V.SCALE_FACTOR + V.PEN_FINE_WIDTH;
+							z = (vec3d.z - V.Mesh_min_dimensions.Item2) * V.SCALE_FACTOR + V.PEN_FINE_WIDTH;
 							loop_vertices.Add(new Vector2d(x, z));
 							break;
-						case Axis.Z:
-							x = (vec3d.x - Mesh_min_dimensions.Item1) * SCALE_FACTOR + PEN_FINE_WIDTH;
-							y = (vec3d.y - Mesh_min_dimensions.Item2) * SCALE_FACTOR + PEN_FINE_WIDTH;
+						case V.Axis.Z:
+							x = (vec3d.x - V.Mesh_min_dimensions.Item1) * V.SCALE_FACTOR + V.PEN_FINE_WIDTH;
+							y = (vec3d.y - V.Mesh_min_dimensions.Item2) * V.SCALE_FACTOR + V.PEN_FINE_WIDTH;
 							loop_vertices.Add(new Vector2d(x, y));
 							break;
 						default:
@@ -301,7 +248,7 @@ namespace IOTech_BitMap_Slicer
 #if DEBUG_FILLING_POINT
 				Debug_Filling_Point(new Bitmap_Slice(temp_bitmap.Bitmap), loop_vertices[0], loop_vertices[1]);
 #endif
-				Thread thread = new Thread(() => temp_bitmap.Flood_Fill(loop_vertices), stackSize);
+				Thread thread = new Thread(() => temp_bitmap.Flood_Fill(loop_vertices), V.stackSize);
 				thread.Start();
 				thread.Join();
 
@@ -309,17 +256,17 @@ namespace IOTech_BitMap_Slicer
 				main_bitmap.Byte_XOR(ref temp_bitmap);
 
 #if DEBUG_XOR
-				temp_bitmap.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + (slice_count) + "_loop_" + (loop_count) + "_b_temp_bitmap" + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
-				main_bitmap.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + (slice_count) + "_loop_" + (loop_count++) + "_c_main_bitmap" + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
+				temp_bitmap.Save_Bitmap(V.BITMAP_DIR_PREFIX + @"\" + "slice_" + (V.slice_count) + "_loop_" + (V.loop_count) + "_b_temp_bitmap" + V.BITMAP_PATH_SUFIX, V.IMAGE_FORMAT_EXTENSION);
+				main_bitmap.Save_Bitmap(V.BITMAP_DIR_PREFIX + @"\" + "slice_" + (V.slice_count) + "_loop_" + (V.loop_count++) + "_c_main_bitmap" + V.BITMAP_PATH_SUFIX, V.IMAGE_FORMAT_EXTENSION);
 #endif
-				temp_bitmap = new Bitmap_Slice(Bitmap_dimensions.Item1, Bitmap_dimensions.Item2);
+				temp_bitmap = new Bitmap_Slice(V.Bitmap_dimensions.Item1, V.Bitmap_dimensions.Item2);
 			}
 
 			//main_bitmap.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + (slice_count) + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
-			main_bitmap.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + (cross_section_pair.Item2) + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
+			main_bitmap.Save_Bitmap(V.BITMAP_DIR_PREFIX + @"\" + "slice_" + (cross_section_pair.Item2) + V.BITMAP_PATH_SUFIX, V.IMAGE_FORMAT_EXTENSION);
 			//Bitmap_Slice_Queue.Enqueue(main_bitmap);
 			//Bitmap_Index_Queue.Enqueue(cross_section_pair.Item2);
-			slice_count++;
+			V.slice_count++;
 		}
 
 
@@ -380,7 +327,7 @@ namespace IOTech_BitMap_Slicer
 				debug_bitmap.Draw_X(new Vector2d(near_point_x1, near_point_y1), mark_length, Color.Blue);
 				debug_bitmap.Draw_X(new Vector2d(near_point_x2, near_point_y2), mark_length, Color.Red);
 
-				debug_bitmap.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + (slice_count) + "_loop_" + (loop_count) + "_a_debug_bitmap_colored" + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
+				debug_bitmap.Save_Bitmap(V.BITMAP_DIR_PREFIX + @"\" + "slice_" + (V.slice_count) + "_loop_" + (V.loop_count) + "_a_debug_bitmap_colored" + V.BITMAP_PATH_SUFIX, V.IMAGE_FORMAT_EXTENSION);
 
 				file.WriteLine("On Loop Points:");
 				file.WriteLine("(" + on_loop_x1 + ", " + on_loop_y1 + ") - Colored in Yellow");
@@ -409,7 +356,7 @@ namespace IOTech_BitMap_Slicer
 				file.WriteLine("Index: " + byte_near_i_2 + ", Value: " + debug_bitmap.bitmap_byte_array[byte_near_i_2]);
 
 				file.WriteLine();
-				file.WriteLine("************ End of loop " + loop_count + " ************");
+				file.WriteLine("************ End of loop " + V.loop_count + " ************");
 				file.WriteLine();
 
 				void get_dear_indices(Vector2d origin_vec, Vector2d dest_vec)

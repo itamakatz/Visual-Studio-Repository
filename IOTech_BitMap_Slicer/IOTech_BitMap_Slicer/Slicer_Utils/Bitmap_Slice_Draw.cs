@@ -81,8 +81,8 @@ namespace IOTech_BitMap_Slicer
 		{
 			if (Scaled)
 			{
-				height = height * SCALE_FACTOR - 1;
-				width = width * SCALE_FACTOR - 1;
+				height = height * V.SCALE_FACTOR - 1;
+				width = width * V.SCALE_FACTOR - 1;
 			}
 			else
 			{
@@ -108,7 +108,7 @@ namespace IOTech_BitMap_Slicer
 
 		public void Draw_Line_With_Graphics(Vector2d origin_vec, Vector2d dest_vec)
 		{
-			graphics.DrawLine(Pen, (float)origin_vec.x, (float)(bitmap_height - origin_vec.y),
+			graphics.DrawLine(V.Pen, (float)origin_vec.x, (float)(bitmap_height - origin_vec.y),
 									(float)dest_vec.x, (float)(bitmap_height - dest_vec.y));
 		}
 	}

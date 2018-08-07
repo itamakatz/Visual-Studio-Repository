@@ -24,15 +24,15 @@ namespace IOTech_BitMap_Slicer
 			Trace.WriteLine("\n");
 		}
 
-		public static void exit_messege(string[] messages)
+		public static void Exit_messege(string[] messages)
 		{
 			Print_Messege(messages);
 			Environment.Exit(EXIT_CODE);
 		}
 
-		public static void exit_messege(string[] messages, Exception e)
+		public static void Exit_messege(string[] messages, Exception e)
 		{
-			exit_messege(messages);
+			Exit_messege(messages);
 			Trace.WriteLine(e.StackTrace);
 			Trace.WriteLine(e.Message);
 			throw e;
@@ -50,13 +50,13 @@ namespace IOTech_BitMap_Slicer
 		{
 			try
 			{
-				MainWindow.MODEL_IN_PATH = Path.Combine(MainWindow.USER_PATH, MainWindow.MODEL_IN_PATH);
-				MainWindow.MODEL_OUT_PATH = Path.Combine(MainWindow.USER_PATH, MainWindow.MODEL_OUT_PATH);
-				MainWindow.BITMAP_DIR_PREFIX = Path.Combine(MainWindow.USER_PATH, MainWindow.BITMAP_DIR_PREFIX);
+				V.MODEL_IN_PATH = Path.Combine(V.USER_PATH, V.MODEL_IN_PATH);
+				V.MODEL_OUT_PATH = Path.Combine(V.USER_PATH, V.MODEL_OUT_PATH);
+				V.BITMAP_DIR_PREFIX = Path.Combine(V.USER_PATH, V.BITMAP_DIR_PREFIX);
 
-				if (!File.Exists(MainWindow.BITMAP_DIR_PREFIX)) { Directory.CreateDirectory(MainWindow.BITMAP_DIR_PREFIX); }
+				if (!File.Exists(V.BITMAP_DIR_PREFIX)) { Directory.CreateDirectory(V.BITMAP_DIR_PREFIX); }
 			}
-			catch (Exception e) { exit_messege(new string[] { "Check_directories faild" }, e); }
+			catch (Exception e) { Exit_messege(new string[] { "Check_directories faild" }, e); }
 		}
 
 		public static IEnumerable<double> Range_Enumerator(double start, double end, int num_of_slices)

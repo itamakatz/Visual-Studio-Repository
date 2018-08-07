@@ -15,6 +15,9 @@ namespace IOTech_BitMap_Slicer
 {
 	partial class Bitmap_Slice
 	{
+
+		//Bitmap_Slice.SCALE_FACTOR = V.SCALE_FACTOR;
+
 		private Bitmap bitmap;
 		public byte[] bitmap_byte_array;
 		public bool[] bool_array;
@@ -27,19 +30,38 @@ namespace IOTech_BitMap_Slicer
 		private IntPtr pointer;
 		private int im_num_of_bytes;
 
-		private readonly int bitmap_width;
-		private readonly int bitmap_height;
+		public readonly int bitmap_width;
+		public readonly int bitmap_height;
 
 		public bool Scaled { get; set; }
 		private bool On_byte_Manupulation { get; set; }
 
-		public static int SCALE_FACTOR;
-		public static PixelFormat PIXEL_FORMAT;
-
-		public static int PEN_WIDTH = 1;
-		public static Pen Pen;
 		private static byte[] byte_color;
-		private static Color bitmap_color;
+		private static Color bitmap_color = V.bitmap_color;
+
+		public static byte[] Byte_Color
+		{
+			get
+			{
+				if (byte_color != null) { return byte_color; }
+				else
+				{
+					byte_color = new byte[] { bitmap_color.B, bitmap_color.G, bitmap_color.R }; // BGR not RGB
+					return byte_color;
+				}
+			}
+			set { byte_color = value; }
+		}
+
+		public static Color Bitmap_Color
+		{
+			get { return bitmap_color; }
+			set
+			{
+				bitmap_color = value;
+				Byte_Color = new byte[] { bitmap_color.B, bitmap_color.G, bitmap_color.R }; // BGR not RGB
+			}
+		}
 
 		public Bitmap_Slice(double width, double height)
 		{
@@ -49,7 +71,7 @@ namespace IOTech_BitMap_Slicer
 			bitmap_width = Get_Int_Dimension(width);
 			bitmap_height = Get_Int_Dimension(height);
 
-			bitmap = new Bitmap(bitmap_width, bitmap_height, PIXEL_FORMAT);
+			bitmap = new Bitmap(bitmap_width, bitmap_height, V.PIXEL_FORMAT);
 			graphics = Graphics.FromImage(bitmap);
 
 			bool_array = new bool[bitmap_width * bitmap_height];
@@ -84,15 +106,7 @@ namespace IOTech_BitMap_Slicer
 			}
 		}
 
-		public static Color Bitmap_Color
-		{
-			get { return bitmap_color; }
-			set
-			{
-				bitmap_color = value;
-				byte_color = new byte[] { bitmap_color.B, bitmap_color.G, bitmap_color.R }; // BGR not RGB
-			}
-		}
+
 
 		public void update_bool_array()
 		{
@@ -125,12 +139,12 @@ namespace IOTech_BitMap_Slicer
 				graphics.Dispose();
 				Rectangle rect = new Rectangle(0, 0, bitmap_width, bitmap_height);
 
-				single_pixel_num_of_byte = Image.GetPixelFormatSize(PIXEL_FORMAT) / 8;
+				single_pixel_num_of_byte = Image.GetPixelFormatSize(V.PIXEL_FORMAT) / 8;
 				stride = bitmap_width * single_pixel_num_of_byte;
 				int padding = (stride % 4);
 				stride += padding == 0 ? 0 : 4 - padding; //pad out to multiple of 4 - CRITICAL
 
-				bitmap_data = bitmap.LockBits(rect, ImageLockMode.ReadWrite, PIXEL_FORMAT);
+				bitmap_data = bitmap.LockBits(rect, ImageLockMode.ReadWrite, V.PIXEL_FORMAT);
 				pointer = bitmap_data.Scan0;
 				im_num_of_bytes = bitmap_height * Math.Abs(bitmap_data.Stride);
 				bitmap_byte_array = new byte[im_num_of_bytes];
@@ -285,9 +299,9 @@ namespace IOTech_BitMap_Slicer
 
 			if (!set_black)
 			{
-				bitmap_byte_array[byte_array_index] = byte_color[0];
-				bitmap_byte_array[byte_array_index + 1] = byte_color[1];
-				bitmap_byte_array[byte_array_index + 2] = byte_color[2];
+				bitmap_byte_array[byte_array_index] = Byte_Color[0];
+				bitmap_byte_array[byte_array_index + 1] = Byte_Color[1];
+				bitmap_byte_array[byte_array_index + 2] = Byte_Color[2];
 				return;
 			}
 
@@ -298,8 +312,8 @@ namespace IOTech_BitMap_Slicer
 
 		private int Get_Int_Dimension(double in_double)
 		{
-			if (Scaled) { return (int) Math.Ceiling(in_double + PEN_WIDTH * 2) * SCALE_FACTOR; }
-			else		{ return (int) Math.Ceiling(in_double + PEN_WIDTH * 2); }
+			if (Scaled) { return (int) Math.Ceiling(in_double + V.PEN_FINE_WIDTH * 2) * V.SCALE_FACTOR; }
+			else		{ return (int) Math.Ceiling(in_double + V.PEN_FINE_WIDTH * 2); }
 		}
 
 		public void Byte_XOR(ref Bitmap_Slice XOR)
@@ -310,7 +324,7 @@ namespace IOTech_BitMap_Slicer
 			if (this.bitmap_width != XOR.bitmap_width ||
 				this.bitmap_height != XOR.bitmap_height ||
 				this.im_num_of_bytes != XOR.im_num_of_bytes)
-			{ Util.exit_messege(new string[] { "XOR failed. Dimensions are not equal" }); }
+			{ Util.Exit_messege(new string[] { "XOR failed. Dimensions are not equal" }); }
 
 			for (int x = 0; x < bitmap_width; x++)
 			{
