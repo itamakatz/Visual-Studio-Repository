@@ -76,40 +76,16 @@ namespace IOTech_BitMap_Slicer
 			Draw_Line_Color(x0, y0, x1, y1, color);
 		}
 
-
-		internal void Draw_rectangle(int width, int height)
-		{
-			if (Scaled)
-			{
-				height = height * V.SCALE_FACTOR - 1;
-				width = width * V.SCALE_FACTOR - 1;
-			}
-			else
-			{
-				height = height - 1;
-				width = width - 1;
-			}
-
-			Switch_to_byte_manipulation();
-
-			Draw_Line(0, 0, 0, height);
-			Draw_Line(0, height, width, height);
-			Draw_Line(width, height, width, 0);
-			Draw_Line(width, 0, 0, 0);
-		}
-
 		internal void Draw_X(Vector2d point, int length, Color color)
 		{
-			Switch_to_byte_manipulation();
-
 			Draw_Line_Color(new Vector2d(point.x - length, point.y - length), new Vector2d(point.x + length, point.y + length), color);
 			Draw_Line_Color(new Vector2d(point.x + length, point.y - length), new Vector2d(point.x - length, point.y + length), color);
 		}
 
 		public void Draw_Line_With_Graphics(Vector2d origin_vec, Vector2d dest_vec)
 		{
-			graphics.DrawLine(V.Pen, (float)origin_vec.x, (float)(bitmap_height - origin_vec.y),
-									(float)dest_vec.x, (float)(bitmap_height - dest_vec.y));
+			graphics.DrawLine(V.Pen, (float)origin_vec.x, (float)(V.Bitmap_Height - origin_vec.y),
+									(float)dest_vec.x, (float)(V.Bitmap_Height - dest_vec.y));
 		}
 	}
 }

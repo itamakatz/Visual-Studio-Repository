@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace IOTech_BitMap_Slicer
 {
-	public class V
+	public static class V
 	{
 		// ***** Variables that can be changed ***** //
 
-		//public static string MODEL_IN_PATH = @"Desktop\BitMap_Slicer\CorvinCastle.stl";
-		public static string MODEL_IN_PATH = @"C:\Users\admin\Desktop\BitMap_Slicer\Test Part Crown" + "\\" + "test-part_crown_straight" + @".stl";
+		public static string MODEL_IN_PATH = @"Desktop\BitMap_Slicer\CorvinCastle.stl";
+		//public static string MODEL_IN_PATH = @"C:\Users\admin\Desktop\BitMap_Slicer\Test Part Crown" + "\\" + "Crown_on_support" + @".stl";
 		public static string MODEL_OUT_PATH = @"Desktop\BitMap_Slicer\CorvinCastle_new.stl";
 
 		public static string BITMAP_DIR_PREFIX = @"Desktop\BitMap_Slicer\BITMAP_slice";
@@ -22,14 +22,12 @@ namespace IOTech_BitMap_Slicer
 
 		public const int SCALE_FACTOR = 20;
 		public const int NUM_OF_SLICES = 50;
-		public static Axis SLICING_AXIS = Axis.Z;
+		public static Axis SLICING_AXIS = Axis.Y;
 
 		public const int EXIT_CODE = 10;
 
 		public const int PEN_FINE_WIDTH = 1;
-
 		public static Color bitmap_color = Color.Blue;
-
 		public static Pen Pen = new Pen(bitmap_color, PEN_FINE_WIDTH);
 
 		/* CAN NOT BE OF THE FORMAT TYPE : (see https://stackoverflow.com/questions/11368412/lowering-bitmap-quality-produces-outofmemoryexception)
@@ -49,18 +47,26 @@ namespace IOTech_BitMap_Slicer
 		// maybe should varify the image is infact Format32bppRgb?
 		public const PixelFormat PIXEL_FORMAT = PixelFormat.Format24bppRgb; // best format I found
 
-		public const int stackSize = 1000000000;  // max Int32 = 2147483647 
+		public const int STACK_SIZE = 1000000000;  // max Int32 = 2147483647 
 
-		// ***** Initialization of other variables ***** //
+
+		// ***** Initialization and Declaration of other variables ***** //
+
 
 		public static string USER_PATH = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
-		public static Tuple<double, double> Bitmap_dimensions;
 		public static Tuple<double, double> Mesh_min_dimensions;
 
 		public static int slice_count = 1;
 		public static int loop_count = 1;
 
 		public enum Axis { X, Y, Z };
+
+		public static int stride;
+		public static int single_pixel_num_of_byte;
+		public static int im_num_of_bytes;
+
+		public static int Bitmap_Width;
+		public static int Bitmap_Height;
 	}
 }

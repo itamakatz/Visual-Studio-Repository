@@ -9,8 +9,6 @@ namespace IOTech_BitMap_Slicer.WPF_Classes
 {
 	public class Main_View_Model : ObservableObject
 	{
-		//public WPF_Button button { get; set; }
-		//public WPF_Button button { get; private set; }
 		private Brush _background_color;
 
 		public WPF_Button Button { get; set; }
@@ -30,13 +28,10 @@ namespace IOTech_BitMap_Slicer.WPF_Classes
 				OnPropertyChanged("Background_Color");
 			}
 		}
-		
-		//public BackgroundViewModel Background { get; private set; }
 
 		public Main_View_Model()
 		{
 			Button = new WPF_Button();
-			//Background = new BackgroundViewModel();
 		}
 
 		public void Set_Button_String(string str)

@@ -65,5 +65,10 @@ namespace IOTech_BitMap_Slicer
 			for (double current = start + increment, i = 0; i < num_of_slices; current += increment, i++)
 				yield return current;
 		}
+
+		public static int Get_Int_Dimension(double in_double)
+		{
+			return (int)Math.Ceiling(in_double + V.PEN_FINE_WIDTH * 2) * V.SCALE_FACTOR;
+		}
 	}
 }

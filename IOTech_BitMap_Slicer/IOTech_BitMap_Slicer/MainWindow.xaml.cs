@@ -1,8 +1,6 @@
-﻿//#define PAINT_BITMAP_BORDERS
-//#define RUN_VISUAL
+﻿//#define RUN_VISUAL
 //#define SHOW_LOCATION_OF_FLOOD_STARTING_POINT
 //#define DEBUG_FILLING_POINT
-//#define DEBUG_XOR
 
 using g3;
 using System;
@@ -52,15 +50,9 @@ namespace IOTech_BitMap_Slicer
 			Model3D HelixToolkit_Model3D = null;
 			Vector3d SLICING_DIRECTION_UNIT = new Vector3d();
 
-			//Bitmap_Slice.SCALE_FACTOR = V.SCALE_FACTOR;
-			//Bitmap_Slice.Bitmap_Color = V.bitmap_color;
-			//Bitmap_Slice.PEN_WIDTH = (int)V.PEN_FINE_WIDTH;
-			//Bitmap_Slice.Pen = new Pen(V.bitmap_color, V.PEN_FINE_WIDTH);
-			//Bitmap_Slice.PIXEL_FORMAT = V.PIXEL_FORMAT;
-
 			Util.EXIT_CODE = V.EXIT_CODE;
 
-			System.IO.File.WriteAllText(@"C:\Users\admin\Desktop\BitMap_Slicer\debug.txt", string.Empty);
+			File.WriteAllText(@"C:\Users\admin\Desktop\BitMap_Slicer\debug.txt", string.Empty);
 
 			// Open STL file and create DMesh3 objects
 			DMesh3Builder DMesh3_builder = new DMesh3Builder();
@@ -85,22 +77,22 @@ namespace IOTech_BitMap_Slicer
 			switch (V.SLICING_AXIS)
 			{
 				case V.Axis.X:
-
-					V.Bitmap_dimensions = Tuple.Create(STL_mesh_Diagonal.y, STL_mesh_Diagonal.z);
+					V.Bitmap_Width = Util.Get_Int_Dimension(STL_mesh_Diagonal.y);
+					V.Bitmap_Height = Util.Get_Int_Dimension(STL_mesh_Diagonal.z);
 					V.Mesh_min_dimensions = Tuple.Create(Imported_STL_mesh.CachedBounds.Min.y, Imported_STL_mesh.CachedBounds.Min.z);
 					SLICING_DIRECTION_UNIT = Vector3d.AxisX;
 					break;
 
 				case V.Axis.Y:
-
-					V.Bitmap_dimensions = Tuple.Create(STL_mesh_Diagonal.x, STL_mesh_Diagonal.z);
+					V.Bitmap_Width = Util.Get_Int_Dimension(STL_mesh_Diagonal.x);
+					V.Bitmap_Height = Util.Get_Int_Dimension(STL_mesh_Diagonal.z);
 					V.Mesh_min_dimensions = Tuple.Create(Imported_STL_mesh.CachedBounds.Min.x, Imported_STL_mesh.CachedBounds.Min.z);
 					SLICING_DIRECTION_UNIT = Vector3d.AxisY;
 					break;
 
 				case V.Axis.Z:
-
-					V.Bitmap_dimensions = Tuple.Create(STL_mesh_Diagonal.x, STL_mesh_Diagonal.y);
+					V.Bitmap_Width = Util.Get_Int_Dimension(STL_mesh_Diagonal.x);
+					V.Bitmap_Height = Util.Get_Int_Dimension(STL_mesh_Diagonal.y);
 					V.Mesh_min_dimensions = Tuple.Create(Imported_STL_mesh.CachedBounds.Min.x, Imported_STL_mesh.CachedBounds.Min.y);
 					SLICING_DIRECTION_UNIT = Vector3d.AxisZ;
 					break;
@@ -196,14 +188,8 @@ namespace IOTech_BitMap_Slicer
 
 			// how come we do not need Bitmap_dimensions.x * SCALE_FACTOR I simply dont understand. After all we do multiply in
 			//							loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR + PEN_WIDTH);
-			Bitmap_Slice main_bitmap = new Bitmap_Slice(V.Bitmap_dimensions.Item1, V.Bitmap_dimensions.Item2);
-			Bitmap_Slice temp_bitmap = new Bitmap_Slice(V.Bitmap_dimensions.Item1, V.Bitmap_dimensions.Item2);
-
-#if PAINT_BITMAP_BORDERS
-
-			temp_bitmap.Draw_rectangle(temp_bitmap.bitmap_width, temp_bitmap.bitmap_height);
-
-#endif
+			Bitmap_Slice main_bitmap = new Bitmap_Slice();
+			Bitmap_Slice temp_bitmap = new Bitmap_Slice();
 
 			foreach (EdgeLoop edgeLoop in cutLoops)
 			{
@@ -248,22 +234,17 @@ namespace IOTech_BitMap_Slicer
 #if DEBUG_FILLING_POINT
 				Debug_Filling_Point(new Bitmap_Slice(temp_bitmap.Bitmap), loop_vertices[0], loop_vertices[1]);
 #endif
-				Thread thread = new Thread(() => temp_bitmap.Flood_Fill(loop_vertices), V.stackSize);
+				Thread thread = new Thread(() => temp_bitmap.Flood_Fill(loop_vertices), V.STACK_SIZE);
 				thread.Start();
 				thread.Join();
 
-
 				main_bitmap.Byte_XOR(ref temp_bitmap);
 
-#if DEBUG_XOR
-				temp_bitmap.Save_Bitmap(V.BITMAP_DIR_PREFIX + @"\" + "slice_" + (V.slice_count) + "_loop_" + (V.loop_count) + "_b_temp_bitmap" + V.BITMAP_PATH_SUFIX, V.IMAGE_FORMAT_EXTENSION);
-				main_bitmap.Save_Bitmap(V.BITMAP_DIR_PREFIX + @"\" + "slice_" + (V.slice_count) + "_loop_" + (V.loop_count++) + "_c_main_bitmap" + V.BITMAP_PATH_SUFIX, V.IMAGE_FORMAT_EXTENSION);
-#endif
-				temp_bitmap = new Bitmap_Slice(V.Bitmap_dimensions.Item1, V.Bitmap_dimensions.Item2);
+				temp_bitmap = new Bitmap_Slice();
 			}
 
-			//main_bitmap.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + (slice_count) + BITMAP_PATH_SUFIX, IMAGE_FORMAT_EXTENSION);
-			main_bitmap.Save_Bitmap(V.BITMAP_DIR_PREFIX + @"\" + "slice_" + (cross_section_pair.Item2) + V.BITMAP_PATH_SUFIX, V.IMAGE_FORMAT_EXTENSION);
+			//main_bitmap.Save_Bitmap(BITMAP_DIR_PREFIX + @"\" + "slice_" + (slice_count) + BITMAP_PATH_SUFIX);
+			main_bitmap.Save_Bitmap(V.BITMAP_DIR_PREFIX + @"\" + "slice_" + (cross_section_pair.Item2) + V.BITMAP_PATH_SUFIX);
 			//Bitmap_Slice_Queue.Enqueue(main_bitmap);
 			//Bitmap_Index_Queue.Enqueue(cross_section_pair.Item2);
 			V.slice_count++;
@@ -291,6 +272,7 @@ namespace IOTech_BitMap_Slicer
 		{
 			debug_bitmap.update_bool_array();
 
+			// need to add mutex
 			using (StreamWriter file = new StreamWriter(@"C:\Users\admin\Desktop\BitMap_Slicer\debug.txt", true))
 			{
 				int mark_length = 1;
@@ -309,25 +291,25 @@ namespace IOTech_BitMap_Slicer
 				get_dear_indices(_loop_vertex_1, _loop_vertex_2);
 				Queue<Tuple<int, int>> starting_points = debug_bitmap.get_starting_queue(_loop_vertex_1, _loop_vertex_2);
 
-				int bool_on_i_1 = debug_bitmap.Bool_Index(on_loop_x1, on_loop_y1);
-				int bool_on_i_2 = debug_bitmap.Bool_Index(on_loop_x2, on_loop_y2);
+				int bool_on_i_1 = Bitmap_Slice.Bool_Index(on_loop_x1, on_loop_y1);
+				int bool_on_i_2 = Bitmap_Slice.Bool_Index(on_loop_x2, on_loop_y2);
 
-				int bool_near_i_1 = debug_bitmap.Bool_Index(near_point_x1, near_point_y1);
-				int bool_near_i_2 = debug_bitmap.Bool_Index(near_point_x2, near_point_y2);
+				int bool_near_i_1 = Bitmap_Slice.Bool_Index(near_point_x1, near_point_y1);
+				int bool_near_i_2 = Bitmap_Slice.Bool_Index(near_point_x2, near_point_y2);
 
 
-				int byte_on_i_1 = debug_bitmap.Byte_Index(on_loop_x1, on_loop_y1);
-				int byte_on_i_2 = debug_bitmap.Byte_Index(on_loop_x2, on_loop_y2);
+				int byte_on_i_1 = Bitmap_Slice.Byte_Index(on_loop_x1, on_loop_y1);
+				int byte_on_i_2 = Bitmap_Slice.Byte_Index(on_loop_x2, on_loop_y2);
 
-				int byte_near_i_1 = debug_bitmap.Byte_Index(near_point_x1, near_point_y1);
-				int byte_near_i_2 = debug_bitmap.Byte_Index(near_point_x2, near_point_y2);
+				int byte_near_i_1 = Bitmap_Slice.Byte_Index(near_point_x1, near_point_y1);
+				int byte_near_i_2 = Bitmap_Slice.Byte_Index(near_point_x2, near_point_y2);
 
 				debug_bitmap.Draw_X(_loop_vertex_1, mark_length, Color.Yellow);
 				debug_bitmap.Draw_X(_loop_vertex_2, mark_length, Color.Green);
 				debug_bitmap.Draw_X(new Vector2d(near_point_x1, near_point_y1), mark_length, Color.Blue);
 				debug_bitmap.Draw_X(new Vector2d(near_point_x2, near_point_y2), mark_length, Color.Red);
 
-				debug_bitmap.Save_Bitmap(V.BITMAP_DIR_PREFIX + @"\" + "slice_" + (V.slice_count) + "_loop_" + (V.loop_count) + "_a_debug_bitmap_colored" + V.BITMAP_PATH_SUFIX, V.IMAGE_FORMAT_EXTENSION);
+				debug_bitmap.Save_Bitmap(V.BITMAP_DIR_PREFIX + @"\" + "slice_" + (V.slice_count) + "_loop_" + (V.loop_count) + "_a_debug_bitmap_colored" + V.BITMAP_PATH_SUFIX);
 
 				file.WriteLine("On Loop Points:");
 				file.WriteLine("(" + on_loop_x1 + ", " + on_loop_y1 + ") - Colored in Yellow");
