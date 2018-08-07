@@ -22,7 +22,7 @@ namespace IOTech_BitMap_Slicer
 			set
 			{
 				_name = value;
-				OnPropertyChanged("Name");
+				OnPropertyChanged("Bind_Name");
 			}
 		}
 	}

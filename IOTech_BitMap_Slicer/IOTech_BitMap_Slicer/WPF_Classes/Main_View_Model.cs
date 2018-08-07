@@ -39,6 +39,11 @@ namespace IOTech_BitMap_Slicer.WPF_Classes
 			//Background = new BackgroundViewModel();
 		}
 
+		public void Set_Button_String(string str)
+		{
+			Button.Bind_Name = str;
+		}
+
 		bool background_state = false;
 		public void SetBackground_invoke()
 		{

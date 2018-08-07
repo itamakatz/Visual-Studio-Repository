@@ -1,5 +1,5 @@
 ﻿//#define PAINT_BITMAP_BORDERS
-//#define RUN_VISUAL
+#define RUN_VISUAL
 //#define SHOW_LOCATION_OF_FLOOD_STARTING_POINT
 //#define DEBUG_FILLING_POINT
 //#define DEBUG_XOR
@@ -39,8 +39,8 @@ namespace IOTech_BitMap_Slicer
 		private const string BITMAP_PATH_SUFIX = @".Bmp";
 		private static ImageFormat IMAGE_FORMAT_EXTENSION = ImageFormat.Bmp;
 
-		private const int SCALE_FACTOR = 5;
-		private const int NUM_OF_SLICES = 2;
+		private const int SCALE_FACTOR = 1;
+		private const int NUM_OF_SLICES = 1;
 		private const Axis SLICING_AXIS = Axis.Y;
 
 		private const int EXIT_CODE = 10;
@@ -331,6 +331,12 @@ namespace IOTech_BitMap_Slicer
 		private void button_1_Click(object sender, RoutedEventArgs e)
 		{
 			windows_bindings.SetBackground_invoke();
+		}
+
+		private void slider1_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+		{
+			double input_val = e.NewValue;
+			windows_bindings.Set_Button_String(input_val.ToString());
 		}
 
 #if DEBUG_FILLING_POINT
