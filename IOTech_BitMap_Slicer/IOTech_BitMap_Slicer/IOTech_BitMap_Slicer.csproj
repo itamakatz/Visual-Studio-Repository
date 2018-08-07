@@ -69,8 +69,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="WPF_Classes\WPF_Button.cs" />
     <Compile Include="Bitmap_Slice.cs" />
     <Compile Include="Bitmap_Slice_Draw.cs" />
+    <Compile Include="WPF_Classes\Main_View_Model.cs" />
+    <Compile Include="WPF_Classes\Observable_Object.cs" />
     <Compile Include="Util.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

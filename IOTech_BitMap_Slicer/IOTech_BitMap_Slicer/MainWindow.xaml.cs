@@ -20,6 +20,7 @@ using System.Threading;
 using System.Drawing.Imaging;
 using System.Windows.Input;
 using System.Collections.Concurrent;
+using IOTech_BitMap_Slicer.WPF_Classes;
 
 namespace IOTech_BitMap_Slicer
 {
@@ -39,7 +40,7 @@ namespace IOTech_BitMap_Slicer
 		private static ImageFormat IMAGE_FORMAT_EXTENSION = ImageFormat.Bmp;
 
 		private const int SCALE_FACTOR = 5;
-		private const int NUM_OF_SLICES = 50;
+		private const int NUM_OF_SLICES = 2;
 		private const Axis SLICING_AXIS = Axis.Y;
 
 		private const int EXIT_CODE = 10;
@@ -82,6 +83,9 @@ namespace IOTech_BitMap_Slicer
 		static ConcurrentQueue<Bitmap_Slice> Bitmap_Slice_Queue = new ConcurrentQueue<Bitmap_Slice>();
 		static ConcurrentQueue<int> Bitmap_Index_Queue = new ConcurrentQueue<int>();
 
+		private WPF_Button button_1_binding = new WPF_Button() { Bind_Name = "hi" };
+		private Main_View_Model windows_bindings = new Main_View_Model();
+
 		public MainWindow()
 		{
 
@@ -93,6 +97,7 @@ namespace IOTech_BitMap_Slicer
 			watch_all_program.Start();
 
 			InitializeComponent(); // default initialization of WPF
+			DataContext = windows_bindings;
 
 			Util.Check_directories();
 
@@ -315,6 +320,17 @@ namespace IOTech_BitMap_Slicer
 			//Bitmap_Slice_Queue.Enqueue(main_bitmap);
 			//Bitmap_Index_Queue.Enqueue(cross_section_pair.Item2);
 			slice_count++;
+		}
+
+
+		//private void Loaded_Function(object sender, RoutedEventArgs e)
+		//{
+		//	button_1.DataContext = button_1_binding;
+		//}
+
+		private void button_1_Click(object sender, RoutedEventArgs e)
+		{
+			windows_bindings.SetBackground_invoke();
 		}
 
 #if DEBUG_FILLING_POINT

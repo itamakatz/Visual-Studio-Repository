@@ -12,7 +12,7 @@
 			<!-- Remember to add light to the scene -->
 			<helix:DefaultLights/>
 		</helix:HelixViewport3D>
-		<Slider HorizontalAlignment="Left" Margin="-124,179,0,0" Height="56" Width="337" RenderTransformOrigin="0.5,0.5" VerticalAlignment="Top">
+		<Slider x:Name="slider1" HorizontalAlignment="Left" Margin="-124,179,0,0" Height="56" Width="337" RenderTransformOrigin="0.5,0.5" VerticalAlignment="Top">
 			<Slider.RenderTransform>
 				<TransformGroup>
 					<ScaleTransform/>
@@ -22,5 +22,8 @@
 				</TransformGroup>
 			</Slider.RenderTransform>
 		</Slider>
+		<!--<Button Click="Red_Clicked">Red Background</Button>-->
+		<!--<Button x:Name="button_1" Content="{Binding Bind_Name}" HorizontalAlignment="Left" Margin="282,142,0,0" VerticalAlignment="Top" Width="220" Height="58" FontSize="24" Click="button_1_Click""/>-->
+		<Button x:Name="button_1" Content="{Binding Button.Bind_Name}" HorizontalAlignment="Left" Margin="282,142,0,0" VerticalAlignment="Top" Width="220" Height="58" FontSize="24" Click="button_1_Click" Background="{Binding Background_Color}"/>
 	</Grid>
 </Window>
