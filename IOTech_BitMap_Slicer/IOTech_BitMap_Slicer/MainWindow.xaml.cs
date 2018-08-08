@@ -19,7 +19,6 @@ using IOTech_BitMap_Slicer.WPF_Classes;
 
 namespace IOTech_BitMap_Slicer
 {
-
 	public partial class MainWindow : Window
 	{
 		private static ConcurrentQueue<Bitmap_Slice> Bitmap_Slice_Queue = new ConcurrentQueue<Bitmap_Slice>();
@@ -233,17 +232,6 @@ namespace IOTech_BitMap_Slicer
 
 			main_bitmap.Save_Bitmap(V.BITMAP_DIR_PREFIX + @"\" + "slice_" + (cross_section_pair.Item2) + V.BITMAP_PATH_SUFIX);
 			V.slice_count++;
-		}
-
-		private void button_1_Click(object sender, RoutedEventArgs e)
-		{
-			windows_bindings.SetBackground_invoke();
-		}
-
-		private void slider1_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-		{
-			double input_val = e.NewValue;
-			windows_bindings.Set_Button_String(input_val.ToString());
 		}
 
 #if DEBUG_FILLING_POINT

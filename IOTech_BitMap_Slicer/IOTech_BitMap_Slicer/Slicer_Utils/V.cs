@@ -8,8 +8,9 @@ namespace IOTech_BitMap_Slicer
 	{
 		// ***** Variables that can be changed ***** //
 
-		public static string MODEL_IN_PATH = @"Desktop\BitMap_Slicer\CorvinCastle.stl";
+		//public static string MODEL_IN_PATH = @"C:\Users\admin\Desktop\BitMap_Slicer" + "\\" + "CorvinCastle" + @".stl";
 		//public static string MODEL_IN_PATH = @"C:\Users\admin\Desktop\BitMap_Slicer\Test Part Crown" + "\\" + "Crown_on_support" + @".stl";
+		public static string MODEL_IN_PATH = @"C:\Users\admin\Desktop\BitMap_Slicer" + "\\" + "Intersecting_triangles" + @".stl";
 		public static string MODEL_OUT_PATH = @"Desktop\BitMap_Slicer\CorvinCastle_new.stl";
 
 		public static string BITMAP_DIR_PREFIX = @"Desktop\BitMap_Slicer\BITMAP_slice";
@@ -17,7 +18,7 @@ namespace IOTech_BitMap_Slicer
 		public static ImageFormat IMAGE_FORMAT_EXTENSION = ImageFormat.Bmp;
 
 		public const int SCALE_FACTOR = 20;
-		public const int NUM_OF_SLICES = 50;
+		public const int NUM_OF_SLICES = 5;
 		public static Axis SLICING_AXIS = Axis.Y;
 
 		public const int EXIT_CODE = 10;
