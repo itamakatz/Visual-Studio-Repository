@@ -179,15 +179,11 @@ namespace IOTech_BitMap_Slicer
 
 			V.loop_count = 1;
 
-			// how come we do not need Bitmap_dimensions.x * SCALE_FACTOR I simply dont understand. After all we do multiply in
-			//							loop_vertices.Add((vec3d.xz - Mesh_min_dimensions) * SCALE_FACTOR + PEN_WIDTH);
-			Bitmap_Slice main_bitmap = new Bitmap_Slice();
-			Bitmap_Slice temp_bitmap = new Bitmap_Slice();
+			Bitmap_Slice[] XOR_Array = new Bitmap_Slice[cutLoops.Count];
 
-			foreach (EdgeLoop edgeLoop in cutLoops)
+			for (int i = 0; i < cutLoops.Count; i++)
 			{
-
-				DCurve3 cutLoop_Curve = edgeLoop.ToCurve();
+				DCurve3 cutLoop_Curve = cutLoops[i].ToCurve();
 				List<Vector2d> loop_vertices = new List<Vector2d>();
 
 				Tuple<double, double> create_Vector2d = new Tuple<double, double>(0,0);
@@ -218,22 +214,22 @@ namespace IOTech_BitMap_Slicer
 					}
 				}
 
-				for (int i = 0; i < cutLoop_Curve.VertexCount; i++)
+				XOR_Array[i] = new Bitmap_Slice();
+
+				for (int j = 0; j < cutLoop_Curve.VertexCount; j++)
 				{
-					temp_bitmap.Draw_Line(loop_vertices[i], loop_vertices[(i + 1) % cutLoop_Curve.VertexCount]);
+					XOR_Array[i].Draw_Line(loop_vertices[j], loop_vertices[(j + 1) % cutLoop_Curve.VertexCount]);
 				}
 
 #if DEBUG_FILLING_POINT
-				Debug_Filling_Point(new Bitmap_Slice(temp_bitmap.Bitmap), loop_vertices[0], loop_vertices[1]);
+				Debug_Filling_Point(new Bitmap_Slice(XOR_Array[i].Bitmap), loop_vertices[0], loop_vertices[1]);
 #endif
-				Thread thread = new Thread(() => temp_bitmap.Flood_Fill(loop_vertices), V.STACK_SIZE);
+				Thread thread = new Thread(() => XOR_Array[i].Flood_Fill(loop_vertices), V.STACK_SIZE);
 				thread.Start();
 				thread.Join();
-
-				main_bitmap.Byte_XOR(ref temp_bitmap);
-
-				temp_bitmap = new Bitmap_Slice();
 			}
+
+			Bitmap_Slice main_bitmap = Bitmap_Slice.Bitmap_XOR(ref XOR_Array);
 
 			main_bitmap.Save_Bitmap(V.BITMAP_DIR_PREFIX + @"\" + "slice_" + (cross_section_pair.Item2) + V.BITMAP_PATH_SUFIX);
 			V.slice_count++;
@@ -253,7 +249,7 @@ namespace IOTech_BitMap_Slicer
 #if DEBUG_FILLING_POINT
 		private static void Debug_Filling_Point(Bitmap_Slice debug_bitmap, Vector2d _loop_vertex_1, Vector2d _loop_vertex_2)
 		{
-			debug_bitmap.update_bool_array();
+			debug_bitmap.Update_bool_array();
 
 			// need to add mutex
 			using (StreamWriter file = new StreamWriter(@"C:\Users\admin\Desktop\BitMap_Slicer\debug.txt", true))
@@ -272,7 +268,7 @@ namespace IOTech_BitMap_Slicer
 				int on_loop_y2 = (int)Math.Floor(_loop_vertex_2.y);
 
 				get_dear_indices(_loop_vertex_1, _loop_vertex_2);
-				Queue<Tuple<int, int>> starting_points = debug_bitmap.get_starting_queue(_loop_vertex_1, _loop_vertex_2);
+				Queue<Tuple<int, int>> starting_points = debug_bitmap.Get_starting_queue(_loop_vertex_1, _loop_vertex_2);
 
 				int bool_on_i_1 = Bitmap_Slice.Bool_Index(on_loop_x1, on_loop_y1);
 				int bool_on_i_2 = Bitmap_Slice.Bool_Index(on_loop_x2, on_loop_y2);

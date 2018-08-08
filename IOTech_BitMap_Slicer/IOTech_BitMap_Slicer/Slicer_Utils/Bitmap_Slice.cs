@@ -280,26 +280,29 @@ namespace IOTech_BitMap_Slicer
 			bitmap_byte_array[byte_array_index + 2] = 0;
 		}
 
-
-		public void Byte_XOR(ref Bitmap_Slice XOR)
+		public static Bitmap_Slice Bitmap_XOR(ref Bitmap_Slice[] XOR_Array)
 		{
-			this.Switch_to_byte_manipulation();
-			XOR.Switch_to_byte_manipulation();
+			Bitmap_Slice return_bitmap = new Bitmap_Slice();
+
+			foreach (Bitmap_Slice bp in XOR_Array) { bp.Switch_to_byte_manipulation(); }
+
+			int bool_index;
+			bool XOR_bool;
 
 			for (int x = 0; x < V.Bitmap_Width; x++)
 			{
 				for (int y = 0; y < V.Bitmap_Height; y++)
 				{
-					if (this.bool_array[Bool_Index(x, y)] != XOR.bool_array[Bool_Index(x, y)])
-					{
-						this.bool_array[Bool_Index(x, y)] = true;
-					}
-					else if (this.bool_array[Bool_Index(x, y)])
-					{
-						this.bool_array[Bool_Index(x, y)] = false;
-					}
+					XOR_bool = false;
+
+					bool_index = Bool_Index(x, y);
+
+					foreach (Bitmap_Slice bp in XOR_Array) { XOR_bool ^= bp.bool_array[bool_index]; }
+
+					return_bitmap.bool_array[bool_index] = XOR_bool;
 				}
 			}
+			return return_bitmap;
 		}
 
 		// implemented for debugging. not used in actual algorithms due to heavy decrease in speed
