@@ -5,17 +5,32 @@ namespace IOTech_BitMap_Slicer.WPF_Classes
 {
 	public class Main_View_Model : ObservableObject
 	{
-		private Brush _background_color;
 
-		public WPF_Button Button { get; set; }
+		public Button Button { get; set; }
+		public Slider Slider { get; set; }
+
+		int _stam;
+
+		public int Get_Slider_Value
+		{
+			get
+			{
+				return Slider.Slider_Value;
+			}
+			set
+			{
+				_stam = value;
+			}
+		}
+
+		private bool _background_color_invoke = false;
+		private Brush _background_color;
 
 		public Brush Background_Color
 		{
 			get
 			{
-				if (_background_color == null)
-					return _background_color;
-
+				if (_background_color == null) { return _background_color; }
 				return _background_color;
 			}
 			set
@@ -27,7 +42,8 @@ namespace IOTech_BitMap_Slicer.WPF_Classes
 
 		public Main_View_Model()
 		{
-			Button = new WPF_Button();
+			Button = new Button();
+			Slider = new Slider();
 		}
 
 		public void Set_Button_String(string str)
@@ -35,13 +51,11 @@ namespace IOTech_BitMap_Slicer.WPF_Classes
 			Button.Bind_Name = str;
 		}
 
-		bool background_state = false;
 		public void SetBackground_invoke()
 		{
-			if (background_state) { Background_Color = Brushes.Yellow; }
-			else { Background_Color = Brushes.Blue; }
+			Background_Color = _background_color_invoke ? Brushes.Yellow : Brushes.Blue;
 
-			background_state = !background_state;
+			_background_color_invoke = !_background_color_invoke;
 		}
 	}
 }

@@ -1,7 +1,7 @@
 ﻿
 namespace IOTech_BitMap_Slicer.WPF_Classes
 {
-	public class WPF_Button : ObservableObject
+	public class Button : ObservableObject
 	{
 		private string _name;
 

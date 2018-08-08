@@ -15,15 +15,15 @@ using IOTech_BitMap_Slicer.WPF_Classes;
 
 namespace IOTech_BitMap_Slicer
 {
-
 	public partial class MainWindow : Window
 	{
+
 		private void button_1_Click(object sender, RoutedEventArgs e)
 		{
 			windows_bindings.SetBackground_invoke();
 		}
 
-		private void slider1_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+		private void slider2_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
 		{
 			double input_val = e.NewValue;
 			windows_bindings.Set_Button_String(input_val.ToString());

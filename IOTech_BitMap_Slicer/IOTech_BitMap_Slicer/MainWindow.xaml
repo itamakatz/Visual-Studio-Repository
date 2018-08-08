@@ -14,68 +14,73 @@
 			<ColumnDefinition Width="*" />
 		</Grid.ColumnDefinitions>
 
-		<Slider x:Name="slider1" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" ValueChanged="slider1_ValueChanged" BorderThickness="0,0,15,0" MinWidth="100">
-		<!--<Slider x:Name="slider1" Grid.Column="0" HorizontalAlignment="Left" Margin="-124,179,0,0" Height="56" Width="337" RenderTransformOrigin="0.5,0.5" VerticalAlignment="Top" ValueChanged="slider1_ValueChanged" BorderThickness="0,0,15,0" Grid.RowSpan="2" Grid.ColumnSpan="2">-->
-			<Slider.RenderTransform>
-				<TransformGroup>
-					<ScaleTransform/>
-					<SkewTransform/>
-					<RotateTransform Angle="-90"/>
-					<TranslateTransform/>
-				</TransformGroup>
-			</Slider.RenderTransform>
-		</Slider>
-		
-		<GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
-		<TextBlock Grid.Column="2" FontSize="55" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap">Right side</TextBlock>
+		<GridSplitter Grid.Column="1" 
+					  Width="5" 
+					  HorizontalAlignment="Stretch" />
+		<TextBlock Grid.Column="2" 
+				   FontSize="55" 
+				   HorizontalAlignment="Center" 
+				   VerticalAlignment="Center" 
+				   TextWrapping="Wrap">
+			Right side
+		</TextBlock>
 
-		<helix:HelixViewport3D x:Name="my_3d_view" ZoomExtentsWhenLoaded="true" Grid.RowSpan="2" Grid.ColumnSpan="2" Grid.Row="2" Grid.Column="2" >
+		<helix:HelixViewport3D x:Name="my_3d_view" 
+							   ZoomExtentsWhenLoaded="true"	
+							   Grid.RowSpan="2" 
+							   Grid.ColumnSpan="2" 
+							   Grid.Row="2" 
+							   Grid.Column="2">
 			<!-- Remember to add light to the scene -->
 			<helix:DefaultLights/>
 		</helix:HelixViewport3D>
 
-		<!--<StackPanel Orientation="Vertical">
+		<StackPanel Grid.Column="0" 
+					VerticalAlignment="Center" 
+					HorizontalAlignment="Center" 
+					Orientation="Vertical">
 			<Slider x:Name="SpeedSlider"
                     Margin="3"
                     Foreground="DarkGray"
-                    Value="{Binding SliderValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                    Maximum="{Binding Steps,
-                                                    Mode=TwoWay,
-                                                    UpdateSourceTrigger=PropertyChanged}"
-                    Minimum="{Binding MinSteps,
-                                                    Mode=TwoWay,
-                                                    UpdateSourceTrigger=PropertyChanged}"
+                    Value="{Binding Slider.Slider_Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    Minimum="{Binding Slider.Min_Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    Maximum="{Binding Slider.Max_Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     SmallChange="2"
-                    TickFrequency="4"
+                    TickFrequency="1"
                     TickPlacement="BottomRight"
-                    ToolTip="{Binding ElementName=SpeedSlider,Path=Value}">
-			</Slider>
+					ValueChanged="slider2_ValueChanged"
+					ToolTip="{Binding Value, ElementName=SpeedSlider}"/>
 			<DockPanel>
 				<TextBox DockPanel.Dock="Left"
-                         Text="{Binding MinSteps,
-                                                    Mode=TwoWay,
-                                                    UpdateSourceTrigger=PropertyChanged}"
+                         Text="{Binding Slider.Min_Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Width="100"
                          Background="Transparent"
                          IsReadOnly="True"
                          BorderThickness="0" />
 				<TextBox DockPanel.Dock="Right"
-                         Text="{Binding Steps,
-                                                    Mode=TwoWay,
-                                                    UpdateSourceTrigger=PropertyChanged}"
+                         Text="{Binding Slider.Max_Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Width="100"
                          HorizontalContentAlignment="Right"
                          Background="Transparent"
                          IsReadOnly="True"
                          BorderThickness="0" />
-				<TextBlock DockPanel.Dock="Right"
-                             Text="0"
-                             HorizontalAlignment="Center" />
+				<TextBlock DockPanel.Dock="Right" 
+						   Text="{Binding Slider.Mid_Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+						   HorizontalAlignment="Center" />
 			</DockPanel>
-		</StackPanel>-->
+		</StackPanel>
 
-		<!--<Button Click="Red_Clicked">Red Background</Button>-->
-		<!--<Button x:Name="button_1" Content="{Binding Bind_Name}" HorizontalAlignment="Left" Margin="282,142,0,0" VerticalAlignment="Top" Width="220" Height="58" FontSize="24" Click="button_1_Click""/>-->
-		<Button x:Name="button_1" Content="{Binding Button.Bind_Name}" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="220" Height="58" FontSize="24" Click="button_1_Click" Background="{Binding Background_Color}" Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="2"/>
+		<Button x:Name="button_1" 
+				Content="{Binding Button.Bind_Name}" 
+				HorizontalAlignment="Center" 
+				Margin="10,10,0,0" 
+				VerticalAlignment="Top" 
+				Width="220" 
+				Height="58" 
+				FontSize="24" 
+				Click="button_1_Click" 
+				Background="{Binding Background_Color}" 
+				Grid.Row="0" 
+				Grid.Column="0"/>
 	</Grid>
 </Window>

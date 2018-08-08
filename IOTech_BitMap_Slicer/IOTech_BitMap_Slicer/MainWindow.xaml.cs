@@ -24,8 +24,7 @@ namespace IOTech_BitMap_Slicer
 		private static ConcurrentQueue<Bitmap_Slice> Bitmap_Slice_Queue = new ConcurrentQueue<Bitmap_Slice>();
 		public static ConcurrentQueue<int> Bitmap_Index_Queue = new ConcurrentQueue<int>();
 
-		private WPF_Button button_1_binding = new WPF_Button() { Bind_Name = "hi" };
-		private Main_View_Model windows_bindings = new Main_View_Model();
+		public static Main_View_Model windows_bindings = new Main_View_Model();
 
 		public MainWindow()
 		{

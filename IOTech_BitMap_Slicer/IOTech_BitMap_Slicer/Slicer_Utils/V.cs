@@ -17,8 +17,8 @@ namespace IOTech_BitMap_Slicer
 		public static string BITMAP_PATH_SUFIX = @".Bmp";
 		public static ImageFormat IMAGE_FORMAT_EXTENSION = ImageFormat.Bmp;
 
-		public const int SCALE_FACTOR = 20;
-		public const int NUM_OF_SLICES = 5;
+		public const int SCALE_FACTOR = 1;
+		public const int NUM_OF_SLICES = 1;
 		public static Axis SLICING_AXIS = Axis.Y;
 
 		public const int EXIT_CODE = 10;

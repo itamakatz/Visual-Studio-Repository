@@ -69,9 +69,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="WPF_Classes\Slider.cs" />
     <Compile Include="Slicer_Utils\V.cs" />
     <Compile Include="WPF_Classes\Event_Handlers.cs" />
-    <Compile Include="WPF_Classes\WPF_Button.cs" />
+    <Compile Include="WPF_Classes\Button.cs" />
     <Compile Include="Slicer_Utils\Bitmap_Slice.cs" />
     <Compile Include="Slicer_Utils\Bitmap_Slice_Draw.cs" />
     <Compile Include="WPF_Classes\Main_View_Model.cs" />
