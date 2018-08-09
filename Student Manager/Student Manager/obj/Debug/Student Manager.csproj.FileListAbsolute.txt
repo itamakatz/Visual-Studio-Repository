@@ -1,7 +1,0 @@
-C:\Users\Itamar\source\repos\Student Manager\Student Manager\bin\Debug\Student Manager.exe.config
-C:\Users\Itamar\source\repos\Student Manager\Student Manager\bin\Debug\Student Manager.exe
-C:\Users\Itamar\source\repos\Student Manager\Student Manager\bin\Debug\Student Manager.pdb
-C:\Users\Itamar\source\repos\Student Manager\Student Manager\obj\Debug\Student Manager.csprojAssemblyReference.cache
-C:\Users\Itamar\source\repos\Student Manager\Student Manager\obj\Debug\Student Manager.csproj.CoreCompileInputs.cache
-C:\Users\Itamar\source\repos\Student Manager\Student Manager\obj\Debug\Student Manager.exe
-C:\Users\Itamar\source\repos\Student Manager\Student Manager\obj\Debug\Student Manager.pdb
