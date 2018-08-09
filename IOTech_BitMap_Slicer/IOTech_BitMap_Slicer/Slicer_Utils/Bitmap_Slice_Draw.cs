@@ -61,9 +61,9 @@ namespace IOTech_BitMap_Slicer
 
 		public void Draw_Line_Color(int x0, int y0, int x1, int y1, Color temp_color)
 		{
-			byte_color = new byte[] { temp_color.B, temp_color.G, temp_color.R };
+			Byte_Color = new byte[] { temp_color.B, temp_color.G, temp_color.R };
 			Draw_Line(x0, y0, x1, y1, true);
-			byte_color = new byte[] { bitmap_color.B, bitmap_color.G, bitmap_color.R };
+			Byte_Color = new byte[] { bitmap_color.B, bitmap_color.G, bitmap_color.R };
 		}
 
 		public void Draw_Line_Color(Vector2d origin_vec, Vector2d dest_vec, Color color)

@@ -9,23 +9,22 @@ namespace IOTech_BitMap_Slicer
 		// ***** Variables that can be changed ***** //
 
 		//public static string MODEL_IN_PATH = @"C:\Users\admin\Desktop\BitMap_Slicer" + "\\" + "CorvinCastle" + @".stl";
-		//public static string MODEL_IN_PATH = @"C:\Users\admin\Desktop\BitMap_Slicer\Test Part Crown" + "\\" + "Crown_on_support" + @".stl";
-		public static string MODEL_IN_PATH = @"C:\Users\admin\Desktop\BitMap_Slicer" + "\\" + "Intersecting_triangles" + @".stl";
+		public static string MODEL_IN_PATH = @"C:\Users\admin\Desktop\BitMap_Slicer\Test Part Crown" + "\\" + "test-part_crown_conical" + @".stl";
+		//public static string MODEL_IN_PATH = @"C:\Users\admin\Desktop\BitMap_Slicer" + "\\" + "Intersecting_triangles" + @".stl";
 		public static string MODEL_OUT_PATH = @"Desktop\BitMap_Slicer\CorvinCastle_new.stl";
 
 		public static string BITMAP_DIR_PREFIX = @"Desktop\BitMap_Slicer\BITMAP_slice";
 		public static string BITMAP_PATH_SUFIX = @".Bmp";
 		public static ImageFormat IMAGE_FORMAT_EXTENSION = ImageFormat.Bmp;
 
-		public const int SCALE_FACTOR = 1;
-		public const int NUM_OF_SLICES = 1;
-		public static Axis SLICING_AXIS = Axis.Y;
+		public const int SCALE_FACTOR = 20;
+		public const int NUM_OF_SLICES = 100;
+		public static Axis SLICING_AXIS = Axis.Z;
 
-		public const int EXIT_CODE = 10;
+		public static bool REVERSED_BW = true;
 
 		public const int PEN_FINE_WIDTH = 1;
 		public static Color bitmap_color = Color.Blue;
-		public static Pen Pen = new Pen(bitmap_color, PEN_FINE_WIDTH);
 
 		/* CAN NOT BE OF THE FORMAT TYPE : (see https://stackoverflow.com/questions/11368412/lowering-bitmap-quality-produces-outofmemoryexception)
 		 * Undefined
@@ -46,11 +45,14 @@ namespace IOTech_BitMap_Slicer
 
 		public const int STACK_SIZE = 1000000000;  // max Int32 = 2147483647 
 
+		public const int EXIT_CODE = 10;
 
 		// ***** Initialization and Declaration of other variables ***** //
 
 
 		public static string USER_PATH = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
+		public static Pen Pen = new Pen(bitmap_color, PEN_FINE_WIDTH);
 
 		public static Tuple<double, double> Mesh_min_dimensions;
 

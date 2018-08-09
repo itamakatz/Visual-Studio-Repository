@@ -18,7 +18,7 @@ namespace IOTech_BitMap_Slicer
 
 		private IntPtr pointer;
 
-		private bool On_byte_Manupulation { get; set; }
+		private bool On_bit_Manupulation { get; set; }
 
 		private static byte[] byte_color;
 		private static Color bitmap_color = V.bitmap_color;
@@ -49,35 +49,35 @@ namespace IOTech_BitMap_Slicer
 
 		public Bitmap_Slice()
 		{
-			On_byte_Manupulation = false;
+			On_bit_Manupulation = false;
 
 			bitmap = new Bitmap(V.Bitmap_Width, V.Bitmap_Height, V.PIXEL_FORMAT);
 			graphics = Graphics.FromImage(bitmap);
 
 			bool_array = new bool[V.Bitmap_Width * V.Bitmap_Height];
 
-			Switch_to_byte_manipulation();
+			Switch_to_bit_manipulation();
 		}
 
 		public Bitmap_Slice(Bitmap source_bitmap)
 		{
-			On_byte_Manupulation = false;
+			On_bit_Manupulation = false;
 
 			bitmap = source_bitmap;
 			graphics = Graphics.FromImage(bitmap);
 
 			bool_array = new bool[V.Bitmap_Width * V.Bitmap_Height];
 
-			Switch_to_byte_manipulation();
+			Switch_to_bit_manipulation();
 		}
 
 		public Bitmap Bitmap
 		{
 			get
 			{
-				Switch_to_bitmap_manipulation();
-				Bitmap return_bitmap = new Bitmap(bitmap);
 				Switch_to_byte_manipulation();
+				Bitmap return_bitmap = new Bitmap(bitmap);
+				Switch_to_bit_manipulation();
 				return return_bitmap;
 			}
 		}
@@ -101,14 +101,19 @@ namespace IOTech_BitMap_Slicer
 			{
 				for (int y = 0; y < V.Bitmap_Height; y++)
 				{
-					if (bool_array[Bool_Index(x, y)]) { Set_RGB(x, y); }
+					if (V.REVERSED_BW)
+					{
+						if (bool_array[Bool_Index(x, y)])	{ Set_RGB(x, y, set_black: true); }
+						else								{ Set_RGB(x, y, set_white: true); }
+					}
+					else { if (bool_array[Bool_Index(x, y)]) { Set_RGB(x, y); } }
 				}
 			}
 		}
 
-		private void Switch_to_byte_manipulation()
+		private void Switch_to_bit_manipulation()
 		{
-			if (!On_byte_Manupulation)
+			if (!On_bit_Manupulation)
 			{ 
 				graphics.Dispose();
 				Rectangle rect = new Rectangle(0, 0, V.Bitmap_Width, V.Bitmap_Height);
@@ -120,25 +125,25 @@ namespace IOTech_BitMap_Slicer
 				bitmap_byte_array = new byte[V.im_num_of_bytes];
 
 				Marshal.Copy(pointer, bitmap_byte_array, 0, V.im_num_of_bytes);
-				On_byte_Manupulation = true;
+				On_bit_Manupulation = true;
 			}
 		}
 
-		private void Switch_to_bitmap_manipulation()
+		private void Switch_to_byte_manipulation()
 		{
-			if (On_byte_Manupulation)
+			if (On_bit_Manupulation)
 			{
 				Update_byte_array();
 				Marshal.Copy(bitmap_byte_array, 0, pointer, V.im_num_of_bytes);
 				bitmap.UnlockBits(bitmap_data);
 				graphics = Graphics.FromImage(bitmap);
-				On_byte_Manupulation = false;
+				On_bit_Manupulation = false;
 			}
 		}
 
 		public void Save_Bitmap(string path)
 		{
-			Switch_to_bitmap_manipulation();
+			Switch_to_byte_manipulation();
 			var bitmap2 = new Bitmap(bitmap);
 			bitmap2.Save(path, V.IMAGE_FORMAT_EXTENSION);
 		}
@@ -157,7 +162,7 @@ namespace IOTech_BitMap_Slicer
 
 		public void Flood_Fill(List<Vector2d> loop_vertices)
 		{
-			Switch_to_byte_manipulation();
+			Switch_to_bit_manipulation();
 
 			for (int i = 0; i < loop_vertices.Count; i++)
 			{
@@ -263,28 +268,35 @@ namespace IOTech_BitMap_Slicer
 			return starting_points;
 		}
 
-		private void Set_RGB(int x, int y, bool set_black = false)
+		private void Set_RGB(int x, int y, bool set_black = false, bool set_white = false)
 		{
 			int byte_array_index = x * V.single_pixel_num_of_byte + (V.Bitmap_Height - y - 1) * V.stride;
 
-			if (!set_black)
+			if (set_black)
 			{
-				bitmap_byte_array[byte_array_index] = Byte_Color[0];
-				bitmap_byte_array[byte_array_index + 1] = Byte_Color[1];
-				bitmap_byte_array[byte_array_index + 2] = Byte_Color[2];
+				bitmap_byte_array[byte_array_index] = 0;
+				bitmap_byte_array[byte_array_index + 1] = 0;
+				bitmap_byte_array[byte_array_index + 2] = 0;
+				return;
+			}
+			else if (set_white)
+			{
+				bitmap_byte_array[byte_array_index] = 255;
+				bitmap_byte_array[byte_array_index + 1] = 255;
+				bitmap_byte_array[byte_array_index + 2] = 255;
 				return;
 			}
 
-			bitmap_byte_array[byte_array_index] = 0;
-			bitmap_byte_array[byte_array_index + 1] = 0;
-			bitmap_byte_array[byte_array_index + 2] = 0;
+			bitmap_byte_array[byte_array_index] = Byte_Color[0];
+			bitmap_byte_array[byte_array_index + 1] = Byte_Color[1];
+			bitmap_byte_array[byte_array_index + 2] = Byte_Color[2];
 		}
 
 		public static Bitmap_Slice Bitmap_XOR(ref Bitmap_Slice[] XOR_Array)
 		{
 			Bitmap_Slice return_bitmap = new Bitmap_Slice();
 
-			foreach (Bitmap_Slice bp in XOR_Array) { bp.Switch_to_byte_manipulation(); }
+			foreach (Bitmap_Slice bp in XOR_Array) { bp.Switch_to_bit_manipulation(); }
 
 			int bool_index;
 			bool XOR_bool;
