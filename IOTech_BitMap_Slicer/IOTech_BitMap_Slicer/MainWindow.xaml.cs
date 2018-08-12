@@ -103,12 +103,12 @@ namespace IOTech_BitMap_Slicer
 
 				if (enumerator_count++ % 5 == 0)
 				{
-					Parallel.ForEach(all_bitmaps, bitmap => Create_Bitmap(bitmap));
+					Parallel.ForEach(all_bitmaps, bitmap => Create_Cross_Section_Bitmaps(bitmap));
 					all_bitmaps = new List<Tuple<MeshPlaneCut, int>>();
 				}
 			}
 
-			Parallel.ForEach(all_bitmaps, bitmap => Create_Bitmap(bitmap));
+			Parallel.ForEach(all_bitmaps, bitmap => Create_Cross_Section_Bitmaps(bitmap));
 
 #if RUN_VISUAL
 
@@ -169,8 +169,8 @@ namespace IOTech_BitMap_Slicer
 			Util.Print_elapsed(watch_all_program.Elapsed);
 		}
 
-		//private static void Create_Bitmap(MeshPlaneCut mesh_slice)
-		private static void Create_Bitmap(Tuple<MeshPlaneCut, int> cross_section_pair)
+		//private static void Create_Cross_Section_Bitmaps(MeshPlaneCut mesh_slice)
+		private static void Create_Cross_Section_Bitmaps(Tuple<MeshPlaneCut, int> cross_section_pair)
 		{
 			List<EdgeLoop> cutLoops = cross_section_pair.Item1.CutLoops;
 			List<EdgeSpan> cutSpans = cross_section_pair.Item1.CutSpans;

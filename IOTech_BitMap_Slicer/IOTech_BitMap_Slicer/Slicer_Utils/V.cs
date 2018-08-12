@@ -67,5 +67,11 @@ namespace IOTech_BitMap_Slicer
 
 		public static int Bitmap_Width;
 		public static int Bitmap_Height;
+
+		public static int Actual_Max_Height;
+		public static int Actual_Min_Height;
+		public static int Actual_Max_Width;
+		public static int Actual_Min_Width;
+
 	}
 }
