@@ -1,142 +1,273 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Linq;
+using System.Threading;
 using Thorlabs.MotionControl.DeviceManagerCLI;
+using Thorlabs.MotionControl.GenericMotorCLI;
+using Thorlabs.MotionControl.GenericMotorCLI.ControlParameters;
+using Thorlabs.MotionControl.GenericMotorCLI.AdvancedMotor;
+using Thorlabs.MotionControl.GenericMotorCLI.KCubeMotor;
+using Thorlabs.MotionControl.GenericMotorCLI.Settings;
 using Thorlabs.MotionControl.KCube.DCServoCLI;
 
 namespace Try_Kinesis
 {
 	class Program
 	{
-		//private static KCubeDCServo _kCubeDCServoMotor = null;
-		//private static KCubeDCServo _kCubeDCServoMotor;
 
-		private const string serialNumber = "27000961";
-
-		static KCubeDCServo _kCubeDCServoMotor;
-
-		const int DEFAULTVEL = 10;
-		const int DEFAULTACC = 10;
-		const int TPOLLING = 250;
-		const int TIMEOUTSETTINGS = 7000;
-		const int TIMEOUTMOVE = 100000;
-
-		//void run()
-		//{
-		//	KCubeDCServo.CreateKCubeDCServo(serialNumber);
-		//}
+		const string serial_number = "27251998";
+		static decimal position = 1m;
+		const decimal velocity = 2.3m;
 
 		static void Main(string[] args)
 		{
 
-			
-			Program program = new Program();
+			Console.WriteLine("Beggining program with parameters:\n");
+			Console.WriteLine("Serial Number = {0}", serial_number);
+			Console.WriteLine("Velocity = {0}", velocity);
+			Console.WriteLine("Position = {0}", position);
 
-			//program .run();
-
-			//DeviceManagerCLI.BuildDeviceList();
-
-			//KCubeDCServo _kCubeDCServoMotor;
-			//_kCubeDCServoMotor = KCubeDCServo.CreateKCubeDCServo(serialNumber);
-			//KCubeDCServo.CreateKCubeDCServo(serialNumber);
-
-			//if (_kCubeDCServoMotor != null)
-			//{
-			//	Console.WriteLine("Device already connected");
-			//	return;
-			//}
-
-			// All of this operation has been placed inside a single "catch-all"
-			// exception handler. This is to reduce the size of the example code.
-			// Normally you would have a try...catch per API call and catch the
-			// specific exceptions that could be thrown (details of which can be
-			// found in the Kinesis .NET API document).
-			try
-			{
-				// Instructs the DeviceManager to build and maintain the list of
-				// devices connected.
-				DeviceManagerCLI.BuildDeviceList();
-				List<string> device_list = DeviceManagerCLI.GetDeviceList();
-
-				_kCubeDCServoMotor = KCubeDCServo.CreateKCubeDCServo(serialNumber);
-
-				_kCubeDCServoMotor.ClearDeviceExceptions();
-
-				if (!_kCubeDCServoMotor.IsSettingsInitialized())
-				{
-					//Establish a connection with the device.
-					_kCubeDCServoMotor.Connect(serialNumber);
-				}
-
-				if (!_kCubeDCServoMotor.IsSettingsInitialized())
-				{
-					//Establish a connection with the device.
-					WriteLine("Unable to initialise device" + serialNumber);
-				}
-
-				_kCubeDCServoMotor.StartPolling(TPOLLING);
-
-				var motorSettings = _kCubeDCServoMotor.GetMotorConfiguration(serialNumber, DeviceConfiguration.DeviceSettingsUseOptionType.UseDeviceSettings);
-
-				Thorlabs.MotionControl.GenericMotorCLI.Settings.MotorDeviceSettings currentDeviceSettingsNET = _kCubeDCServoMotor.MotorDeviceSettings;
-				var deviceInfoNET = _kCubeDCServoMotor.GetDeviceInfo();
-				var MotDi = Thorlabs.MotionControl.GenericMotorCLI.Settings.RotationSettings.RotationDirections;
-				//.RotationDirection.Forward;
-				currentDeviceSettingsNET.Rotation.RotationDirection;
-				//= MotDi;
-				//.Rotation.RotationDirection = MotDir; 
-
-				// Wait for the device settings to initialize. We ask the device to
-				// throw an exception if this takes more than 5000ms (5s) to complete.
-				_kCubeDCServoMotor.WaitForSettingsInitialized(5000);
-
-				// Initialize the DeviceUnitConverter object required for real world
-				// unit parameters.
-				//_kCubeDCServoMotor.GetMotorConfiguration(serialNumber);
-				_kCubeDCServoMotor.GetMotorConfiguration(serialNumber, DeviceConfiguration.DeviceSettingsUseOptionType.UseDeviceSettings);
-
-				// This starts polling the device at intervals of 250ms (0.25s).
-				_kCubeDCServoMotor.StartPolling(250);
-
-				// We are now able to enable the device for commands.
-				_kCubeDCServoMotor.EnableDevice();
-			}
-			catch (Exception ex)
-			{
-				WriteLine("Unable to connect to device\n" + ex);
-			}
-
-			//Console.WriteLine("Holly shit it worked.... now to move!!");
-			//Console.ReadKey();
-			try
-			{
-				_kCubeDCServoMotor.IdentifyDevice();
-				Decimal max_vel = _kCubeDCServoMotor.GetVelocityParams().MaxVelocity;
-				//WriteLine(max_vel.ToString());
-				WriteLine(max_vel + "");
-			}
-			catch (Exception ex)
-			{
-				WriteLine("Unable to connect to device\n" + ex);
-			}
-			//_kCubeDCServoMotor.MoveTo(0, 0);
-			//_kCubeDCServoMotor.SetJogStepSize(10);
-			//_kCubeDCServoMotor.MoveJog(Thorlabs.MotionControl.GenericMotorCLI.MotorDirection.Forward, 0);
-
-			//_kCubeDCServoMotor.MoveTo(50, 0);
-
-			WriteLine("end");
+			Console.WriteLine("\nPress key to enter run_control");
 			Console.ReadKey();
+			Console.WriteLine("\n");
 
-			_kCubeDCServoMotor.DisableDevice();
-			_kCubeDCServoMotor.StopPolling();
-			_kCubeDCServoMotor.Disconnect(true);
+			Program p = new Program();
+
+			p.run_control(serial_number, position, velocity);
+
+			Console.WriteLine("Finished running code");
+			Console.ReadKey();
 		}
 
-		static void WriteLine(string str)
+
+		void run_control(string serial_number, decimal position, decimal velocoty)
 		{
-			Trace.WriteLine(str);
-			Console.WriteLine(str);
+			// // get parameters from command line
+			// int argc = args.Count();
+			// if (argc < 1)
+			// {
+			// 	Console.WriteLine("Usage = KDC_Console_net_managed [serial_no] [position: optional (0 - 50)] [velocity: optional (0 - 5)]");
+			// 	Console.ReadKey();
+			// 	return;
+			// }
+
+			// // get the test motor position
+			// decimal position = 0m;
+			// if (argc > 1)
+			// {
+			// 	position = decimal.Parse(args[1]);
+			// }
+
+			// // get the test velocity
+			// decimal velocity = 0m;
+			// if (argc > 2)
+			// {
+			// 	velocity = decimal.Parse(args[2]);
+			// }
+
+			// // get the test KDC101 serial number
+			// string serial_number = args[0];
+
+			try
+			{
+				// Tell the device manager to get the list of all devices connected to the computer
+				DeviceManagerCLI.BuildDeviceList();
+			}
+			catch (Exception ex)
+			{
+				// an error occurred - see ex for details
+				Console.WriteLine("Exception raised by BuildDeviceList {0}", ex);
+				Console.ReadKey();
+				return;
+			}
+
+			// get available KCube DC Servos and check our serial number is correct
+			List<string> serialNumbers = DeviceManagerCLI.GetDeviceList(KCubeDCServo.DevicePrefix);
+			if (!serialNumbers.Contains(serial_number))
+			{
+				// the requested serial number is not a KDC101 or is not connected
+				Console.WriteLine("{0} is not a valid serial number", serial_number);
+				Console.ReadKey();
+				return;
+			}
+
+			// create the device
+			KCubeDCServo device = KCubeDCServo.CreateKCubeDCServo(serial_number);
+			if (device == null)
+			{
+				// an error occured
+				Console.WriteLine("{0} is not a KCubeDCServo", serial_number);
+				Console.ReadKey();
+				return;
+			}
+
+			// open a connection to the device.
+			try
+			{
+				Console.WriteLine("Opening device {0}", serial_number);
+				device.Connect(serial_number);
+			}
+			catch (Exception)
+			{
+				// connection failed
+				Console.WriteLine("Failed to open device {0}", serial_number);
+				Console.ReadKey();
+				return;
+			}
+
+			// wait for the device settings to initialize
+			if(!device.IsSettingsInitialized())
+			{
+				try
+				{
+					device.WaitForSettingsInitialized(5000);
+				}
+				catch (Exception)
+				{
+					Console.WriteLine("Settings failed to initialize");
+				}
+			}
+
+			// start the device polling
+			device.StartPolling(250);
+			// needs a delay so that the current enabled state can be obtained
+			Thread.Sleep(500);
+			// enable the channel otherwise any move is ignored 
+			device.EnableDevice();
+			// needs a delay to give time for the device to be enabled
+			Thread.Sleep(500);
+
+			// call LoadMotorConfiguration on the device to initialize the DeviceUnitConverter object required for real world unit parameters
+			MotorConfiguration motorSettings = device.LoadMotorConfiguration(serial_number);
+			KCubeDCMotorSettings currentDeviceSettings = device.MotorDeviceSettings as KCubeDCMotorSettings;
+
+			// display info about device
+			DeviceInfo deviceInfo = device.GetDeviceInfo();
+			Console.WriteLine("Device {0} = {1}", deviceInfo.SerialNumber, deviceInfo.Name);
+
+			//Home_Method1(device);
+			// or 
+			Home_Method2(device);
+			bool homed = device.Status.IsHomed;
+
+			// if a position is requested
+			while (position != 0)
+			{
+				// update velocity if required using real world methods
+				if (velocity != 0)
+				{
+					VelocityParameters velPars = device.GetVelocityParams();
+					velPars.MaxVelocity = velocity;
+					device.SetVelocityParams(velPars);
+				}
+
+				//Move_Method1(device, position);
+				// or
+				Move_Method2(device, position);
+
+				Decimal newPos = device.Position;
+				Console.WriteLine("Device Moved to {0}", newPos);
+
+				//string next_position = Console.ReadLine();
+				position = decimal.Parse(Console.ReadLine());
+			}
+
+			device.StopPolling();
+			device.Disconnect(true);
+		}
+
+		public void Home_Method1(IGenericAdvancedMotor device)
+		{
+			try
+			{
+				Console.WriteLine("Homing device");
+				device.Home(60000);
+			}
+			catch (Exception)
+			{
+				Console.WriteLine("Failed to home device");
+				Console.ReadKey();
+				return;
+			}
+			Console.WriteLine("Device Homed");
+		}
+
+		public void Move_Method1(IGenericAdvancedMotor device, decimal position)
+		{
+			try
+			{
+				Console.WriteLine("Moving Device to {0}", position);
+				device.MoveTo(position, 60000);
+			}
+			catch (Exception)
+			{
+				Console.WriteLine("Failed to move to position");
+				Console.ReadKey();
+				return;
+			}
+			Console.WriteLine("Device Moved");
+		}
+
+		private bool _taskComplete;
+		private ulong _taskID;
+
+		public void CommandCompleteFunction(ulong taskID)
+		{
+			if((_taskID > 0) && (_taskID == taskID))
+			{
+				_taskComplete = true;
+			}
+		}
+
+		public void Home_Method2(IGenericAdvancedMotor device)
+		{
+			Console.WriteLine("Homing device");
+			_taskComplete = false;
+			_taskID = device.Home(CommandCompleteFunction);
+			while(!_taskComplete)
+			{
+				Thread.Sleep(500);
+				StatusBase status = device.Status;
+				Console.WriteLine("Device Homing {0}", status.Position);
+
+				// will need some timeout functionality;
+			}
+			Console.WriteLine("Device Homed");
+		}
+
+		public void Move_Method2(IGenericAdvancedMotor device, decimal position)
+		{
+			Console.WriteLine("Moving Device to {0}", position);
+			_taskComplete = false;
+			_taskID = device.MoveTo(position, CommandCompleteFunction);
+			while (!_taskComplete)
+			{
+				Thread.Sleep(500);
+				StatusBase base_status = device.Status;
+				//var a = new DCStatus(status as DCStatus);
+
+				KCubeDCStatus status = base_status as KCubeDCStatus;
+				//DCStatus status = device.Status as DCStatus;
+				//Thorlabs.MotionControl.GenericMotorCLI.AdvancedMotor.DCStatus li = device.Status;
+				Console.WriteLine("Position = {0}", status.Position);
+				//Console.WriteLine("IsMoving = {0}", status.IsMoving);
+				//Console.WriteLine("IsInMotion = {0}", status.IsInMotion);
+				//Console.WriteLine("IsJogging = {0}", status.IsJogging);
+				//Console.WriteLine("IsMovingBackward = {0}", status.IsMovingBackward);
+				//Console.WriteLine("IsMovingForward = {0}", status.IsMovingForward);
+				//Console.WriteLine("IsJoggingBackward = {0}", status.IsJoggingBackward);
+				//Console.WriteLine("IsJoggingForward = {0}", status.IsJoggingForward);
+				//Console.WriteLine("IsEnabled = {0}", status.IsEnabled);
+				//Console.WriteLine("IsTracking = {0}", status.IsTracking);
+				//Console.WriteLine("IsSettled = {0}", status.IsSettled);
+				Console.WriteLine("Velocity = {0}", status.Velocity);
+				Console.WriteLine();
+				Console.WriteLine("--------");
+				Console.WriteLine();
+
+				// will need some timeout functionality;
+			}
+			Console.WriteLine("Device Moved");
 		}
 	}
 }
