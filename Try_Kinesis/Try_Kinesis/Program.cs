@@ -173,7 +173,13 @@ namespace Try_Kinesis
 			}
 
 			device.StopPolling();
-			device.Disconnect(true);
+			Console.WriteLine("Device Stoped Polling");
+
+			if ((device != null) && device.GetConnectionState() == ThorlabsConnectionManager.ConnectionStates.Connected)
+			{
+				device.Disconnect(true);
+				Console.WriteLine("Device Disconnected!");
+			}
 		}
 
 		public void Home_Method1(IGenericAdvancedMotor device)
