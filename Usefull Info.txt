@@ -1,0 +1,3 @@
+To have a Libraries folder on the same level as your sln file which will contain all DLL files use the following as pre and post scripts to the build process:
+copy /Y "$(SolutionDir)Libraries\*.*" "$(TargetDir)"
+
