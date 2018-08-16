@@ -1,0 +1,176 @@
+
+===========================================================================================================
+In Topic: Thorlabs::MotionControl::GenericMotorCLI::AdvancedMotor::GenericAdvancedMotorCLI Class Reference:
+===========================================================================================================
+
+Stop() :
+
+virtual UInt64 Thorlabs::MotionControl::GenericMotorCLI::AdvancedMotor::GenericAdvancedMotorCLI::Stop  ( Action< UInt64 > ^  callback ) 
+
+Stops the current motor move. 
+
+Parameters
+    callback A callback function which is called when the device completes the stop.  
+
+----------------
+
+ShutDown() :
+
+virtual void Thorlabs::MotionControl::GenericMotorCLI::AdvancedMotor::GenericAdvancedMotorCLI::ShutDown  (  ) 
+
+Shuts down this object and frees any resources it is using. 
+
+----------------
+
+SetMoveRelativeDistance() :
+
+virtual void Thorlabs::MotionControl::GenericMotorCLI::AdvancedMotor::GenericAdvancedMotorCLI::SetMoveRelativeDistance  ( Decimal  distance ) 
+
+Sets the move relative distance in Real World Units.
+
+----------------
+
+MoveRelative() :
+
+virtual UInt64 Thorlabs::MotionControl::GenericMotorCLI::AdvancedMotor::GenericAdvancedMotorCLI::MoveRelative  ( Action< UInt64 > ^  callback ) 
+
+Moves the device by a relative distancce defined by SetMoveRelativeDistance( Decimal ) {}
+
+**
+
+virtual UInt64 Thorlabs::MotionControl::GenericMotorCLI::AdvancedMotor::GenericAdvancedMotorCLI::MoveRelative  ( MotorDirection  direction,  Decimal  stepSize,  Action< UInt64 > ^  callback  )  
+
+Move by the specified distance (in Real World Units) in the direction identified. {}
+
+----------------
+
+SetHomingVelocity() :
+
+virtual void Thorlabs::MotionControl::GenericMotorCLI::AdvancedMotor::GenericAdvancedMotorCLI::SetHomingVelocity  ( Decimal  velocity ) 
+
+Sets the homing velocity in Real World Units. 
+
+----------------
+
+GetHomingParams() : 
+
+virtual HomeParameters ^ Thorlabs::MotionControl::GenericMotorCLI::AdvancedMotor::GenericAdvancedMotorCLI::GetHomingParams  (  ) 
+
+Gets the homing parameters in Real World Units. 
+
+----------------
+
+SetHomingParams() : 
+
+virtual void Thorlabs::MotionControl::GenericMotorCLI::AdvancedMotor::GenericAdvancedMotorCLI::SetHomingParams  ( HomeParameters ^  homeParameters ) 
+
+Sets the homing velocity in Real World Units. 
+
+----------------
+
+SetLEDSwitches() :
+
+virtual void Thorlabs::MotionControl::GenericMotorCLI::GenericMotorCLI::SetLEDSwitches  ( LEDSwitches  LEDstate ) 
+
+Sets the LED switches state. 
+
+IlluminateLEDMove - The LED will be lit when the motor is in motion. 
+
+----------------
+
+RequestPosition() :
+
+virtual void Thorlabs::MotionControl::GenericMotorCLI::GenericMotorCLI::RequestPosition  (  ) 
+
+Request the position. 
+
+** This does not need to be used if Polling is switched on. **
+
+----------------
+
+Disconnect() : 
+
+virtual void Thorlabs::MotionControl::DeviceManagerCLI::ThorlabsGenericCoreDeviceCLI::Disconnect  ( bool  shutDown )  
+
+Disconnects the currently connected device.
+
+shutDown True to shutdown device false to disconnect device.
+
+----------------
+
+IdentifyDevice()
+
+virtual void Thorlabs::MotionControl::GenericMotorCLI::GenericMotorCLI::IdentifyDevice  (  ) 
+
+Send a command to the device to make it identify itself.
+
+----------------
+
+NeedsHoming - Propertie
+
+bool Thorlabs::MotionControl::GenericMotorCLI::AdvancedMotor::GenericAdvancedMotorCLI::NeedsHoming
+
+Determines whether the motor must be Homed before a valid move can be performed. 
+
+----------------
+
+IsEnabled - Propertie
+
+bool Thorlabs::MotionControl::GenericMotorCLI::AdvancedMotor::GenericAdvancedMotorCLI::IsEnabled
+
+Determine whether this device is enabled. 
+
+----------------
+
+UnitConverter - Propertie
+
+DeviceUnitConverter^ Thorlabs::MotionControl::GenericMotorCLI::AdvancedMotor::GenericAdvancedMotorCLI::UnitConverter
+
+Gets the device unit converter which is used to convert between Real World Units and Device Units.. 
+
+----------------
+
+===========================================================================================================
+In Topic: Thorlabs::MotionControl::KCube::DCServoCLI::KCubeDCServo Class Referenceabstract:
+===========================================================================================================
+
+Position - Propertie
+
+Decimal Thorlabs::MotionControl::GenericMotorCLI::AdvancedMotor::GenericAdvancedMotorCLI::Position
+
+Gets the position in Real World Units. 
+
+This position best represents the device position but is device / state dependant. 
+
+----------------
+
+State - Propertie
+
+MotorStates Thorlabs::MotionControl::GenericMotorCLI::GenericMotorCLI::State
+
+Gets the current MotorStates state. 
+
+The current states are defined by the enumeration MotorStates
+
+enum Thorlabs::MotionControl::GenericMotorCLI::MotorStates {Idle, Moving, Homing, Initializing, Stopping, Terminated}
+
+----------------
+UnitConverter - Propertie
+----------------
+UnitConverter - Propertie
+----------------
+----------------
+
+
+================
+
+
+In Topic: Thorlabs::MotionControl::GenericMotorCLI::DeviceUnitConverter Class Reference
+
+DeviceUnitToReal() :
+
+Decimal Thorlabs::MotionControl::GenericMotorCLI::DeviceUnitConverter::DeviceUnitToReal  ( Decimal  value,  UnitType  unitType  )  
+
+Convert Device Unit to Real Unit. No custom conversion permitted 
+
+----------------
