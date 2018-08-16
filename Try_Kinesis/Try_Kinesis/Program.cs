@@ -175,6 +175,8 @@ namespace Try_Kinesis
 			device.StopPolling();
 			Console.WriteLine("Device Stoped Polling");
 
+			var lala = device.GetConnectionState();
+
 			if ((device != null) && device.GetConnectionState() == ThorlabsConnectionManager.ConnectionStates.Connected)
 			{
 				device.Disconnect(true);
