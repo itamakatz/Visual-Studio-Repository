@@ -42,32 +42,6 @@ namespace Try_Kinesis
 
 		void run_control(string serial_number, decimal position, decimal velocoty)
 		{
-			// // get parameters from command line
-			// int argc = args.Count();
-			// if (argc < 1)
-			// {
-			// 	Console.WriteLine("Usage = KDC_Console_net_managed [serial_no] [position: optional (0 - 50)] [velocity: optional (0 - 5)]");
-			// 	Console.ReadKey();
-			// 	return;
-			// }
-
-			// // get the test motor position
-			// decimal position = 0m;
-			// if (argc > 1)
-			// {
-			// 	position = decimal.Parse(args[1]);
-			// }
-
-			// // get the test velocity
-			// decimal velocity = 0m;
-			// if (argc > 2)
-			// {
-			// 	velocity = decimal.Parse(args[2]);
-			// }
-
-			// // get the test KDC101 serial number
-			// string serial_number = args[0];
-
 			try
 			{
 				// Tell the device manager to get the list of all devices connected to the computer
@@ -143,7 +117,18 @@ namespace Try_Kinesis
 
 			// display info about device
 			DeviceInfo deviceInfo = device.GetDeviceInfo();
-			Console.WriteLine("Device {0} = {1}", deviceInfo.SerialNumber, deviceInfo.Name);
+			Console.WriteLine("\nDevice {0} = {1}", deviceInfo.SerialNumber, deviceInfo.Name);
+
+			device.RequestHomingParams();
+			Console.WriteLine("Device Homing Velocity is = {0}", device.GetHomingParams().Velocity);
+			Console.WriteLine("Please Set Device Homing Velocity");
+
+			device.SetHomingVelocity(decimal.Parse(Console.ReadLine()));
+			Console.WriteLine("Device Homing Velocity is Now Set to = {0}", device.GetHomingParams().Velocity);
+
+			Console.WriteLine("Identifying Device Again (after switching to IlluminateLEDMove");
+			device.IdentifyDevice();
+			Thread.Sleep(5000);
 
 			//Home_Method1(device);
 			// or 
@@ -163,10 +148,13 @@ namespace Try_Kinesis
 
 				//Move_Method1(device, position);
 				// or
-				Move_Method2(device, position);
+				//Move_Method2(device, position);
+				//Relative_Move_Method(device, position);
+				Relative_Move_Method2(device, position);
 
 				Decimal newPos = device.Position;
 				Console.WriteLine("Device Moved to {0}", newPos);
+				Console.WriteLine("Please enter another Posotion or 0 to exit", newPos);
 
 				//string next_position = Console.ReadLine();
 				position = decimal.Parse(Console.ReadLine());
@@ -252,28 +240,79 @@ namespace Try_Kinesis
 			{
 				Thread.Sleep(500);
 				StatusBase base_status = device.Status;
-				//var a = new DCStatus(status as DCStatus);
 
 				KCubeDCStatus status = base_status as KCubeDCStatus;
-				//DCStatus status = device.Status as DCStatus;
-				//Thorlabs.MotionControl.GenericMotorCLI.AdvancedMotor.DCStatus li = device.Status;
+
 				Console.WriteLine("Position = {0}", status.Position);
-				//Console.WriteLine("IsMoving = {0}", status.IsMoving);
-				//Console.WriteLine("IsInMotion = {0}", status.IsInMotion);
-				//Console.WriteLine("IsJogging = {0}", status.IsJogging);
-				//Console.WriteLine("IsMovingBackward = {0}", status.IsMovingBackward);
-				//Console.WriteLine("IsMovingForward = {0}", status.IsMovingForward);
-				//Console.WriteLine("IsJoggingBackward = {0}", status.IsJoggingBackward);
-				//Console.WriteLine("IsJoggingForward = {0}", status.IsJoggingForward);
-				//Console.WriteLine("IsEnabled = {0}", status.IsEnabled);
-				//Console.WriteLine("IsTracking = {0}", status.IsTracking);
-				//Console.WriteLine("IsSettled = {0}", status.IsSettled);
 				Console.WriteLine("Velocity = {0}", status.Velocity);
 				Console.WriteLine();
 				Console.WriteLine("--------");
 				Console.WriteLine();
+			}
+			Console.WriteLine("Device Moved");
+		}
 
-				// will need some timeout functionality;
+		public void Relative_Move_Method(IGenericAdvancedMotor device, decimal position)
+		{
+			Console.WriteLine("Moving Relative Device by {0}", position);
+			_taskComplete = false;
+			device.SetMoveRelativeDistance(position);
+			_taskID = device.MoveRelative(CommandCompleteFunction);
+			while (!_taskComplete)
+			{
+				Thread.Sleep(500);
+				StatusBase base_status = device.Status;
+
+				KCubeDCStatus status = base_status as KCubeDCStatus;
+
+				Console.WriteLine("Position = {0}", status.Position);
+				Console.WriteLine("Velocity = {0}", status.Velocity);
+				Console.WriteLine("Real World Position = {0}", (device as KCubeDCServo).Position);
+				Console.WriteLine();
+				Console.WriteLine("--------");
+				Console.WriteLine();
+				
+				if (_taskComplete)
+				{
+					Console.WriteLine("Redue Relative Move? if Yes enter 1");
+					var to_continue = decimal.Parse(Console.ReadLine());
+					if (to_continue == 1m) {
+						_taskComplete = false;
+						_taskID = device.MoveRelative(CommandCompleteFunction);
+					}
+				}
+			}
+			Console.WriteLine("Device Moved");
+		}
+
+		public void Relative_Move_Method2(IGenericAdvancedMotor device, decimal position)
+		{
+			Console.WriteLine("Moving Relative Device by {0}", position);
+
+			_taskComplete = false;
+
+			if (position > 0)
+			{
+				_taskID = device.MoveRelative(MotorDirection.Forward, position, CommandCompleteFunction);
+			}
+			else
+			{
+				_taskID = device.MoveRelative(MotorDirection.Backward, Math.Abs(position), CommandCompleteFunction);
+			}
+
+			while (!_taskComplete)
+			{
+				Thread.Sleep(500);
+				StatusBase base_status = device.Status;
+
+				KCubeDCStatus status = base_status as KCubeDCStatus;
+
+				Console.WriteLine("Position = {0}", status.Position);
+				Console.WriteLine("Velocity = {0}", status.Velocity);
+				Console.WriteLine("Real World Position = {0}", (device as KCubeDCServo).Position);
+				Console.WriteLine();
+				Console.WriteLine("--------");
+				Console.WriteLine();
 			}
 			Console.WriteLine("Device Moved");
 		}
