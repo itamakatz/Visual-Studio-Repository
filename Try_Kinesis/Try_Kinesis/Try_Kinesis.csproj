@@ -66,4 +66,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy /Y "$(SolutionDir)Libraries\*.*" "$(TargetDir)"</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>copy /Y "$(SolutionDir)Libraries\*.*" "$(TargetDir)"</PreBuildEvent>
+  </PropertyGroup>
 </Project>
