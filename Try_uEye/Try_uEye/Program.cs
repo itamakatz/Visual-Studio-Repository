@@ -48,15 +48,37 @@ namespace Try_uEye
 
 			cam.Acquisition.Capture(capture_wait_time);
 
+			cam.AutoFeatures.Software.Gain.SetEnable(true);
+			cam.EdgeEnhancement.Set(9);
+			//cam.AutoFeatures.Software.Gain.SetMax(50);
+			cam.EdgeEnhancement.GetRange(out int u32Min, out int u32Max, out int u32Inc);
+			cam.EdgeEnhancement.Get(out int s32Value);
+			Console.WriteLine("\nEdgeEnhancement min is = {0}", u32Min);
+			Console.WriteLine("EdgeEnhancement max is = {0}", u32Max);
+			Console.WriteLine("EdgeEnhancement increment is = {0}", u32Inc);
+			Console.WriteLine("EdgeEnhancement current val is = {0}\n", s32Value);
+			Console.WriteLine("To continue press key");
+			Console.ReadKey();
+
+			cam.Display.Mode.Set(uEye.Defines.DisplayMode.Direct3D | uEye.Defines.DisplayMode.Mono);
+
 			Int32 s32MemID;
 			cam.Memory.GetActive(out s32MemID);
 			cam.EventFrame += Render_Event;
 
-			capture_timer = new System.Timers.Timer(timer_elapse);
+			//capture_timer = new System.Timers.Timer(timer_elapse);
 
-			capture_timer.Elapsed += (sender, e) => Capture_Event(sender, e, ref cam);
-			capture_timer.AutoReset = true;
-			capture_timer.Enabled = true;
+			//capture_timer.Elapsed += (sender, e) => Capture_Event(sender, e, ref cam);
+			//capture_timer.AutoReset = true;
+			//capture_timer.Enabled = true;
+
+			int next_input = 20;
+			while(next_input != -1)
+			{
+				//cam.EdgeEnhancement.Set(next_input);
+				//cam.AutoFeatures.Software.Gain.SetMax(next_input);
+				next_input = int.Parse(Console.ReadLine());
+			}
 
 			Console.ReadKey();
 
@@ -64,24 +86,24 @@ namespace Try_uEye
 
 			save_iamge(ref cam);
 
-			capture_timer.Stop();
-			capture_timer.Dispose();
+			//capture_timer.Stop();
+			//capture_timer.Dispose();
 		}
 
 		private void Render_Event(object sender, EventArgs e)
 		{
-			Camera Camera = sender as Camera;
+			Camera cam = sender as Camera;
 
 			Int32 s32MemID;
-			Camera.Memory.GetActive(out s32MemID);
+			cam.Memory.GetActive(out s32MemID);
 
-			Camera.Display.Render(s32MemID, displayHandle, uEye.Defines.DisplayRenderMode.FitToWindow);
+			cam.Display.Render(s32MemID, displayHandle, uEye.Defines.DisplayRenderMode.FitToWindow);
 		}
 
-		private void Capture_Event(object sender, EventArgs e, ref Camera cam)
-		{
-			cam.Acquisition.Capture(capture_wait_time);
-		}
+		//private void Capture_Event(object sender, EventArgs e, ref Camera cam)
+		//{
+		//	cam.Acquisition.Capture(capture_wait_time);
+		//}
 
 		private static void save_iamge(ref Camera cam)
 		{

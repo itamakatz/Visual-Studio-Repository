@@ -15,7 +15,10 @@ namespace Try_Kinesis
 	class Program
 	{
 
-		const string serial_number = "27251998";
+		const string Z_Serial_number = "27251998";
+		const string X_Serial_number = "27000961";
+		const string Y_Serial_number = "27000963";
+
 		static decimal position = 1m;
 		const decimal velocity = 2.3m;
 
