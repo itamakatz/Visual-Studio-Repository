@@ -52,18 +52,13 @@ namespace Get_Panorama_Images
 
 			Append_Status_Event("Memory for camera allocated\n");
 
-			// Start Live Video
-			if (cam.Acquisition.Capture(CAPTURE_TIME) != uEye.Defines.Status.Success)
-			{ MessageBox.Show("Start Live Video failed"); }
-
-			Append_Status_Event("Started Live Mode\n");
+			Video_Live();
 
 			// Connect Event
 			cam.EventFrame += Render_Event;
 
 			cam.EdgeEnhancement.Set(EDGE_ENHANCEMENT);
 			Append_Status_Event("Set Edge EnhancEment to = " + EDGE_ENHANCEMENT + "\n");
-
 		}
 
 		private void Render_Event(object sender, EventArgs e)
@@ -78,8 +73,10 @@ namespace Get_Panorama_Images
 
 		public void Video_Live()
 		{
-			// Open Camera and Start Live Video
-			cam.Acquisition.Capture(CAPTURE_TIME);
+			// Start Live Video
+			if (cam.Acquisition.Capture(CAPTURE_TIME) != uEye.Defines.Status.Success)
+			{ MessageBox.Show("Start Live Video failed"); }
+
 			Append_Status_Event("Started Live Mode\n");
 		}
 

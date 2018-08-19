@@ -23,7 +23,9 @@ namespace Get_Panorama_Images
 
 		static int THREAD_SLEEP_TIME = 500;
 		static int INITIALIZATION_TIME = 5000;
-		static int IDENTIFICATION_TIME = 5000;
+		//static int INITIALIZATION_TIME = 5000;
+		static int IDENTIFICATION_TIME = 3000;
+		//static int IDENTIFICATION_TIME = 5000;
 
 		private string Serial_Number { get; set; }
 		private decimal Relative_Step { get; set; } = 1m;
@@ -34,14 +36,16 @@ namespace Get_Panorama_Images
 		private bool _taskComplete;
 		private ulong _taskID;
 
-		public Motors(string serial_number)
+		public Motors(Action<string> Update_Status_TextBox, string serial_number)
 		{
+			Append_Status_Event += new Append_Status_Delegate(Update_Status_TextBox);
 			Serial_Number = serial_number;
+			Init_Motors();
 		}
 
 		void Init_Motors()
 		{
-			try { DeviceManagerCLI.BuildDeviceList();	}
+			try { DeviceManagerCLI.BuildDeviceList(); }
 			catch (Exception ex)
 			{
 				MessageBox.Show("Exception raised by BuildDeviceList " + ex);

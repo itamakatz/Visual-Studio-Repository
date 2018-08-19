@@ -39,11 +39,12 @@
 			this.Status_TextBox = new System.Windows.Forms.TextBox();
 			this.panel3 = new System.Windows.Forms.Panel();
 			this.panel2 = new System.Windows.Forms.Panel();
+			this.Home_Motors = new System.Windows.Forms.Button();
 			this.Up = new System.Windows.Forms.Button();
 			this.Down = new System.Windows.Forms.Button();
 			this.Left = new System.Windows.Forms.Button();
-			this.Straight = new System.Windows.Forms.Button();
-			this.Back = new System.Windows.Forms.Button();
+			this.Forward = new System.Windows.Forms.Button();
+			this.Backwards = new System.Windows.Forms.Button();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.Save_Image = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.DisplayWindow)).BeginInit();
@@ -124,7 +125,7 @@
 			// Right
 			// 
 			this.Right.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.Right.Location = new System.Drawing.Point(104, 82);
+			this.Right.Location = new System.Drawing.Point(104, 121);
 			this.Right.Name = "Right";
 			this.Right.Size = new System.Drawing.Size(54, 29);
 			this.Right.TabIndex = 9;
@@ -147,12 +148,11 @@
 			// 
 			// Status_TextBox
 			// 
-			this.Status_TextBox.Location = new System.Drawing.Point(3, 455);
+			this.Status_TextBox.Location = new System.Drawing.Point(3, 502);
 			this.Status_TextBox.Multiline = true;
 			this.Status_TextBox.Name = "Status_TextBox";
 			this.Status_TextBox.Size = new System.Drawing.Size(174, 266);
 			this.Status_TextBox.TabIndex = 13;
-			this.Status_TextBox.TextChanged += new System.EventHandler(this.Output_Update_TextChanged);
 			// 
 			// panel3
 			// 
@@ -164,21 +164,32 @@
 			// 
 			// panel2
 			// 
+			this.panel2.Controls.Add(this.Home_Motors);
 			this.panel2.Controls.Add(this.Up);
 			this.panel2.Controls.Add(this.Down);
 			this.panel2.Controls.Add(this.Right);
 			this.panel2.Controls.Add(this.Left);
-			this.panel2.Controls.Add(this.Straight);
-			this.panel2.Controls.Add(this.Back);
+			this.panel2.Controls.Add(this.Forward);
+			this.panel2.Controls.Add(this.Backwards);
 			this.panel2.Location = new System.Drawing.Point(10, 300);
 			this.panel2.Name = "panel2";
-			this.panel2.Size = new System.Drawing.Size(161, 149);
+			this.panel2.Size = new System.Drawing.Size(161, 188);
 			this.panel2.TabIndex = 11;
+			// 
+			// Home_Motors
+			// 
+			this.Home_Motors.Location = new System.Drawing.Point(27, 6);
+			this.Home_Motors.Name = "Home_Motors";
+			this.Home_Motors.Size = new System.Drawing.Size(106, 28);
+			this.Home_Motors.TabIndex = 15;
+			this.Home_Motors.Text = "Home_Motors";
+			this.Home_Motors.UseVisualStyleBackColor = true;
+			this.Home_Motors.Click += new System.EventHandler(this.Home_Motors_Click);
 			// 
 			// Up
 			// 
 			this.Up.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.Up.Location = new System.Drawing.Point(86, 3);
+			this.Up.Location = new System.Drawing.Point(83, 42);
 			this.Up.Name = "Up";
 			this.Up.Size = new System.Drawing.Size(54, 29);
 			this.Up.TabIndex = 13;
@@ -189,7 +200,7 @@
 			// Down
 			// 
 			this.Down.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.Down.Location = new System.Drawing.Point(26, 3);
+			this.Down.Location = new System.Drawing.Point(24, 42);
 			this.Down.Name = "Down";
 			this.Down.Size = new System.Drawing.Size(54, 29);
 			this.Down.TabIndex = 14;
@@ -200,7 +211,7 @@
 			// Left
 			// 
 			this.Left.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.Left.Location = new System.Drawing.Point(3, 82);
+			this.Left.Location = new System.Drawing.Point(3, 121);
 			this.Left.Name = "Left";
 			this.Left.Size = new System.Drawing.Size(54, 29);
 			this.Left.TabIndex = 10;
@@ -208,27 +219,27 @@
 			this.Left.UseVisualStyleBackColor = true;
 			this.Left.Click += new System.EventHandler(this.Left_Click);
 			// 
-			// Straight
+			// Forward
 			// 
-			this.Straight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.Straight.Location = new System.Drawing.Point(53, 47);
-			this.Straight.Name = "Straight";
-			this.Straight.Size = new System.Drawing.Size(54, 29);
-			this.Straight.TabIndex = 12;
-			this.Straight.Text = "Straight";
-			this.Straight.UseVisualStyleBackColor = true;
-			this.Straight.Click += new System.EventHandler(this.Straight_Click);
+			this.Forward.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.Forward.Location = new System.Drawing.Point(53, 86);
+			this.Forward.Name = "Forward";
+			this.Forward.Size = new System.Drawing.Size(54, 29);
+			this.Forward.TabIndex = 12;
+			this.Forward.Text = "Forward";
+			this.Forward.UseVisualStyleBackColor = true;
+			this.Forward.Click += new System.EventHandler(this.Forward_Click);
 			// 
-			// Back
+			// Backwards
 			// 
-			this.Back.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.Back.Location = new System.Drawing.Point(53, 113);
-			this.Back.Name = "Back";
-			this.Back.Size = new System.Drawing.Size(54, 29);
-			this.Back.TabIndex = 11;
-			this.Back.Text = "Back";
-			this.Back.UseVisualStyleBackColor = true;
-			this.Back.Click += new System.EventHandler(this.Back_Click);
+			this.Backwards.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.Backwards.Location = new System.Drawing.Point(53, 152);
+			this.Backwards.Name = "Backwards";
+			this.Backwards.Size = new System.Drawing.Size(54, 29);
+			this.Backwards.TabIndex = 11;
+			this.Backwards.Text = "Backwards";
+			this.Backwards.UseVisualStyleBackColor = true;
+			this.Backwards.Click += new System.EventHandler(this.Backwards_Click);
 			// 
 			// groupBox1
 			// 
@@ -285,16 +296,17 @@
 		private System.Windows.Forms.CheckBox CB_Auto_Gain_Balance;
 		private System.Windows.Forms.Button Right;
 		private System.Windows.Forms.Panel outer_panel;
-		private System.Windows.Forms.Button Back;
+		private System.Windows.Forms.Button Backwards;
 		private System.Windows.Forms.Button Left;
 		private System.Windows.Forms.Button Up;
-		private System.Windows.Forms.Button Straight;
+		private System.Windows.Forms.Button Forward;
 		private System.Windows.Forms.Button Down;
 		private System.Windows.Forms.Panel panel3;
 		private System.Windows.Forms.Panel panel2;
 		private System.Windows.Forms.GroupBox groupBox1;
 		private System.Windows.Forms.Button Save_Image;
 		private System.Windows.Forms.TextBox Status_TextBox;
+		private System.Windows.Forms.Button Home_Motors;
 	}
 }
 
