@@ -80,7 +80,7 @@
     <Compile Include="Get_Panorama_Images.Designer.cs">
       <DependentUpon>Get_Panorama_Images.cs</DependentUpon>
     </Compile>
-    <Compile Include="Motors.cs" />
+    <Compile Include="Motor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Get_Panorama_Images.resx">
