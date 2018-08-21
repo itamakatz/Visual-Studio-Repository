@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using static Get_Panorama_Images.Util;
 
 namespace Get_Panorama_Images
 {
@@ -42,7 +42,7 @@ namespace Get_Panorama_Images
 
 			// Open Camera
 			if (cam.Init() != uEye.Defines.Status.Success) {
-				Show_Error.ShowMessage("Camera initializing failed");
+				Show_Error("Camera initializing failed");
 			}
 
 			Append_Status_Event("Camera: Camera Initialized");
@@ -55,14 +55,14 @@ namespace Get_Panorama_Images
 			// Allocate Memory
 			if (cam.Memory.Allocate(IMAGE_WIDTH, IMAGE_HIGHT, BITS_PER_PIXEL, false, out Freeze_Memory_ID) != uEye.Defines.Status.Success) {
 			//if (cam.Memory.Allocate() != uEye.Defines.Status.Success) {
-				Show_Error.ShowMessage("Allocate Memory failed");
+				Show_Error("Allocate Memory failed");
 			}
 
 			cam.Memory.Lock(Freeze_Memory_ID);
 
 			if (cam.Memory.Allocate(IMAGE_WIDTH, IMAGE_HIGHT, BITS_PER_PIXEL, true, out Live_Memory_ID) != uEye.Defines.Status.Success) {
 				//if (cam.Memory.Allocate() != uEye.Defines.Status.Success) {
-				Show_Error.ShowMessage("Allocate Memory failed");
+				Show_Error("Allocate Memory failed");
 			}
 
 			Append_Status_Event("Camera: Memory for camera allocated");
@@ -98,25 +98,25 @@ namespace Get_Panorama_Images
 		}
 
 		public void Video_Live(bool print_update = true) {
-			if(cam == null) { Show_Error.ShowMessage("Error: Camera Wasn't Initialized"); }
+			if(cam == null) { Show_Error("Error: Camera Wasn't Initialized"); }
 
 			cam.Acquisition.HasStarted(out bool started);
-			if (started) { Show_Error.ShowMessage("Camera is Already Live\n", false); return; }
+			if (started) { Show_Error("Camera is Already Live\n", false); return; }
 
-			if (cam.Acquisition.Capture() != uEye.Defines.Status.Success) { Show_Error.ShowMessage("Start Live Video failed"); }
+			if (cam.Acquisition.Capture() != uEye.Defines.Status.Success) { Show_Error("Start Live Video failed"); }
 
 			if (print_update) { Append_Status_Event("Camera: Started Live Mode"); }
 		}
 
 		public void Video_Stop(){
-			if(cam == null) { Show_Error.ShowMessage("Error: Camera Wasn't Initialized"); }
+			if(cam == null) { Show_Error("Error: Camera Wasn't Initialized"); }
 
 			cam.Acquisition.Stop(uEye.Defines.DeviceParameter.Wait);
 			Append_Status_Event("Camera: Stop Live Mode");
 		}
 
 		public void Video_Freeze() {
-			if(cam == null) { Show_Error.ShowMessage("Error: Camera Wasn't Initialized"); }
+			if(cam == null) { Show_Error("Error: Camera Wasn't Initialized"); }
 
 			cam.Acquisition.Stop(uEye.Defines.DeviceParameter.Wait);
 			cam.Acquisition.Freeze(uEye.Defines.DeviceParameter.Wait);
@@ -124,7 +124,7 @@ namespace Get_Panorama_Images
 		}
 
 		public void Auto_Gain_Toggle(bool state) {
-			if(cam == null) { Show_Error.ShowMessage("Error: Camera Wasn't Initialized"); }
+			if(cam == null) { Show_Error("Error: Camera Wasn't Initialized"); }
 
 			if (state) {
 				cam.AutoFeatures.Software.Gain.SetMax(MAX_GAIN);
@@ -138,7 +138,7 @@ namespace Get_Panorama_Images
 		}
 
 		public void Save_Image() {
-			if(cam == null) { Show_Error.ShowMessage("Error: Camera Wasn't Initialized"); }
+			if(cam == null) { Show_Error("Error: Camera Wasn't Initialized"); }
 
 			int i = 0;
 			while (File.Exists(SAVE_PATH + "uEye_image_" + i + SAVE_PATH_SUFFIX)) { i++; }
