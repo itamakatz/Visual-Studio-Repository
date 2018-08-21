@@ -126,32 +126,32 @@ namespace Get_Panorama_Images {
 		}
 
 		private void Button_Exit_Prog_Click(object sender, EventArgs e) {
-			Status_TextBox.AppendText("Exiting Program\n");
+			Update_Status_TextBox("Exiting Program");
 			Stop_Motors_Click(sender, e);
 			Stop_Camera_Click(sender, e);
 			Close();
 		}
 
 		private void Stop_Motors_Click(object sender, EventArgs e) {
-			Status_TextBox.AppendText("Closing Motors\n");
+			Update_Status_TextBox("Closing Motors");
 			foreach (Motor Motor in Motors) { Motor.Exit_Motor(); }
 		}
 
 		private void Stop_Camera_Click(object sender, EventArgs e) {
-			Status_TextBox.AppendText("Closing Camera\n");
+			Update_Status_TextBox("Closing Camera");
 			Camera.Exit_Cam();
 		}
 
 		private void X_Current_Position_Click(object sender, EventArgs e) {
-			Status_TextBox.AppendText("Motor Axis X: Current Position = " + Motors[(int) Axis.X].Current_Position);
+			Update_Status_TextBox("Motor Axis X: Current Position = " + Motors[(int) Axis.X].Current_Position);
 		}
 
 		private void Y_Current_Position_Click(object sender, EventArgs e) {
-			Status_TextBox.AppendText("Motor Axis Y: Current Position = " + Motors[(int) Axis.Y].Current_Position);
+			Update_Status_TextBox("Motor Axis Y: Current Position = " + Motors[(int) Axis.Y].Current_Position);
 		}
 
 		private void Z_Current_Position_Click(object sender, EventArgs e) {
-			//Status_TextBox.AppendText("Motor Axis Z: Current Position = " + Motors[(int) Axis.Z].Current_Position);
+			//Update_Status_TextBox("Motor Axis Z: Current Position = " + Motors[(int) Axis.Z].Current_Position);
 		}
 	}
 }

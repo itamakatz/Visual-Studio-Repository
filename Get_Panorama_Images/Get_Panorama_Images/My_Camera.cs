@@ -101,7 +101,7 @@ namespace Get_Panorama_Images
 			if(cam == null) { Show_Error("Error: Camera Wasn't Initialized"); }
 
 			cam.Acquisition.HasStarted(out bool started);
-			if (started) { Show_Error("Camera is Already Live\n", false); return; }
+			if (started) { Show_Error("Camera is Already Live", false); return; }
 
 			if (cam.Acquisition.Capture() != uEye.Defines.Status.Success) { Show_Error("Start Live Video failed"); }
 

@@ -66,7 +66,6 @@
 			this.Backwards_Y = new System.Windows.Forms.Button();
 			this.Status_TextBox = new System.Windows.Forms.TextBox();
 			this.panel1 = new System.Windows.Forms.Panel();
-			this.panel7 = new System.Windows.Forms.Panel();
 			this.Stop_Motors = new System.Windows.Forms.Button();
 			this.Stop_Camera = new System.Windows.Forms.Button();
 			this.Init_Camera = new System.Windows.Forms.Button();
@@ -85,6 +84,9 @@
 			this.Z_Current_Position = new System.Windows.Forms.Button();
 			this.Y_Axis_Label_2 = new System.Windows.Forms.Label();
 			this.Z_Axis_Label_2 = new System.Windows.Forms.Label();
+			this.panel9 = new System.Windows.Forms.Panel();
+			this.Camera_Label = new System.Windows.Forms.Label();
+			this.Motors_Label = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.DisplayWindow)).BeginInit();
 			this.outer_panel.SuspendLayout();
 			this.panel6.SuspendLayout();
@@ -93,8 +95,8 @@
 			this.panel3.SuspendLayout();
 			this.panel2.SuspendLayout();
 			this.panel1.SuspendLayout();
-			this.panel7.SuspendLayout();
 			this.panel8.SuspendLayout();
+			this.panel9.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// DisplayWindow
@@ -185,9 +187,11 @@
 			// outer_panel
 			// 
 			this.outer_panel.AccessibleName = "";
+			this.outer_panel.Controls.Add(this.panel9);
+			this.outer_panel.Controls.Add(this.panel8);
+			this.outer_panel.Controls.Add(this.panel4);
 			this.outer_panel.Controls.Add(this.panel6);
 			this.outer_panel.Controls.Add(this.panel5);
-			this.outer_panel.Controls.Add(this.panel4);
 			this.outer_panel.Controls.Add(this.panel3);
 			this.outer_panel.Controls.Add(this.panel2);
 			this.outer_panel.Dock = System.Windows.Forms.DockStyle.Right;
@@ -207,7 +211,7 @@
 			this.panel6.Controls.Add(this.Identify_X1);
 			this.panel6.Controls.Add(this.Identify_Y);
 			this.panel6.Controls.Add(this.Identify_Z);
-			this.panel6.Location = new System.Drawing.Point(10, 663);
+			this.panel6.Location = new System.Drawing.Point(11, 469);
 			this.panel6.Name = "panel6";
 			this.panel6.Size = new System.Drawing.Size(161, 64);
 			this.panel6.TabIndex = 12;
@@ -255,9 +259,9 @@
 			this.panel5.Controls.Add(this.Button_Freeze_Video);
 			this.panel5.Controls.Add(this.Button_Exit_Prog);
 			this.panel5.Controls.Add(this.Button_Stop_Video);
-			this.panel5.Location = new System.Drawing.Point(20, 5);
+			this.panel5.Location = new System.Drawing.Point(21, 8);
 			this.panel5.Name = "panel5";
-			this.panel5.Size = new System.Drawing.Size(140, 170);
+			this.panel5.Size = new System.Drawing.Size(140, 168);
 			this.panel5.TabIndex = 12;
 			// 
 			// Save_Image
@@ -285,7 +289,7 @@
 			this.panel4.Controls.Add(this.X_Fine_Relative_Move_Box);
 			this.panel4.Controls.Add(this.X_Axis_Label);
 			this.panel4.Controls.Add(this.Fine_Relative_Header);
-			this.panel4.Location = new System.Drawing.Point(10, 527);
+			this.panel4.Location = new System.Drawing.Point(11, 533);
 			this.panel4.Name = "panel4";
 			this.panel4.Size = new System.Drawing.Size(161, 132);
 			this.panel4.TabIndex = 13;
@@ -411,7 +415,7 @@
 			// panel3
 			// 
 			this.panel3.Controls.Add(this.CB_Auto_Gain_Balance);
-			this.panel3.Location = new System.Drawing.Point(10, 750);
+			this.panel3.Location = new System.Drawing.Point(11, 665);
 			this.panel3.Name = "panel3";
 			this.panel3.Size = new System.Drawing.Size(161, 29);
 			this.panel3.TabIndex = 11;
@@ -428,7 +432,7 @@
 			this.panel2.Controls.Add(this.Right_X);
 			this.panel2.Controls.Add(this.Forward_Y);
 			this.panel2.Controls.Add(this.Backwards_Y);
-			this.panel2.Location = new System.Drawing.Point(10, 288);
+			this.panel2.Location = new System.Drawing.Point(11, 239);
 			this.panel2.Name = "panel2";
 			this.panel2.Size = new System.Drawing.Size(161, 153);
 			this.panel2.TabIndex = 11;
@@ -574,27 +578,16 @@
 			this.panel1.Size = new System.Drawing.Size(891, 110);
 			this.panel1.TabIndex = 11;
 			// 
-			// panel7
-			// 
-			this.panel7.Controls.Add(this.Stop_Motors);
-			this.panel7.Controls.Add(this.Stop_Camera);
-			this.panel7.Controls.Add(this.Init_Camera);
-			this.panel7.Controls.Add(this.Init_Motors);
-			this.panel7.Location = new System.Drawing.Point(906, 220);
-			this.panel7.Name = "panel7";
-			this.panel7.Size = new System.Drawing.Size(180, 61);
-			this.panel7.TabIndex = 12;
-			// 
 			// Stop_Motors
 			// 
 			this.Stop_Motors.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.Stop_Motors.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-			this.Stop_Motors.Location = new System.Drawing.Point(93, 33);
+			this.Stop_Motors.Location = new System.Drawing.Point(84, 40);
 			this.Stop_Motors.Name = "Stop_Motors";
-			this.Stop_Motors.Size = new System.Drawing.Size(80, 23);
+			this.Stop_Motors.Size = new System.Drawing.Size(62, 23);
 			this.Stop_Motors.TabIndex = 13;
-			this.Stop_Motors.Text = "Stop Motors";
+			this.Stop_Motors.Text = "Stop M";
 			this.Stop_Motors.UseVisualStyleBackColor = true;
 			this.Stop_Motors.Click += new System.EventHandler(this.Stop_Motors_Click);
 			// 
@@ -603,11 +596,11 @@
 			this.Stop_Camera.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.Stop_Camera.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-			this.Stop_Camera.Location = new System.Drawing.Point(8, 33);
+			this.Stop_Camera.Location = new System.Drawing.Point(16, 40);
 			this.Stop_Camera.Name = "Stop_Camera";
-			this.Stop_Camera.Size = new System.Drawing.Size(80, 23);
+			this.Stop_Camera.Size = new System.Drawing.Size(62, 23);
 			this.Stop_Camera.TabIndex = 14;
-			this.Stop_Camera.Text = "Stop Camera";
+			this.Stop_Camera.Text = "Stop Cam";
 			this.Stop_Camera.UseVisualStyleBackColor = true;
 			this.Stop_Camera.Click += new System.EventHandler(this.Stop_Camera_Click);
 			// 
@@ -615,12 +608,12 @@
 			// 
 			this.Init_Camera.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.Init_Camera.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-			this.Init_Camera.Location = new System.Drawing.Point(8, 5);
+			this.Init_Camera.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+			this.Init_Camera.Location = new System.Drawing.Point(16, 17);
 			this.Init_Camera.Name = "Init_Camera";
-			this.Init_Camera.Size = new System.Drawing.Size(80, 23);
+			this.Init_Camera.Size = new System.Drawing.Size(62, 23);
 			this.Init_Camera.TabIndex = 1;
-			this.Init_Camera.Text = "Init Camera";
+			this.Init_Camera.Text = "Init Cam";
 			this.Init_Camera.UseVisualStyleBackColor = true;
 			this.Init_Camera.Click += new System.EventHandler(this.Init_Camera_Click);
 			// 
@@ -628,12 +621,12 @@
 			// 
 			this.Init_Motors.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.Init_Motors.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-			this.Init_Motors.Location = new System.Drawing.Point(93, 5);
+			this.Init_Motors.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+			this.Init_Motors.Location = new System.Drawing.Point(84, 17);
 			this.Init_Motors.Name = "Init_Motors";
-			this.Init_Motors.Size = new System.Drawing.Size(80, 23);
+			this.Init_Motors.Size = new System.Drawing.Size(62, 23);
 			this.Init_Motors.TabIndex = 0;
-			this.Init_Motors.Text = "Init Motors";
+			this.Init_Motors.Text = "Init M";
 			this.Init_Motors.UseVisualStyleBackColor = true;
 			this.Init_Motors.Click += new System.EventHandler(this.Init_Motors_Click);
 			// 
@@ -646,7 +639,7 @@
 			this.panel8.Controls.Add(this.XY_Current_Relative_Step_Box);
 			this.panel8.Controls.Add(this.Relative_Step_Tuning_Title);
 			this.panel8.Controls.Add(this.XY_Relative_Step);
-			this.panel8.Location = new System.Drawing.Point(913, 445);
+			this.panel8.Location = new System.Drawing.Point(11, 392);
 			this.panel8.Name = "panel8";
 			this.panel8.Size = new System.Drawing.Size(161, 77);
 			this.panel8.TabIndex = 13;
@@ -804,13 +797,44 @@
 			this.Z_Axis_Label_2.Text = "Z Axis:";
 			this.Z_Axis_Label_2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
+			// panel9
+			// 
+			this.panel9.Controls.Add(this.Stop_Motors);
+			this.panel9.Controls.Add(this.Motors_Label);
+			this.panel9.Controls.Add(this.Init_Motors);
+			this.panel9.Controls.Add(this.Stop_Camera);
+			this.panel9.Controls.Add(this.Camera_Label);
+			this.panel9.Controls.Add(this.Init_Camera);
+			this.panel9.Location = new System.Drawing.Point(11, 176);
+			this.panel9.Name = "panel9";
+			this.panel9.Size = new System.Drawing.Size(161, 63);
+			this.panel9.TabIndex = 12;
+			// 
+			// Camera_Label
+			// 
+			this.Camera_Label.AutoSize = true;
+			this.Camera_Label.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+			this.Camera_Label.Location = new System.Drawing.Point(23, 4);
+			this.Camera_Label.Name = "Camera_Label";
+			this.Camera_Label.Size = new System.Drawing.Size(49, 13);
+			this.Camera_Label.TabIndex = 0;
+			this.Camera_Label.Text = "Camera";
+			// 
+			// Motors_Label
+			// 
+			this.Motors_Label.AutoSize = true;
+			this.Motors_Label.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+			this.Motors_Label.Location = new System.Drawing.Point(93, 4);
+			this.Motors_Label.Name = "Motors_Label";
+			this.Motors_Label.Size = new System.Drawing.Size(45, 13);
+			this.Motors_Label.TabIndex = 1;
+			this.Motors_Label.Text = "Motors";
+			// 
 			// Get_Panorama_Images
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1086, 788);
-			this.Controls.Add(this.panel8);
-			this.Controls.Add(this.panel7);
 			this.Controls.Add(this.panel1);
 			this.Controls.Add(this.outer_panel);
 			this.Controls.Add(this.DisplayWindow);
@@ -829,9 +853,10 @@
 			this.panel2.ResumeLayout(false);
 			this.panel1.ResumeLayout(false);
 			this.panel1.PerformLayout();
-			this.panel7.ResumeLayout(false);
 			this.panel8.ResumeLayout(false);
 			this.panel8.PerformLayout();
+			this.panel9.ResumeLayout(false);
+			this.panel9.PerformLayout();
 			this.ResumeLayout(false);
 
 		}
@@ -876,7 +901,6 @@
 		private System.Windows.Forms.Button Home_Y;
 		private System.Windows.Forms.Button Home_Z;
 		private System.Windows.Forms.Button Home_X;
-		private System.Windows.Forms.Panel panel7;
 		private System.Windows.Forms.Button Init_Motors;
 		private System.Windows.Forms.Button Init_Camera;
 		private System.Windows.Forms.Button Stop_Motors;
@@ -895,6 +919,9 @@
 		private System.Windows.Forms.Button Y_Current_Position;
 		private System.Windows.Forms.Label Z_Axis_Label_2;
 		private System.Windows.Forms.Label Y_Axis_Label_2;
+		private System.Windows.Forms.Panel panel9;
+		private System.Windows.Forms.Label Motors_Label;
+		private System.Windows.Forms.Label Camera_Label;
 	}
 }
 
