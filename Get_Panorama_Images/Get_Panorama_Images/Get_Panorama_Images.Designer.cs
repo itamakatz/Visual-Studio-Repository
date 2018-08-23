@@ -36,12 +36,21 @@
 			this.CB_Auto_Gain_Balance = new System.Windows.Forms.CheckBox();
 			this.Left_X = new System.Windows.Forms.Button();
 			this.outer_panel = new System.Windows.Forms.Panel();
-			this.panel6 = new System.Windows.Forms.Panel();
-			this.Identify_X1 = new System.Windows.Forms.Button();
-			this.Identify_Y = new System.Windows.Forms.Button();
-			this.Identify_Z = new System.Windows.Forms.Button();
-			this.panel5 = new System.Windows.Forms.Panel();
-			this.Save_Image = new System.Windows.Forms.Button();
+			this.panel9 = new System.Windows.Forms.Panel();
+			this.Stop_Motors = new System.Windows.Forms.Button();
+			this.Motors_Label = new System.Windows.Forms.Label();
+			this.Init_Motors = new System.Windows.Forms.Button();
+			this.Stop_Camera = new System.Windows.Forms.Button();
+			this.Camera_Label = new System.Windows.Forms.Label();
+			this.Init_Camera = new System.Windows.Forms.Button();
+			this.panel8 = new System.Windows.Forms.Panel();
+			this.Set_Z_Relative_Step = new System.Windows.Forms.Button();
+			this.Set_XY_Relative_Step = new System.Windows.Forms.Button();
+			this.Z_Current_Relative_Step_Box = new System.Windows.Forms.TextBox();
+			this.Z_Relative_Step = new System.Windows.Forms.Label();
+			this.XY_Current_Relative_Step_Box = new System.Windows.Forms.TextBox();
+			this.Relative_Step_Tuning_Title = new System.Windows.Forms.Label();
+			this.XY_Relative_Step = new System.Windows.Forms.Label();
 			this.panel4 = new System.Windows.Forms.Panel();
 			this.Run_Relative_Move_Z = new System.Windows.Forms.Button();
 			this.Z_Fine_Relative_Move_Box = new System.Windows.Forms.TextBox();
@@ -53,6 +62,18 @@
 			this.X_Fine_Relative_Move_Box = new System.Windows.Forms.TextBox();
 			this.X_Axis_Label = new System.Windows.Forms.Label();
 			this.Fine_Relative_Header = new System.Windows.Forms.Label();
+			this.panel6 = new System.Windows.Forms.Panel();
+			this.Z_Axis_Label_2 = new System.Windows.Forms.Label();
+			this.Y_Axis_Label_2 = new System.Windows.Forms.Label();
+			this.Z_Current_Position = new System.Windows.Forms.Button();
+			this.Y_Current_Position = new System.Windows.Forms.Button();
+			this.X_Current_Position = new System.Windows.Forms.Button();
+			this.X_Axis_Label_2 = new System.Windows.Forms.Label();
+			this.Identify_X1 = new System.Windows.Forms.Button();
+			this.Identify_Y = new System.Windows.Forms.Button();
+			this.Identify_Z = new System.Windows.Forms.Button();
+			this.panel5 = new System.Windows.Forms.Panel();
+			this.Save_Image = new System.Windows.Forms.Button();
 			this.panel3 = new System.Windows.Forms.Panel();
 			this.panel2 = new System.Windows.Forms.Panel();
 			this.Home_Y = new System.Windows.Forms.Button();
@@ -66,37 +87,16 @@
 			this.Backwards_Y = new System.Windows.Forms.Button();
 			this.Status_TextBox = new System.Windows.Forms.TextBox();
 			this.panel1 = new System.Windows.Forms.Panel();
-			this.Stop_Motors = new System.Windows.Forms.Button();
-			this.Stop_Camera = new System.Windows.Forms.Button();
-			this.Init_Camera = new System.Windows.Forms.Button();
-			this.Init_Motors = new System.Windows.Forms.Button();
-			this.panel8 = new System.Windows.Forms.Panel();
-			this.XY_Current_Relative_Step_Box = new System.Windows.Forms.TextBox();
-			this.Relative_Step_Tuning_Title = new System.Windows.Forms.Label();
-			this.XY_Relative_Step = new System.Windows.Forms.Label();
-			this.Set_XY_Relative_Step = new System.Windows.Forms.Button();
-			this.Set_Z_Relative_Step = new System.Windows.Forms.Button();
-			this.Z_Current_Relative_Step_Box = new System.Windows.Forms.TextBox();
-			this.Z_Relative_Step = new System.Windows.Forms.Label();
-			this.X_Axis_Label_2 = new System.Windows.Forms.Label();
-			this.X_Current_Position = new System.Windows.Forms.Button();
-			this.Y_Current_Position = new System.Windows.Forms.Button();
-			this.Z_Current_Position = new System.Windows.Forms.Button();
-			this.Y_Axis_Label_2 = new System.Windows.Forms.Label();
-			this.Z_Axis_Label_2 = new System.Windows.Forms.Label();
-			this.panel9 = new System.Windows.Forms.Panel();
-			this.Camera_Label = new System.Windows.Forms.Label();
-			this.Motors_Label = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.DisplayWindow)).BeginInit();
 			this.outer_panel.SuspendLayout();
+			this.panel9.SuspendLayout();
+			this.panel8.SuspendLayout();
+			this.panel4.SuspendLayout();
 			this.panel6.SuspendLayout();
 			this.panel5.SuspendLayout();
-			this.panel4.SuspendLayout();
 			this.panel3.SuspendLayout();
 			this.panel2.SuspendLayout();
 			this.panel1.SuspendLayout();
-			this.panel8.SuspendLayout();
-			this.panel9.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// DisplayWindow
@@ -200,82 +200,179 @@
 			this.outer_panel.Size = new System.Drawing.Size(183, 788);
 			this.outer_panel.TabIndex = 10;
 			// 
-			// panel6
+			// panel9
 			// 
-			this.panel6.Controls.Add(this.Z_Axis_Label_2);
-			this.panel6.Controls.Add(this.Y_Axis_Label_2);
-			this.panel6.Controls.Add(this.Z_Current_Position);
-			this.panel6.Controls.Add(this.Y_Current_Position);
-			this.panel6.Controls.Add(this.X_Current_Position);
-			this.panel6.Controls.Add(this.X_Axis_Label_2);
-			this.panel6.Controls.Add(this.Identify_X1);
-			this.panel6.Controls.Add(this.Identify_Y);
-			this.panel6.Controls.Add(this.Identify_Z);
-			this.panel6.Location = new System.Drawing.Point(11, 469);
-			this.panel6.Name = "panel6";
-			this.panel6.Size = new System.Drawing.Size(161, 64);
-			this.panel6.TabIndex = 12;
+			this.panel9.Controls.Add(this.Stop_Motors);
+			this.panel9.Controls.Add(this.Motors_Label);
+			this.panel9.Controls.Add(this.Init_Motors);
+			this.panel9.Controls.Add(this.Stop_Camera);
+			this.panel9.Controls.Add(this.Camera_Label);
+			this.panel9.Controls.Add(this.Init_Camera);
+			this.panel9.Location = new System.Drawing.Point(11, 176);
+			this.panel9.Name = "panel9";
+			this.panel9.Size = new System.Drawing.Size(161, 63);
+			this.panel9.TabIndex = 12;
 			// 
-			// Identify_X1
+			// Stop_Motors
 			// 
-			this.Identify_X1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+			this.Stop_Motors.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.Identify_X1.Location = new System.Drawing.Point(4, 18);
-			this.Identify_X1.Name = "Identify_X1";
-			this.Identify_X1.Size = new System.Drawing.Size(51, 21);
-			this.Identify_X1.TabIndex = 2;
-			this.Identify_X1.Text = "Identify";
-			this.Identify_X1.UseVisualStyleBackColor = true;
-			this.Identify_X1.Click += new System.EventHandler(this.Identify_X_Click);
+			this.Stop_Motors.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+			this.Stop_Motors.Location = new System.Drawing.Point(84, 40);
+			this.Stop_Motors.Name = "Stop_Motors";
+			this.Stop_Motors.Size = new System.Drawing.Size(62, 23);
+			this.Stop_Motors.TabIndex = 13;
+			this.Stop_Motors.Text = "Stop M";
+			this.Stop_Motors.UseVisualStyleBackColor = true;
+			this.Stop_Motors.Click += new System.EventHandler(this.Stop_Motors_Click);
 			// 
-			// Identify_Y
+			// Motors_Label
 			// 
-			this.Identify_Y.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+			this.Motors_Label.AutoSize = true;
+			this.Motors_Label.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+			this.Motors_Label.Location = new System.Drawing.Point(93, 4);
+			this.Motors_Label.Name = "Motors_Label";
+			this.Motors_Label.Size = new System.Drawing.Size(45, 13);
+			this.Motors_Label.TabIndex = 1;
+			this.Motors_Label.Text = "Motors";
+			// 
+			// Init_Motors
+			// 
+			this.Init_Motors.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.Identify_Y.Location = new System.Drawing.Point(55, 18);
-			this.Identify_Y.Name = "Identify_Y";
-			this.Identify_Y.Size = new System.Drawing.Size(51, 21);
-			this.Identify_Y.TabIndex = 1;
-			this.Identify_Y.Text = "Identify";
-			this.Identify_Y.UseVisualStyleBackColor = true;
-			this.Identify_Y.Click += new System.EventHandler(this.Identify_Y_Click);
+			this.Init_Motors.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+			this.Init_Motors.Location = new System.Drawing.Point(84, 17);
+			this.Init_Motors.Name = "Init_Motors";
+			this.Init_Motors.Size = new System.Drawing.Size(62, 23);
+			this.Init_Motors.TabIndex = 0;
+			this.Init_Motors.Text = "Init M";
+			this.Init_Motors.UseVisualStyleBackColor = true;
+			this.Init_Motors.Click += new System.EventHandler(this.Init_Motors_Click);
 			// 
-			// Identify_Z
+			// Stop_Camera
 			// 
-			this.Identify_Z.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+			this.Stop_Camera.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.Identify_Z.Location = new System.Drawing.Point(106, 18);
-			this.Identify_Z.Name = "Identify_Z";
-			this.Identify_Z.Size = new System.Drawing.Size(51, 21);
-			this.Identify_Z.TabIndex = 0;
-			this.Identify_Z.Text = "Identify";
-			this.Identify_Z.UseVisualStyleBackColor = true;
-			this.Identify_Z.Click += new System.EventHandler(this.Identify_Z_Click);
+			this.Stop_Camera.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+			this.Stop_Camera.Location = new System.Drawing.Point(16, 40);
+			this.Stop_Camera.Name = "Stop_Camera";
+			this.Stop_Camera.Size = new System.Drawing.Size(62, 23);
+			this.Stop_Camera.TabIndex = 14;
+			this.Stop_Camera.Text = "Stop Cam";
+			this.Stop_Camera.UseVisualStyleBackColor = true;
+			this.Stop_Camera.Click += new System.EventHandler(this.Stop_Camera_Click);
 			// 
-			// panel5
+			// Camera_Label
 			// 
-			this.panel5.Controls.Add(this.Save_Image);
-			this.panel5.Controls.Add(this.Button_Live_Video);
-			this.panel5.Controls.Add(this.Button_Freeze_Video);
-			this.panel5.Controls.Add(this.Button_Exit_Prog);
-			this.panel5.Controls.Add(this.Button_Stop_Video);
-			this.panel5.Location = new System.Drawing.Point(21, 8);
-			this.panel5.Name = "panel5";
-			this.panel5.Size = new System.Drawing.Size(140, 168);
-			this.panel5.TabIndex = 12;
+			this.Camera_Label.AutoSize = true;
+			this.Camera_Label.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+			this.Camera_Label.Location = new System.Drawing.Point(23, 4);
+			this.Camera_Label.Name = "Camera_Label";
+			this.Camera_Label.Size = new System.Drawing.Size(49, 13);
+			this.Camera_Label.TabIndex = 0;
+			this.Camera_Label.Text = "Camera";
 			// 
-			// Save_Image
+			// Init_Camera
 			// 
-			this.Save_Image.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+			this.Init_Camera.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.Save_Image.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-			this.Save_Image.Location = new System.Drawing.Point(12, 91);
-			this.Save_Image.Name = "Save_Image";
-			this.Save_Image.Size = new System.Drawing.Size(117, 29);
-			this.Save_Image.TabIndex = 11;
-			this.Save_Image.Text = "Save Image";
-			this.Save_Image.UseVisualStyleBackColor = true;
-			this.Save_Image.Click += new System.EventHandler(this.Save_Image_Click);
+			this.Init_Camera.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+			this.Init_Camera.Location = new System.Drawing.Point(16, 17);
+			this.Init_Camera.Name = "Init_Camera";
+			this.Init_Camera.Size = new System.Drawing.Size(62, 23);
+			this.Init_Camera.TabIndex = 1;
+			this.Init_Camera.Text = "Init Cam";
+			this.Init_Camera.UseVisualStyleBackColor = true;
+			this.Init_Camera.Click += new System.EventHandler(this.Init_Camera_Click);
+			// 
+			// panel8
+			// 
+			this.panel8.Controls.Add(this.Set_Z_Relative_Step);
+			this.panel8.Controls.Add(this.Set_XY_Relative_Step);
+			this.panel8.Controls.Add(this.Z_Current_Relative_Step_Box);
+			this.panel8.Controls.Add(this.Z_Relative_Step);
+			this.panel8.Controls.Add(this.XY_Current_Relative_Step_Box);
+			this.panel8.Controls.Add(this.Relative_Step_Tuning_Title);
+			this.panel8.Controls.Add(this.XY_Relative_Step);
+			this.panel8.Location = new System.Drawing.Point(11, 392);
+			this.panel8.Name = "panel8";
+			this.panel8.Size = new System.Drawing.Size(161, 77);
+			this.panel8.TabIndex = 13;
+			// 
+			// Set_Z_Relative_Step
+			// 
+			this.Set_Z_Relative_Step.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.Set_Z_Relative_Step.Location = new System.Drawing.Point(110, 49);
+			this.Set_Z_Relative_Step.Name = "Set_Z_Relative_Step";
+			this.Set_Z_Relative_Step.Size = new System.Drawing.Size(37, 20);
+			this.Set_Z_Relative_Step.TabIndex = 24;
+			this.Set_Z_Relative_Step.Text = "Set";
+			this.Set_Z_Relative_Step.UseVisualStyleBackColor = true;
+			this.Set_Z_Relative_Step.Click += new System.EventHandler(this.Set_Z_Relative_Step_Click);
+			// 
+			// Set_XY_Relative_Step
+			// 
+			this.Set_XY_Relative_Step.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.Set_XY_Relative_Step.Location = new System.Drawing.Point(110, 28);
+			this.Set_XY_Relative_Step.Name = "Set_XY_Relative_Step";
+			this.Set_XY_Relative_Step.Size = new System.Drawing.Size(37, 20);
+			this.Set_XY_Relative_Step.TabIndex = 22;
+			this.Set_XY_Relative_Step.Text = "Set";
+			this.Set_XY_Relative_Step.UseVisualStyleBackColor = true;
+			this.Set_XY_Relative_Step.Click += new System.EventHandler(this.Set_XY_Relative_Step_Click);
+			// 
+			// Z_Current_Relative_Step_Box
+			// 
+			this.Z_Current_Relative_Step_Box.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.Z_Current_Relative_Step_Box.Location = new System.Drawing.Point(72, 49);
+			this.Z_Current_Relative_Step_Box.Name = "Z_Current_Relative_Step_Box";
+			this.Z_Current_Relative_Step_Box.Size = new System.Drawing.Size(30, 20);
+			this.Z_Current_Relative_Step_Box.TabIndex = 23;
+			this.Z_Current_Relative_Step_Box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// Z_Relative_Step
+			// 
+			this.Z_Relative_Step.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.Z_Relative_Step.AutoSize = true;
+			this.Z_Relative_Step.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+			this.Z_Relative_Step.Location = new System.Drawing.Point(13, 53);
+			this.Z_Relative_Step.Name = "Z_Relative_Step";
+			this.Z_Relative_Step.Size = new System.Drawing.Size(49, 13);
+			this.Z_Relative_Step.TabIndex = 22;
+			this.Z_Relative_Step.Text = "Z Step:";
+			this.Z_Relative_Step.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
+			// XY_Current_Relative_Step_Box
+			// 
+			this.XY_Current_Relative_Step_Box.Location = new System.Drawing.Point(72, 28);
+			this.XY_Current_Relative_Step_Box.Name = "XY_Current_Relative_Step_Box";
+			this.XY_Current_Relative_Step_Box.Size = new System.Drawing.Size(30, 20);
+			this.XY_Current_Relative_Step_Box.TabIndex = 4;
+			this.XY_Current_Relative_Step_Box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			// 
+			// Relative_Step_Tuning_Title
+			// 
+			this.Relative_Step_Tuning_Title.AutoSize = true;
+			this.Relative_Step_Tuning_Title.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+			this.Relative_Step_Tuning_Title.Location = new System.Drawing.Point(17, 8);
+			this.Relative_Step_Tuning_Title.Name = "Relative_Step_Tuning_Title";
+			this.Relative_Step_Tuning_Title.Size = new System.Drawing.Size(127, 13);
+			this.Relative_Step_Tuning_Title.TabIndex = 2;
+			this.Relative_Step_Tuning_Title.Text = "Relative Step Tuning";
+			// 
+			// XY_Relative_Step
+			// 
+			this.XY_Relative_Step.AutoSize = true;
+			this.XY_Relative_Step.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+			this.XY_Relative_Step.Location = new System.Drawing.Point(13, 32);
+			this.XY_Relative_Step.Name = "XY_Relative_Step";
+			this.XY_Relative_Step.Size = new System.Drawing.Size(57, 13);
+			this.XY_Relative_Step.TabIndex = 0;
+			this.XY_Relative_Step.Text = "XY Step:";
 			// 
 			// panel4
 			// 
@@ -411,6 +508,161 @@
 			this.Fine_Relative_Header.TabIndex = 12;
 			this.Fine_Relative_Header.Text = "Fine Relative Movements";
 			this.Fine_Relative_Header.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
+			// panel6
+			// 
+			this.panel6.Controls.Add(this.Z_Axis_Label_2);
+			this.panel6.Controls.Add(this.Y_Axis_Label_2);
+			this.panel6.Controls.Add(this.Z_Current_Position);
+			this.panel6.Controls.Add(this.Y_Current_Position);
+			this.panel6.Controls.Add(this.X_Current_Position);
+			this.panel6.Controls.Add(this.X_Axis_Label_2);
+			this.panel6.Controls.Add(this.Identify_X1);
+			this.panel6.Controls.Add(this.Identify_Y);
+			this.panel6.Controls.Add(this.Identify_Z);
+			this.panel6.Location = new System.Drawing.Point(11, 469);
+			this.panel6.Name = "panel6";
+			this.panel6.Size = new System.Drawing.Size(161, 64);
+			this.panel6.TabIndex = 12;
+			// 
+			// Z_Axis_Label_2
+			// 
+			this.Z_Axis_Label_2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.Z_Axis_Label_2.AutoSize = true;
+			this.Z_Axis_Label_2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+			this.Z_Axis_Label_2.Location = new System.Drawing.Point(110, 3);
+			this.Z_Axis_Label_2.Name = "Z_Axis_Label_2";
+			this.Z_Axis_Label_2.Size = new System.Drawing.Size(46, 13);
+			this.Z_Axis_Label_2.TabIndex = 27;
+			this.Z_Axis_Label_2.Text = "Z Axis:";
+			this.Z_Axis_Label_2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
+			// Y_Axis_Label_2
+			// 
+			this.Y_Axis_Label_2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.Y_Axis_Label_2.AutoSize = true;
+			this.Y_Axis_Label_2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+			this.Y_Axis_Label_2.Location = new System.Drawing.Point(58, 3);
+			this.Y_Axis_Label_2.Name = "Y_Axis_Label_2";
+			this.Y_Axis_Label_2.Size = new System.Drawing.Size(46, 13);
+			this.Y_Axis_Label_2.TabIndex = 26;
+			this.Y_Axis_Label_2.Text = "Y Axis:";
+			this.Y_Axis_Label_2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
+			// Z_Current_Position
+			// 
+			this.Z_Current_Position.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.Z_Current_Position.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+			this.Z_Current_Position.Location = new System.Drawing.Point(106, 40);
+			this.Z_Current_Position.Name = "Z_Current_Position";
+			this.Z_Current_Position.Size = new System.Drawing.Size(51, 21);
+			this.Z_Current_Position.TabIndex = 25;
+			this.Z_Current_Position.Text = "Pos";
+			this.Z_Current_Position.UseVisualStyleBackColor = true;
+			this.Z_Current_Position.Click += new System.EventHandler(this.Z_Current_Position_Click);
+			// 
+			// Y_Current_Position
+			// 
+			this.Y_Current_Position.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.Y_Current_Position.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+			this.Y_Current_Position.Location = new System.Drawing.Point(55, 40);
+			this.Y_Current_Position.Name = "Y_Current_Position";
+			this.Y_Current_Position.Size = new System.Drawing.Size(51, 21);
+			this.Y_Current_Position.TabIndex = 24;
+			this.Y_Current_Position.Text = "Pos";
+			this.Y_Current_Position.UseVisualStyleBackColor = true;
+			this.Y_Current_Position.Click += new System.EventHandler(this.Y_Current_Position_Click);
+			// 
+			// X_Current_Position
+			// 
+			this.X_Current_Position.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.X_Current_Position.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+			this.X_Current_Position.Location = new System.Drawing.Point(4, 40);
+			this.X_Current_Position.Name = "X_Current_Position";
+			this.X_Current_Position.Size = new System.Drawing.Size(51, 21);
+			this.X_Current_Position.TabIndex = 23;
+			this.X_Current_Position.Text = "Pos";
+			this.X_Current_Position.UseVisualStyleBackColor = true;
+			this.X_Current_Position.Click += new System.EventHandler(this.X_Current_Position_Click);
+			// 
+			// X_Axis_Label_2
+			// 
+			this.X_Axis_Label_2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.X_Axis_Label_2.AutoSize = true;
+			this.X_Axis_Label_2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+			this.X_Axis_Label_2.Location = new System.Drawing.Point(6, 3);
+			this.X_Axis_Label_2.Name = "X_Axis_Label_2";
+			this.X_Axis_Label_2.Size = new System.Drawing.Size(46, 13);
+			this.X_Axis_Label_2.TabIndex = 22;
+			this.X_Axis_Label_2.Text = "X Axis:";
+			this.X_Axis_Label_2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
+			// Identify_X1
+			// 
+			this.Identify_X1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.Identify_X1.Location = new System.Drawing.Point(4, 18);
+			this.Identify_X1.Name = "Identify_X1";
+			this.Identify_X1.Size = new System.Drawing.Size(51, 21);
+			this.Identify_X1.TabIndex = 2;
+			this.Identify_X1.Text = "Identify";
+			this.Identify_X1.UseVisualStyleBackColor = true;
+			this.Identify_X1.Click += new System.EventHandler(this.Identify_X_Click);
+			// 
+			// Identify_Y
+			// 
+			this.Identify_Y.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.Identify_Y.Location = new System.Drawing.Point(55, 18);
+			this.Identify_Y.Name = "Identify_Y";
+			this.Identify_Y.Size = new System.Drawing.Size(51, 21);
+			this.Identify_Y.TabIndex = 1;
+			this.Identify_Y.Text = "Identify";
+			this.Identify_Y.UseVisualStyleBackColor = true;
+			this.Identify_Y.Click += new System.EventHandler(this.Identify_Y_Click);
+			// 
+			// Identify_Z
+			// 
+			this.Identify_Z.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.Identify_Z.Location = new System.Drawing.Point(106, 18);
+			this.Identify_Z.Name = "Identify_Z";
+			this.Identify_Z.Size = new System.Drawing.Size(51, 21);
+			this.Identify_Z.TabIndex = 0;
+			this.Identify_Z.Text = "Identify";
+			this.Identify_Z.UseVisualStyleBackColor = true;
+			this.Identify_Z.Click += new System.EventHandler(this.Identify_Z_Click);
+			// 
+			// panel5
+			// 
+			this.panel5.Controls.Add(this.Save_Image);
+			this.panel5.Controls.Add(this.Button_Live_Video);
+			this.panel5.Controls.Add(this.Button_Freeze_Video);
+			this.panel5.Controls.Add(this.Button_Exit_Prog);
+			this.panel5.Controls.Add(this.Button_Stop_Video);
+			this.panel5.Location = new System.Drawing.Point(21, 8);
+			this.panel5.Name = "panel5";
+			this.panel5.Size = new System.Drawing.Size(140, 168);
+			this.panel5.TabIndex = 12;
+			// 
+			// Save_Image
+			// 
+			this.Save_Image.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.Save_Image.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+			this.Save_Image.Location = new System.Drawing.Point(12, 91);
+			this.Save_Image.Name = "Save_Image";
+			this.Save_Image.Size = new System.Drawing.Size(117, 29);
+			this.Save_Image.TabIndex = 11;
+			this.Save_Image.Text = "Save Image";
+			this.Save_Image.UseVisualStyleBackColor = true;
+			this.Save_Image.Click += new System.EventHandler(this.Save_Image_Click);
 			// 
 			// panel3
 			// 
@@ -578,258 +830,6 @@
 			this.panel1.Size = new System.Drawing.Size(891, 110);
 			this.panel1.TabIndex = 11;
 			// 
-			// Stop_Motors
-			// 
-			this.Stop_Motors.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.Stop_Motors.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-			this.Stop_Motors.Location = new System.Drawing.Point(84, 40);
-			this.Stop_Motors.Name = "Stop_Motors";
-			this.Stop_Motors.Size = new System.Drawing.Size(62, 23);
-			this.Stop_Motors.TabIndex = 13;
-			this.Stop_Motors.Text = "Stop M";
-			this.Stop_Motors.UseVisualStyleBackColor = true;
-			this.Stop_Motors.Click += new System.EventHandler(this.Stop_Motors_Click);
-			// 
-			// Stop_Camera
-			// 
-			this.Stop_Camera.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.Stop_Camera.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-			this.Stop_Camera.Location = new System.Drawing.Point(16, 40);
-			this.Stop_Camera.Name = "Stop_Camera";
-			this.Stop_Camera.Size = new System.Drawing.Size(62, 23);
-			this.Stop_Camera.TabIndex = 14;
-			this.Stop_Camera.Text = "Stop Cam";
-			this.Stop_Camera.UseVisualStyleBackColor = true;
-			this.Stop_Camera.Click += new System.EventHandler(this.Stop_Camera_Click);
-			// 
-			// Init_Camera
-			// 
-			this.Init_Camera.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.Init_Camera.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-			this.Init_Camera.Location = new System.Drawing.Point(16, 17);
-			this.Init_Camera.Name = "Init_Camera";
-			this.Init_Camera.Size = new System.Drawing.Size(62, 23);
-			this.Init_Camera.TabIndex = 1;
-			this.Init_Camera.Text = "Init Cam";
-			this.Init_Camera.UseVisualStyleBackColor = true;
-			this.Init_Camera.Click += new System.EventHandler(this.Init_Camera_Click);
-			// 
-			// Init_Motors
-			// 
-			this.Init_Motors.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.Init_Motors.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-			this.Init_Motors.Location = new System.Drawing.Point(84, 17);
-			this.Init_Motors.Name = "Init_Motors";
-			this.Init_Motors.Size = new System.Drawing.Size(62, 23);
-			this.Init_Motors.TabIndex = 0;
-			this.Init_Motors.Text = "Init M";
-			this.Init_Motors.UseVisualStyleBackColor = true;
-			this.Init_Motors.Click += new System.EventHandler(this.Init_Motors_Click);
-			// 
-			// panel8
-			// 
-			this.panel8.Controls.Add(this.Set_Z_Relative_Step);
-			this.panel8.Controls.Add(this.Set_XY_Relative_Step);
-			this.panel8.Controls.Add(this.Z_Current_Relative_Step_Box);
-			this.panel8.Controls.Add(this.Z_Relative_Step);
-			this.panel8.Controls.Add(this.XY_Current_Relative_Step_Box);
-			this.panel8.Controls.Add(this.Relative_Step_Tuning_Title);
-			this.panel8.Controls.Add(this.XY_Relative_Step);
-			this.panel8.Location = new System.Drawing.Point(11, 392);
-			this.panel8.Name = "panel8";
-			this.panel8.Size = new System.Drawing.Size(161, 77);
-			this.panel8.TabIndex = 13;
-			// 
-			// XY_Current_Relative_Step_Box
-			// 
-			this.XY_Current_Relative_Step_Box.Location = new System.Drawing.Point(72, 28);
-			this.XY_Current_Relative_Step_Box.Name = "XY_Current_Relative_Step_Box";
-			this.XY_Current_Relative_Step_Box.Size = new System.Drawing.Size(30, 20);
-			this.XY_Current_Relative_Step_Box.TabIndex = 4;
-			this.XY_Current_Relative_Step_Box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-			// 
-			// Relative_Step_Tuning_Title
-			// 
-			this.Relative_Step_Tuning_Title.AutoSize = true;
-			this.Relative_Step_Tuning_Title.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-			this.Relative_Step_Tuning_Title.Location = new System.Drawing.Point(17, 8);
-			this.Relative_Step_Tuning_Title.Name = "Relative_Step_Tuning_Title";
-			this.Relative_Step_Tuning_Title.Size = new System.Drawing.Size(127, 13);
-			this.Relative_Step_Tuning_Title.TabIndex = 2;
-			this.Relative_Step_Tuning_Title.Text = "Relative Step Tuning";
-			// 
-			// XY_Relative_Step
-			// 
-			this.XY_Relative_Step.AutoSize = true;
-			this.XY_Relative_Step.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-			this.XY_Relative_Step.Location = new System.Drawing.Point(13, 32);
-			this.XY_Relative_Step.Name = "XY_Relative_Step";
-			this.XY_Relative_Step.Size = new System.Drawing.Size(57, 13);
-			this.XY_Relative_Step.TabIndex = 0;
-			this.XY_Relative_Step.Text = "XY Step:";
-			// 
-			// Set_XY_Relative_Step
-			// 
-			this.Set_XY_Relative_Step.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.Set_XY_Relative_Step.Location = new System.Drawing.Point(110, 28);
-			this.Set_XY_Relative_Step.Name = "Set_XY_Relative_Step";
-			this.Set_XY_Relative_Step.Size = new System.Drawing.Size(37, 20);
-			this.Set_XY_Relative_Step.TabIndex = 22;
-			this.Set_XY_Relative_Step.Text = "Set";
-			this.Set_XY_Relative_Step.UseVisualStyleBackColor = true;
-			this.Set_XY_Relative_Step.Click += new System.EventHandler(this.Set_XY_Relative_Step_Click);
-			// 
-			// Set_Z_Relative_Step
-			// 
-			this.Set_Z_Relative_Step.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.Set_Z_Relative_Step.Location = new System.Drawing.Point(110, 49);
-			this.Set_Z_Relative_Step.Name = "Set_Z_Relative_Step";
-			this.Set_Z_Relative_Step.Size = new System.Drawing.Size(37, 20);
-			this.Set_Z_Relative_Step.TabIndex = 24;
-			this.Set_Z_Relative_Step.Text = "Set";
-			this.Set_Z_Relative_Step.UseVisualStyleBackColor = true;
-			this.Set_Z_Relative_Step.Click += new System.EventHandler(this.Set_Z_Relative_Step_Click);
-			// 
-			// Z_Current_Relative_Step_Box
-			// 
-			this.Z_Current_Relative_Step_Box.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.Z_Current_Relative_Step_Box.Location = new System.Drawing.Point(72, 49);
-			this.Z_Current_Relative_Step_Box.Name = "Z_Current_Relative_Step_Box";
-			this.Z_Current_Relative_Step_Box.Size = new System.Drawing.Size(30, 20);
-			this.Z_Current_Relative_Step_Box.TabIndex = 23;
-			this.Z_Current_Relative_Step_Box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-			// 
-			// Z_Relative_Step
-			// 
-			this.Z_Relative_Step.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.Z_Relative_Step.AutoSize = true;
-			this.Z_Relative_Step.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-			this.Z_Relative_Step.Location = new System.Drawing.Point(13, 53);
-			this.Z_Relative_Step.Name = "Z_Relative_Step";
-			this.Z_Relative_Step.Size = new System.Drawing.Size(49, 13);
-			this.Z_Relative_Step.TabIndex = 22;
-			this.Z_Relative_Step.Text = "Z Step:";
-			this.Z_Relative_Step.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-			// 
-			// X_Axis_Label_2
-			// 
-			this.X_Axis_Label_2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.X_Axis_Label_2.AutoSize = true;
-			this.X_Axis_Label_2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-			this.X_Axis_Label_2.Location = new System.Drawing.Point(6, 3);
-			this.X_Axis_Label_2.Name = "X_Axis_Label_2";
-			this.X_Axis_Label_2.Size = new System.Drawing.Size(46, 13);
-			this.X_Axis_Label_2.TabIndex = 22;
-			this.X_Axis_Label_2.Text = "X Axis:";
-			this.X_Axis_Label_2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-			// 
-			// X_Current_Position
-			// 
-			this.X_Current_Position.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.X_Current_Position.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-			this.X_Current_Position.Location = new System.Drawing.Point(4, 40);
-			this.X_Current_Position.Name = "X_Current_Position";
-			this.X_Current_Position.Size = new System.Drawing.Size(51, 21);
-			this.X_Current_Position.TabIndex = 23;
-			this.X_Current_Position.Text = "Pos";
-			this.X_Current_Position.UseVisualStyleBackColor = true;
-			this.X_Current_Position.Click += new System.EventHandler(this.X_Current_Position_Click);
-			// 
-			// Y_Current_Position
-			// 
-			this.Y_Current_Position.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.Y_Current_Position.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-			this.Y_Current_Position.Location = new System.Drawing.Point(55, 40);
-			this.Y_Current_Position.Name = "Y_Current_Position";
-			this.Y_Current_Position.Size = new System.Drawing.Size(51, 21);
-			this.Y_Current_Position.TabIndex = 24;
-			this.Y_Current_Position.Text = "Pos";
-			this.Y_Current_Position.UseVisualStyleBackColor = true;
-			this.Y_Current_Position.Click += new System.EventHandler(this.Y_Current_Position_Click);
-			// 
-			// Z_Current_Position
-			// 
-			this.Z_Current_Position.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.Z_Current_Position.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-			this.Z_Current_Position.Location = new System.Drawing.Point(106, 40);
-			this.Z_Current_Position.Name = "Z_Current_Position";
-			this.Z_Current_Position.Size = new System.Drawing.Size(51, 21);
-			this.Z_Current_Position.TabIndex = 25;
-			this.Z_Current_Position.Text = "Pos";
-			this.Z_Current_Position.UseVisualStyleBackColor = true;
-			this.Z_Current_Position.Click += new System.EventHandler(this.Z_Current_Position_Click);
-			// 
-			// Y_Axis_Label_2
-			// 
-			this.Y_Axis_Label_2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.Y_Axis_Label_2.AutoSize = true;
-			this.Y_Axis_Label_2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-			this.Y_Axis_Label_2.Location = new System.Drawing.Point(58, 3);
-			this.Y_Axis_Label_2.Name = "Y_Axis_Label_2";
-			this.Y_Axis_Label_2.Size = new System.Drawing.Size(46, 13);
-			this.Y_Axis_Label_2.TabIndex = 26;
-			this.Y_Axis_Label_2.Text = "Y Axis:";
-			this.Y_Axis_Label_2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-			// 
-			// Z_Axis_Label_2
-			// 
-			this.Z_Axis_Label_2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.Z_Axis_Label_2.AutoSize = true;
-			this.Z_Axis_Label_2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-			this.Z_Axis_Label_2.Location = new System.Drawing.Point(110, 3);
-			this.Z_Axis_Label_2.Name = "Z_Axis_Label_2";
-			this.Z_Axis_Label_2.Size = new System.Drawing.Size(46, 13);
-			this.Z_Axis_Label_2.TabIndex = 27;
-			this.Z_Axis_Label_2.Text = "Z Axis:";
-			this.Z_Axis_Label_2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-			// 
-			// panel9
-			// 
-			this.panel9.Controls.Add(this.Stop_Motors);
-			this.panel9.Controls.Add(this.Motors_Label);
-			this.panel9.Controls.Add(this.Init_Motors);
-			this.panel9.Controls.Add(this.Stop_Camera);
-			this.panel9.Controls.Add(this.Camera_Label);
-			this.panel9.Controls.Add(this.Init_Camera);
-			this.panel9.Location = new System.Drawing.Point(11, 176);
-			this.panel9.Name = "panel9";
-			this.panel9.Size = new System.Drawing.Size(161, 63);
-			this.panel9.TabIndex = 12;
-			// 
-			// Camera_Label
-			// 
-			this.Camera_Label.AutoSize = true;
-			this.Camera_Label.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-			this.Camera_Label.Location = new System.Drawing.Point(23, 4);
-			this.Camera_Label.Name = "Camera_Label";
-			this.Camera_Label.Size = new System.Drawing.Size(49, 13);
-			this.Camera_Label.TabIndex = 0;
-			this.Camera_Label.Text = "Camera";
-			// 
-			// Motors_Label
-			// 
-			this.Motors_Label.AutoSize = true;
-			this.Motors_Label.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-			this.Motors_Label.Location = new System.Drawing.Point(93, 4);
-			this.Motors_Label.Name = "Motors_Label";
-			this.Motors_Label.Size = new System.Drawing.Size(45, 13);
-			this.Motors_Label.TabIndex = 1;
-			this.Motors_Label.Text = "Motors";
-			// 
 			// Get_Panorama_Images
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -843,20 +843,20 @@
 			this.Text = "uEye C# Simple Live";
 			((System.ComponentModel.ISupportInitialize)(this.DisplayWindow)).EndInit();
 			this.outer_panel.ResumeLayout(false);
+			this.panel9.ResumeLayout(false);
+			this.panel9.PerformLayout();
+			this.panel8.ResumeLayout(false);
+			this.panel8.PerformLayout();
+			this.panel4.ResumeLayout(false);
+			this.panel4.PerformLayout();
 			this.panel6.ResumeLayout(false);
 			this.panel6.PerformLayout();
 			this.panel5.ResumeLayout(false);
-			this.panel4.ResumeLayout(false);
-			this.panel4.PerformLayout();
 			this.panel3.ResumeLayout(false);
 			this.panel3.PerformLayout();
 			this.panel2.ResumeLayout(false);
 			this.panel1.ResumeLayout(false);
 			this.panel1.PerformLayout();
-			this.panel8.ResumeLayout(false);
-			this.panel8.PerformLayout();
-			this.panel9.ResumeLayout(false);
-			this.panel9.PerformLayout();
 			this.ResumeLayout(false);
 
 		}

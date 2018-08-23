@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Emgu_Pano_Forms", "Emgu_Pano_Forms\Emgu_Pano_Forms.csproj", "{1263D878-3D50-4BC8-883F-C9AE3EDFD57F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Control_Cam_And_Motors", "Get_Panorama_Images\Control_Cam_And_Motors.csproj", "{5176F093-D397-4FEA-90A4-4DE6F2130478}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1263D878-3D50-4BC8-883F-C9AE3EDFD57F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1263D878-3D50-4BC8-883F-C9AE3EDFD57F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1263D878-3D50-4BC8-883F-C9AE3EDFD57F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1263D878-3D50-4BC8-883F-C9AE3EDFD57F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5176F093-D397-4FEA-90A4-4DE6F2130478}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5176F093-D397-4FEA-90A4-4DE6F2130478}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5176F093-D397-4FEA-90A4-4DE6F2130478}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5176F093-D397-4FEA-90A4-4DE6F2130478}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {FA29132F-4F68-41C5-854B-6A1C2FEFB41C}
+		SolutionGuid = {D7140BD8-956D-48B5-9B53-11B6D78369E3}
 	EndGlobalSection
 EndGlobal
