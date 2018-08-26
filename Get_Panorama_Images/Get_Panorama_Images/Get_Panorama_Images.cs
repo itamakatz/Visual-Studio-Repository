@@ -28,12 +28,9 @@ namespace Get_Panorama_Images {
 
 			Camera = new My_Camera(Update_Status_TextBox, DisplayWindow.Handle);
 
-			//Motors = new Motor[] { new Motor(Axis.X, Update_Status_TextBox, Serial_Numbers[(int) Axis.X]),
-			//						new Motor(Axis.Y, Update_Status_TextBox, Serial_Numbers[(int) Axis.Y]),
-			//						new Motor(Axis.Z, Update_Status_TextBox, Serial_Numbers[(int) Axis.Z])};
-
 			Motors = new Motor[] { new Motor(Axis.X, Update_Status_TextBox, Serial_Numbers[(int) Axis.X]),
-									new Motor(Axis.Y, Update_Status_TextBox, Serial_Numbers[(int) Axis.Y])};
+									new Motor(Axis.Y, Update_Status_TextBox, Serial_Numbers[(int) Axis.Y]),
+									new Motor(Axis.Z, Update_Status_TextBox, Serial_Numbers[(int) Axis.Z])};
 
 			XY_Current_Relative_Step_Box.Text = "1";
 			Z_Current_Relative_Step_Box.Text = "1";
@@ -58,18 +55,18 @@ namespace Get_Panorama_Images {
 		private void Forward_Y_Click(object sender, EventArgs e) { Motors[(int) Axis.Y].Move_Relative(true); }
 		private void Backwards_Y_Click(object sender, EventArgs e) { Motors[(int) Axis.Y].Move_Relative(false); }
 
-		private void Up_Z_Click(object sender, EventArgs e) { /*Motors[(int) Axis.Z].Move_Relative(true);*/ }
-		private void Down_Z_Click(object sender, EventArgs e) { /*Motors[(int) Axis.Z].Move_Relative(false);*/ }
+		private void Up_Z_Click(object sender, EventArgs e) { Motors[(int) Axis.Z].Move_Relative(true); }
+		private void Down_Z_Click(object sender, EventArgs e) { Motors[(int) Axis.Z].Move_Relative(false); }
 
 		private void Home_Motors_Click(object sender, EventArgs e) { foreach (Motor Motor in Motors) { Motor.Home_Axis(); } }
 
 		private void Home_X_Click(object sender, EventArgs e) { Motors[(int) Axis.X].Home_Axis(); }
 		private void Home_Y_Click(object sender, EventArgs e) { Motors[(int) Axis.Y].Home_Axis(); }
-		private void Home_Z_Click(object sender, EventArgs e) { /*Motors[(int) Axis.Z].Home_Axis(); */}
+		private void Home_Z_Click(object sender, EventArgs e) { Motors[(int) Axis.Z].Home_Axis(); }
 
 		private void Identify_X_Click(object sender, EventArgs e) { Motors[(int) Axis.X].Identify_Motor(); }
 		private void Identify_Y_Click(object sender, EventArgs e) { Motors[(int) Axis.Y].Identify_Motor(); }
-		private void Identify_Z_Click(object sender, EventArgs e) { /*Motors[(int) Axis.Z].Identify_Motor();*/ }
+		private void Identify_Z_Click(object sender, EventArgs e) { Motors[(int) Axis.Z].Identify_Motor(); }
 
 		private void Run_Relative_Move_X_Click(object sender, EventArgs e) {
 			decimal input = Parse_Move_Box(X_Fine_Relative_Move_Box, "-");
@@ -84,7 +81,7 @@ namespace Get_Panorama_Images {
 
 		private void Run_Relative_Move_Z_Click(object sender, EventArgs e) {
 			decimal input = Parse_Move_Box(Z_Fine_Relative_Move_Box, "-");
-			//if (input != 0m) { Motors[(int) Axis.Z].Move_Relative(input); }
+			if (input != 0m) { Motors[(int) Axis.Z].Move_Relative(input); }
 		}
 
 		private void Set_XY_Relative_Step_Click(object sender, EventArgs e) {
@@ -101,13 +98,12 @@ namespace Get_Panorama_Images {
 
 		private void Set_Z_Relative_Step_Click(object sender, EventArgs e) {
 
-			//decimal input = Parse_Move_Box(Z_Current_Relative_Step_Box, Motors[(int) Axis.Z].Relative_Move_Step.ToString());
+			decimal input = Parse_Move_Box(Z_Current_Relative_Step_Box, Motors[(int) Axis.Z].Relative_Move_Step.ToString());
 
-			//if (input >= 0) { Motors[(int) Axis.Z].Relative_Move_Step = input; } 
-			//else {
-			//	Update_Status_TextBox("Format Error: Step Value Must Be A Positive Real Number");
-			//	Z_Current_Relative_Step_Box.Text = Motors[(int) Axis.Z].Relative_Move_Step.ToString();
-			//}
+			if (input >= 0) { Motors[(int) Axis.Z].Relative_Move_Step = input; } else {
+				Update_Status_TextBox("Format Error: Step Value Must Be A Positive Real Number");
+				Z_Current_Relative_Step_Box.Text = Motors[(int) Axis.Z].Relative_Move_Step.ToString();
+			}
 		}
 
 		private Decimal Parse_Move_Box(TextBox textBox, string reset_to) {
@@ -151,7 +147,7 @@ namespace Get_Panorama_Images {
 		}
 
 		private void Z_Current_Position_Click(object sender, EventArgs e) {
-			//Update_Status_TextBox("Motor Axis Z: Current Position = " + Motors[(int) Axis.Z].Current_Position);
+			Update_Status_TextBox("Motor Axis Z: Current Position = " + Motors[(int) Axis.Z].Current_Position);
 		}
 	}
 }

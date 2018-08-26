@@ -41,14 +41,14 @@ namespace Using_Emgu {
 		[STAThread]
 		static void Main(string[] args) {
 
-			Init_Controls();
+			//Init_Controls();
 
 			//Create_Pano();
 			//Pano_Form.ShowDialog();
 
 			Compare_Images();
 			My_Form.Form_ShowDialog();
-			Compare_Form.ShowDialog();
+			//Compare_Form.ShowDialog();
 		}
 
 		static void Compare_Images() {
@@ -58,18 +58,37 @@ namespace Using_Emgu {
 			Image<Gray, byte> Canny_Image = My_Image.Canny(255, 200);
 
 			My_Form.Image_Box_Right.Image = Canny_Image;
-
+			My_Form.Set_Left_Label("Canny_Image");
 			My_Form.Image_Box_Left.Image = My_Image.Canny(255, 200).Canny(255, 200);
+			My_Form.Set_Right_Label("My_Image.Canny(255, 200).Canny(255, 200)");
 
 			My_Form.Image_Box_Left.Image.MinMax(out double[] minValues, out double[] maxValues, out Point[] minLocations, out Point[] maxLocations);
 
+			My_Form.Append_Output_TextBox_Same_Line("minValues: ");
+			foreach (var item in minValues) {
+				My_Form.Append_Output_TextBox_Same_Line(item + ", ");
+			}
+			My_Form.Append_Output_TextBox_Same_Line("maxValues: ");
+			foreach (var item in maxValues) {
+				My_Form.Append_Output_TextBox_Same_Line(item + ", ");
+			}
+			My_Form.Append_Output_TextBox_Same_Line("minLocations: ");
+			foreach (var item in minLocations) {
+				My_Form.Append_Output_TextBox_Same_Line("X: "+ item.X + ", Y: "+ item.Y + ", ");
+			}
+			My_Form.Append_Output_TextBox_Same_Line("maxLocations: ");
+			foreach (var item in maxLocations) {
+				My_Form.Append_Output_TextBox_Same_Line("X: "+ item.X + ", Y: "+ item.Y + ", ");
+			}
+
+
 			// ======
 
-			Image_Box_UL.Image = My_Image;
-			Image_Box_UR.Image = My_Image.Canny(100, 200);
-			//Image_Box_DL.Image = My_Image.Canny(255, 255 / 4);
-			Image_Box_DL.Image = My_Image.Canny(255, 200);
-			Image_Box_DR.Image = My_Image.Laplace(1);
+			//Image_Box_UL.Image = My_Image;
+			//Image_Box_UR.Image = My_Image.Canny(100, 200);
+			////Image_Box_DL.Image = My_Image.Canny(255, 255 / 4);
+			//Image_Box_DL.Image = My_Image.Canny(255, 200);
+			//Image_Box_DR.Image = My_Image.Laplace(1);
 			//Image_Box_UR.Image = My_Image.SmoothGaussian(21).ToBitmap();
 			//My_Image.Canny(5, 5);
 			//Image_Box_UR.Image = My_Image.SmoothGaussian(21).ToBitmap();

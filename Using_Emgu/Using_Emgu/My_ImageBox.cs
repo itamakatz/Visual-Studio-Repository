@@ -9,7 +9,7 @@ namespace Using_Emgu {
 	class My_ImageBox : ImageBox {
 
 		public My_ImageBox() : base() {
-
+			FunctionalMode = FunctionalModeOption.RightClickMenu;
 		}
 	}
 }
