@@ -17,12 +17,9 @@ using Emgu.CV.Util;
 namespace Using_Emgu {
 	class Program : Form {
 
-		public Form Compare_Form = new Form();
 		public OpenFileDialog Open_File = new OpenFileDialog();
-		Image<Bgr, Byte> My_Image;
 
 		public Form Pano_Form = new Form();
-		Image<Bgr, Byte> Pano_Image;
 		ImageBox Pano_Image_Box = new ImageBox();
 
 		public Compare_Images_GUI My_Form = new Compare_Images_GUI();
@@ -37,11 +34,11 @@ namespace Using_Emgu {
 
 		public Program() {
 
-			//Init_Pano();
-			//Create_Pano();
+			Init_Pano();
+			Create_Pano();
 			//Pano_Form.ShowDialog();
 
-			Compare_Images();
+			//Compare_Images();
 			//My_Form.Form_ShowDialog();
 			//My_Form_2.Form.Show();
 			//My_Form.Form.ShowDialog();
@@ -50,7 +47,7 @@ namespace Using_Emgu {
 		}
 
 		void Compare_Images() {
-			My_Image = new Image<Bgr, byte>(@"C:\Users\admin\Desktop\COM_Integration\Panorama Stiching\Image Sets\pano_calibrate_3.jpg");
+			Image<Bgr, Byte> My_Image = new Image<Bgr, byte>(@"C:\Users\admin\Desktop\COM_Integration\Panorama Stiching\Image Sets\pano_calibrate_3.jpg");
 
 			//My_Form.Image_Box_Left.Image = My_Image;
 			Image<Gray, byte> Canny_Image = My_Image.Canny(255, 200);
@@ -95,7 +92,6 @@ namespace Using_Emgu {
 
 			Single[,] Edge_Detection_Kernel = new Single[,] { { -1, -1, -1 }, { -1,  8, -1 }, { -1, -1, -1 } };
 			Single[,] Sharpen_Kernel = new Single[,] { { 0, -1, 0 }, { -1,  5, -1 }, { 0, -1, 0 } };
-			//Single[,] Blur_Kernel = new Single[,] { { 1/9, 1/9, 1/9 }, { 1 / 9, 1 / 9, 1 / 9 }, { 1/9, 1/9, 1/9 } };
 			Single[,] Blur_Kernel = new Single[,] { { 1,1,1 }, { 1,1,1 }, { 1,1,1 } };
 
 			ConvolutionKernelF convolutionKernelF_Edge_Detection = new ConvolutionKernelF(Edge_Detection_Kernel);
@@ -108,8 +104,11 @@ namespace Using_Emgu {
 			//My_Form_2.emgu_Image_Panel_Left.Emgu_Im_Box.Image = My_Image.Convolution(convolutionKernelF_Sharpening);
 			//My_Form_2.emgu_Image_Panel_Left.Im_Label.Text = "convolutionKernelF_Sharpening";
 
-			My_Form_2.emgu_Image_Panel_Left.Emgu_Im_Box.Image = My_Image.Convolution(convolutionKernelF_Blur);
-			My_Form_2.emgu_Image_Panel_Left.Im_Label.Text = "convolutionKernelF_Blur";
+			//My_Form_2.emgu_Image_Panel_Left.Emgu_Im_Box.Image = My_Image.Convolution(convolutionKernelF_Blur);
+			//My_Form_2.emgu_Image_Panel_Left.Im_Label.Text = "convolutionKernelF_Blur";
+
+			My_Form_2.emgu_Image_Panel_Left.Emgu_Im_Box.Image = My_Image.Sobel(1,0,3);
+			My_Form_2.emgu_Image_Panel_Left.Im_Label.Text = "My_Image.Sobel(1,0,3)";
 		}
 
 		void Create_Pano() {
@@ -121,7 +120,11 @@ namespace Using_Emgu {
 					using (VectorOfMat vm = new VectorOfMat()) {
 
 						Open_File.Multiselect = true;
-						Open_File.ShowDialog();
+						if (Open_File.ShowDialog() != DialogResult.OK) {
+							MessageBox.Show(String.Format("User Error: No Images Were Selected"));
+							Pano_Image_Box.Image = null;
+							return;
+						};
 
 						foreach (string fileName in Open_File.FileNames) {
 							vm.Push(new Mat(fileName));
@@ -138,9 +141,17 @@ namespace Using_Emgu {
 						if (stitchStatus == Stitcher.Status.Ok) {
 							Pano_Image_Box.Image = result;
 							Console.WriteLine(String.Format("Stitched in {0} milliseconds.", watch.ElapsedMilliseconds));
-						} else {
-							MessageBox.Show(String.Format("Stiching Error: {0}", stitchStatus));
+						} else if (stitchStatus == Stitcher.Status.ErrNeedMoreImgs) {
+							MessageBox.Show("Stiching Error: Need more images..");
 							Pano_Image_Box.Image = null;
+						} else if (stitchStatus == Stitcher.Status.ErrHomographyEstFail) {
+							MessageBox.Show("Stiching Error: Homography estimateion failed.");
+							Pano_Image_Box.Image = null;
+						} else if (stitchStatus == Stitcher.Status.ErrCameraParamsAdjustFail) {
+							MessageBox.Show("Stiching Error: Camera parameters adjustment failed.");
+							Pano_Image_Box.Image = null;
+						} else {
+							MessageBox.Show("Unknown Error...");
 						}
 					}
 				}
@@ -150,7 +161,7 @@ namespace Using_Emgu {
 		void Init_Pano() {
 			Pano_Form.Height = Screen.PrimaryScreen.Bounds.Height;
 			Pano_Form.Width = Screen.PrimaryScreen.Bounds.Width;
-			Compare_Form.WindowState = FormWindowState.Maximized;
+			Pano_Form.WindowState = FormWindowState.Maximized;
 			Pano_Form.Controls.Add(Pano_Image_Box);
 
 			Pano_Image_Box.SizeMode = PictureBoxSizeMode.Zoom;
