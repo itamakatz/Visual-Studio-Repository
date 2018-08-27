@@ -15,21 +15,27 @@ using Emgu.CV.UI;
 using Emgu.CV.Util;
 
 namespace Using_Emgu {
-	class Program {
+	class Program : Form {
 
-		static Form Compare_Form = new Form();
-		static OpenFileDialog Open_File = new OpenFileDialog();
-		static Image<Bgr, Byte> My_Image;
-		
-		static Form Pano_Form = new Form();
-		static Image<Bgr, Byte> Pano_Image;
-		static ImageBox Pano_Image_Box = new ImageBox();
+		public Form Compare_Form = new Form();
+		public OpenFileDialog Open_File = new OpenFileDialog();
+		Image<Bgr, Byte> My_Image;
 
-		static Compare_Images_GUI My_Form = new Compare_Images_GUI();
-		static Compare_Images_GUI My_Form_2 = new Compare_Images_GUI();
+		public Form Pano_Form = new Form();
+		Image<Bgr, Byte> Pano_Image;
+		ImageBox Pano_Image_Box = new ImageBox();
+
+		public Compare_Images_GUI My_Form = new Compare_Images_GUI();
+		public Compare_Images_GUI My_Form_2 = new Compare_Images_GUI();
 
 		[STAThread]
 		static void Main(string[] args) {
+			Application.EnableVisualStyles();
+			Application.SetCompatibleTextRenderingDefault(false);
+			Application.Run(new MultiFormContext(new Program(), new Program()));
+		}
+
+		public Program() {
 
 			//Init_Pano();
 			//Create_Pano();
@@ -38,12 +44,12 @@ namespace Using_Emgu {
 			Compare_Images();
 			//My_Form.Form_ShowDialog();
 			//My_Form_2.Form.Show();
-			My_Form.Form.ShowDialog();
+			//My_Form.Form.ShowDialog();
 			//Console.ReadKey();
 			//Compare_Form.ShowDialog();
 		}
 
-		static void Compare_Images() {
+		void Compare_Images() {
 			My_Image = new Image<Bgr, byte>(@"C:\Users\admin\Desktop\COM_Integration\Panorama Stiching\Image Sets\pano_calibrate_3.jpg");
 
 			//My_Form.Image_Box_Left.Image = My_Image;
@@ -51,7 +57,6 @@ namespace Using_Emgu {
 
 			My_Form.emgu_Image_Panel_Right.Emgu_Im_Box.Image = Canny_Image;
 			My_Form.emgu_Image_Panel_Right.Im_Label.Text = "Canny_Image";
-
 
 			My_Form.emgu_Image_Panel_Left.Emgu_Im_Box.Image = My_Image.Canny(255, 200).Canny(255, 200);
 			My_Form.emgu_Image_Panel_Left.Im_Label.Text = "My_Image.Canny(255, 200).Canny(255, 200)";
@@ -90,19 +95,24 @@ namespace Using_Emgu {
 
 			Single[,] Edge_Detection_Kernel = new Single[,] { { -1, -1, -1 }, { -1,  8, -1 }, { -1, -1, -1 } };
 			Single[,] Sharpen_Kernel = new Single[,] { { 0, -1, 0 }, { -1,  5, -1 }, { 0, -1, 0 } };
+			//Single[,] Blur_Kernel = new Single[,] { { 1/9, 1/9, 1/9 }, { 1 / 9, 1 / 9, 1 / 9 }, { 1/9, 1/9, 1/9 } };
+			Single[,] Blur_Kernel = new Single[,] { { 1,1,1 }, { 1,1,1 }, { 1,1,1 } };
 
 			ConvolutionKernelF convolutionKernelF_Edge_Detection = new ConvolutionKernelF(Edge_Detection_Kernel);
 			ConvolutionKernelF convolutionKernelF_Sharpening = new ConvolutionKernelF(Edge_Detection_Kernel);
+			ConvolutionKernelF convolutionKernelF_Blur = new ConvolutionKernelF(Blur_Kernel);
 
-			//My_Form_2.Im_Box_Left.Image = My_Image.Convolution(convolutionKernelF_Edge_Detection);
-			//My_Form_2.Im_Box_Left.Text = "convolutionKernelF_Edge_Detection";
+			My_Form_2.emgu_Image_Panel_Right.Emgu_Im_Box.Image = My_Image.Convolution(convolutionKernelF_Edge_Detection);
+			My_Form_2.emgu_Image_Panel_Right.Im_Label.Text = "convolutionKernelF_Edge_Detection";
 
-			//My_Form_2.Im_Box_Right.Image = My_Image.Convolution(convolutionKernelF_Sharpening);
-			//My_Form_2.Label_Right.Text = "convolutionKernelF_Sharpening";
+			//My_Form_2.emgu_Image_Panel_Left.Emgu_Im_Box.Image = My_Image.Convolution(convolutionKernelF_Sharpening);
+			//My_Form_2.emgu_Image_Panel_Left.Im_Label.Text = "convolutionKernelF_Sharpening";
 
+			My_Form_2.emgu_Image_Panel_Left.Emgu_Im_Box.Image = My_Image.Convolution(convolutionKernelF_Blur);
+			My_Form_2.emgu_Image_Panel_Left.Im_Label.Text = "convolutionKernelF_Blur";
 		}
 
-		static void Create_Pano() {
+		void Create_Pano() {
 			using (Stitcher stitcher = new Stitcher(false)) {
 				using (AKAZEFeaturesFinder finder = new AKAZEFeaturesFinder()) {
 
@@ -137,7 +147,7 @@ namespace Using_Emgu {
 			}
 		}
 
-		static void Init_Pano() {
+		void Init_Pano() {
 			Pano_Form.Height = Screen.PrimaryScreen.Bounds.Height;
 			Pano_Form.Width = Screen.PrimaryScreen.Bounds.Width;
 			Compare_Form.WindowState = FormWindowState.Maximized;
@@ -148,7 +158,7 @@ namespace Using_Emgu {
 			Pano_Image_Box.MouseClick += new MouseEventHandler(Pano_MouseMove);
 		}
 
-		static void Pano_MouseMove(object sender, MouseEventArgs e) {
+		void Pano_MouseMove(object sender, MouseEventArgs e) {
 			if (e.Button == MouseButtons.Left) {
 				Create_Pano();
 				Pano_Form.Refresh();

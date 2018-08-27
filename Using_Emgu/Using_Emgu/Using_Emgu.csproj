@@ -57,7 +57,10 @@
   <ItemGroup>
     <Compile Include="Compare_Images_GUI.cs" />
     <Compile Include="Emgu_Image.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="MultiFormContext.cs" />
+    <Compile Include="Program.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
