@@ -32,19 +32,19 @@ namespace Using_Emgu {
 		static void Main(string[] args) {
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new MultiFormContext(new Program(), new Program()));
+			//Application.Run(new MultiFormContext(new Program(), new Program()));
 
-			//new Program();
+			new Program();
 		}
 
 		public Program() {
 
-			//Init_Pano();
+			Init_Pano();
 			//Create_Pano();
-			//Crop_To_Edges();
-			//Pano_Form.ShowDialog();
+			Pano_Image_Box.Image = Crop_To_Edges();
+			Pano_Form.ShowDialog();
 
-			Compare_Images();
+			//Compare_Images();
 			//My_Form.Form_ShowDialog();
 			//My_Form_2.Form.Show();
 			//My_Form.Form.ShowDialog();
@@ -154,7 +154,7 @@ namespace Using_Emgu {
 
 
 						if (stitchStatus == Stitcher.Status.Ok) {
-							Pano_Image_Box.Image = result;
+							Pano_Image_Box.Image = Crop_To_Edges( ref result);
 							Console.WriteLine(String.Format("Stitched in {0} milliseconds.", watch.ElapsedMilliseconds));
 						} else if (stitchStatus == Stitcher.Status.ErrNeedMoreImgs) {
 							MessageBox.Show("Stiching Error: Need more images..");
@@ -173,15 +173,26 @@ namespace Using_Emgu {
 			}
 		}
 
+		private Image<Bgr, Byte> Crop_To_Edges(ref Mat pano_image) {
+			Image<Bgr, Byte> crom_image = pano_image.ToImage<Bgr, Byte>();
+			return Crop_To_Edges(ref crom_image);
+		}
+
+		private Image<Bgr, Byte> Crop_To_Edges() {
+
+			if (Open_File.ShowDialog() != DialogResult.OK) {
+				MessageBox.Show(String.Format("User Error: No Images Were Selected"));
+				Pano_Image_Box.Image = null;
+				return null;
+			};
+
+			Image<Bgr, Byte> pano_image = new Image<Bgr, Byte>(Open_File.FileNames[0]);
+			return Crop_To_Edges(ref pano_image);
+		}
+
 		private Image<Bgr, Byte> Crop_To_Edges(ref Image<Bgr, Byte> pano_image) {
 
-			//if (Open_File.ShowDialog() != DialogResult.OK) {
-			//	MessageBox.Show(String.Format("User Error: No Images Were Selected"));
-			//	Pano_Image_Box.Image = null;
-			//	return;
-			//};
 
-			//Mat pano_mat = new Mat(Open_File.FileNames[0]);
 			Image<Gray, Byte> pano_gray = new Image<Gray, Byte>(pano_image.Bitmap);
 
 			Bitmap bitmap_gray = pano_gray.Bitmap;
@@ -205,10 +216,7 @@ namespace Using_Emgu {
 
 			Marshal.Copy(pointer, bitmap_byte_array, 0, im_num_of_bytes);
 
-			bool Right_Edge_Black	= true;
-			bool Left_Edge_Black	= true;
-			bool Top_Edge_Black		= true;
-			bool Bottom_Edge_Black	= true;
+			int Byte_Index(int x, int y) { return x * single_pixel_num_of_byte + (height - y - 1) * stride; }
 
 			int x_start = 0;
 			int y_start = 0;
@@ -216,17 +224,66 @@ namespace Using_Emgu {
 			int x_end = width - 1;
 			int y_end = height - 1;
 
-			int BLACK_VALUE_THRESHOLD = 5;
-			//double BLACK_COUNT_THRESHOLD_AVERAGE = 0.05;
+			int BLACK_VALUE_THRESHOLD = 10;
 			double BLACK_COUNT_THRESHOLD_AVERAGE = 0.02;
-			
+
+
+			bool TL_Coener_Black   = true;
+			bool TR_Coener_Black   = true;
+			bool BL_Coener_Black   = true;
+			bool BR_Coener_Black   = true;
+
+			while(TL_Coener_Black || TR_Coener_Black || BL_Coener_Black || BR_Coener_Black) {
+
+				var index = 0;
+				int value = 0;
+
+				index = Byte_Index(x_start, y_start);
+				value = bitmap_byte_array[index];
+				if (TL_Coener_Black && bitmap_byte_array[Byte_Index(x_start, y_start)] < BLACK_VALUE_THRESHOLD) {
+					if(Check_Right_Left(x_start) > Check_Top_Bottom(y_start))	{ x_start++; } 
+					else														{ y_start++; }
+				} else {
+					TL_Coener_Black = false; }
+
+				index = Byte_Index(x_end, y_start);
+				value = bitmap_byte_array[index];
+				if (TR_Coener_Black && bitmap_byte_array[Byte_Index(x_end, y_start)] < BLACK_VALUE_THRESHOLD) {
+					if (Check_Right_Left(x_end) > Check_Top_Bottom(y_start))	{ x_end--; } 
+					else														{ y_start++; }
+				} else {
+					TR_Coener_Black = false; }
+
+				index = Byte_Index(x_start, y_end);
+				value = bitmap_byte_array[index];
+				if (BL_Coener_Black && bitmap_byte_array[Byte_Index(x_start, y_end)] < BLACK_VALUE_THRESHOLD) {
+					if (Check_Right_Left(x_start) > Check_Top_Bottom(y_end))	{ x_start++; } 
+					else														{ y_end--; }
+				} else {
+					BL_Coener_Black = false; }
+
+				index = Byte_Index(x_end, y_end);
+				value = bitmap_byte_array[index];
+				if (BR_Coener_Black && bitmap_byte_array[Byte_Index(x_end, y_end)] < BLACK_VALUE_THRESHOLD) {
+					if (Check_Right_Left(x_end) > Check_Top_Bottom(y_end))		{ x_end--; } 
+					else														{ y_end--; }
+				} else {
+					BR_Coener_Black = false; }
+			}
+
+
+			bool Right_Edge_Black   = true;
+			bool Left_Edge_Black    = true;
+			bool Top_Edge_Black     = true;
+			bool Bottom_Edge_Black  = true;
+
 			while (true) {
 
-				Left_Edge_Black		=	Check_Right_Left(x_start);
-				Top_Edge_Black		=	Check_Top_Bottom(y_start);
+				Left_Edge_Black		=	Check_Right_Left(x_start) > BLACK_COUNT_THRESHOLD_AVERAGE;
+				Top_Edge_Black		=	Check_Top_Bottom(y_start) > BLACK_COUNT_THRESHOLD_AVERAGE;
 
-				Right_Edge_Black	=	Check_Right_Left(x_end); 
-				Bottom_Edge_Black	=	Check_Top_Bottom(y_end);
+				Right_Edge_Black	=	Check_Right_Left(x_end) > BLACK_COUNT_THRESHOLD_AVERAGE; 
+				Bottom_Edge_Black	=	Check_Top_Bottom(y_end) > BLACK_COUNT_THRESHOLD_AVERAGE;
 
 				if (!(Right_Edge_Black || Left_Edge_Black || Top_Edge_Black || Bottom_Edge_Black)) { break; }
 
@@ -254,24 +311,20 @@ namespace Using_Emgu {
 			return pano_image.Copy(new Rectangle(x_start, y_start, new_width, new_height));
 
 
-			int Byte_Index(int x, int y) { return x * single_pixel_num_of_byte + (height - y - 1) * stride; }
-
-			bool Check_Right_Left(int fixed_x) {
+			float Check_Right_Left(int fixed_x) {
 				int zeroCount = 0;
 				for (int j = y_start; j <= y_end; j++) {
 					if (bitmap_byte_array[Byte_Index(fixed_x, j)] < BLACK_VALUE_THRESHOLD) { zeroCount++; }
 				}
-				if ((zeroCount / (float) (y_end- y_start)) > BLACK_COUNT_THRESHOLD_AVERAGE) { return true; }
-				return false;
+				return (zeroCount / (float) (y_end - y_start));
 			}
 
-			bool Check_Top_Bottom(int fixed_y) {
+			float Check_Top_Bottom(int fixed_y) {
 				int zeroCount = 0;
 				for (int i = x_start; i <= x_end; i++) {
 					if (bitmap_byte_array[Byte_Index(i, fixed_y)] < BLACK_VALUE_THRESHOLD) { zeroCount++; }
 				}
-				if ((zeroCount / (float) (x_end - x_start)) > BLACK_COUNT_THRESHOLD_AVERAGE) { return true; }
-				return false;
+				return (zeroCount / (float) (x_end - x_start));
 			}
 		}
 
