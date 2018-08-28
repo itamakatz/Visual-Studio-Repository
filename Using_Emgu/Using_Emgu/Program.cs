@@ -228,48 +228,48 @@ namespace Using_Emgu {
 			double BLACK_COUNT_THRESHOLD_AVERAGE = 0.02;
 
 
-			bool TL_Coener_Black   = true;
-			bool TR_Coener_Black   = true;
-			bool BL_Coener_Black   = true;
-			bool BR_Coener_Black   = true;
+			//bool TL_Corner_Black   = true;
+			//bool TR_Corner_Black   = true;
+			//bool BL_Corner_Black   = true;
+			//bool BR_Corner_Black   = true;
 
-			while(TL_Coener_Black || TR_Coener_Black || BL_Coener_Black || BR_Coener_Black) {
+			//while(TL_Corner_Black || TR_Corner_Black || BL_Corner_Black || BR_Corner_Black) {
 
-				var index = 0;
-				int value = 0;
+			//	var index = 0;
+			//	int value = 0;
 
-				index = Byte_Index(x_start, y_start);
-				value = bitmap_byte_array[index];
-				if (TL_Coener_Black && bitmap_byte_array[Byte_Index(x_start, y_start)] < BLACK_VALUE_THRESHOLD) {
-					if(Check_Right_Left(x_start) > Check_Top_Bottom(y_start))	{ x_start++; } 
-					else														{ y_start++; }
-				} else {
-					TL_Coener_Black = false; }
+			//	index = Byte_Index(x_start, y_start);
+			//	value = bitmap_byte_array[index];
+			//	if (TL_Corner_Black && bitmap_byte_array[Byte_Index(x_start, y_start)] < BLACK_VALUE_THRESHOLD) {
+			//		if(Check_Right_Left(x_start) > Check_Top_Bottom(y_start))	{ x_start++; } 
+			//		else														{ y_start++; }
+			//	} else {
+			//		TL_Corner_Black = false; }
 
-				index = Byte_Index(x_end, y_start);
-				value = bitmap_byte_array[index];
-				if (TR_Coener_Black && bitmap_byte_array[Byte_Index(x_end, y_start)] < BLACK_VALUE_THRESHOLD) {
-					if (Check_Right_Left(x_end) > Check_Top_Bottom(y_start))	{ x_end--; } 
-					else														{ y_start++; }
-				} else {
-					TR_Coener_Black = false; }
+			//	index = Byte_Index(x_end, y_start);
+			//	value = bitmap_byte_array[index];
+			//	if (TR_Corner_Black && bitmap_byte_array[Byte_Index(x_end, y_start)] < BLACK_VALUE_THRESHOLD) {
+			//		if (Check_Right_Left(x_end) > Check_Top_Bottom(y_start))	{ x_end--; } 
+			//		else														{ y_start++; }
+			//	} else {
+			//		TR_Corner_Black = false; }
 
-				index = Byte_Index(x_start, y_end);
-				value = bitmap_byte_array[index];
-				if (BL_Coener_Black && bitmap_byte_array[Byte_Index(x_start, y_end)] < BLACK_VALUE_THRESHOLD) {
-					if (Check_Right_Left(x_start) > Check_Top_Bottom(y_end))	{ x_start++; } 
-					else														{ y_end--; }
-				} else {
-					BL_Coener_Black = false; }
+			//	index = Byte_Index(x_start, y_end);
+			//	value = bitmap_byte_array[index];
+			//	if (BL_Corner_Black && bitmap_byte_array[Byte_Index(x_start, y_end)] < BLACK_VALUE_THRESHOLD) {
+			//		if (Check_Right_Left(x_start) > Check_Top_Bottom(y_end))	{ x_start++; } 
+			//		else														{ y_end--; }
+			//	} else {
+			//		BL_Corner_Black = false; }
 
-				index = Byte_Index(x_end, y_end);
-				value = bitmap_byte_array[index];
-				if (BR_Coener_Black && bitmap_byte_array[Byte_Index(x_end, y_end)] < BLACK_VALUE_THRESHOLD) {
-					if (Check_Right_Left(x_end) > Check_Top_Bottom(y_end))		{ x_end--; } 
-					else														{ y_end--; }
-				} else {
-					BR_Coener_Black = false; }
-			}
+			//	index = Byte_Index(x_end, y_end);
+			//	value = bitmap_byte_array[index];
+			//	if (BR_Corner_Black && bitmap_byte_array[Byte_Index(x_end, y_end)] < BLACK_VALUE_THRESHOLD) {
+			//		if (Check_Right_Left(x_end) > Check_Top_Bottom(y_end))		{ x_end--; } 
+			//		else														{ y_end--; }
+			//	} else {
+			//		BR_Corner_Black = false; }
+			//}
 
 
 			bool Right_Edge_Black   = true;
