@@ -193,7 +193,7 @@ namespace IOTech_BitMap_Slicer
 
 					bool x_right = false, x_left_ = false, y_up___ = false, y_down_ = false;
 
-
+					// TODO: what happends if I have two trues one next to the other?? in other words is the line is thiker?? 
 					for (int j = check_x; 0 <= j; j--)
 					{
 						if (bool_array[Bool_Index(j, check_y)] && j < V.Bitmap_Width - 1 && !bool_array[Bool_Index(j + 1, check_y)]) { x_left_ = !x_left_; }

@@ -19,26 +19,25 @@ namespace Using_Emgu {
 			Form second_form = my_program.My_Form_2.Form;
 			Form pano_form = my_program.Pano_Form;
 
-			//first_form.FormClosed += (s, args) =>
-			//{
-			//	//When we have closed the last of the "starting" forms, 
-			//	//end the program.
-			//	if (Interlocked.Decrement(ref openForms) == 0)
-			//		ExitThread();
-			//};
+			first_form.FormClosed += (s, args) => {
+				//When we have closed the last of the "starting" forms, 
+				//end the program.
+				if (Interlocked.Decrement(ref openForms) == 0)
+					ExitThread();
+			};
 
-			//first_form.Show();
+			first_form.Show();
 
-			//second_form.FormClosed += (s, args) => {
-			//	//When we have closed the last of the "starting" forms, 
-			//	//end the program.
-			//	if (Interlocked.Decrement(ref openForms) == 0)
-			//		ExitThread();
-			//};
+			second_form.FormClosed += (s, args) => {
+				//When we have closed the last of the "starting" forms, 
+				//end the program.
+				if (Interlocked.Decrement(ref openForms) == 0)
+					ExitThread();
+			};
 
-			//second_form.Show();
+			second_form.Show();
 
-			pano_form.Show();
+			//pano_form.Show();
 
 			//foreach (var form in forms) {
 			//	form.FormClosed += (s, args) =>

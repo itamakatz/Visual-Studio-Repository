@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Emgu.CV;
@@ -29,14 +32,17 @@ namespace Using_Emgu {
 		static void Main(string[] args) {
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new MultiFormContext(new Program(), new Program()));
+			//Application.Run(new MultiFormContext(new Program(), new Program()));
+
+			new Program();
 		}
 
 		public Program() {
 
 			Init_Pano();
-			Create_Pano();
-			//Pano_Form.ShowDialog();
+			//Create_Pano();
+			Crop_To_Edges();
+			Pano_Form.ShowDialog();
 
 			//Compare_Images();
 			//My_Form.Form_ShowDialog();
@@ -47,30 +53,19 @@ namespace Using_Emgu {
 		}
 
 		void Compare_Images() {
-			Image<Bgr, Byte> My_Image = new Image<Bgr, byte>(@"C:\Users\admin\Desktop\COM_Integration\Panorama Stiching\Image Sets\pano_calibrate_3.jpg");
+			Image<Bgr, Byte> My_Image = new Image<Bgr, byte>(@"C:\Users\admin\Desktop\COM_Integration\Panorama Stiching\Image Sets\Set_7\Results\All_Images_pano.jpg");
 
-			//My_Form.Image_Box_Left.Image = My_Image;
-			Image<Gray, byte> Canny_Image = My_Image.Canny(255, 200);
+			My_Form.emgu_Image_Panel_Right.Emgu_Im_Box.Image = My_Image.Canny(255, 250 / 4);
+			My_Form.emgu_Image_Panel_Right.Im_Label.Text = "Canny(255, 250 / 4)";
 
-			My_Form.emgu_Image_Panel_Right.Emgu_Im_Box.Image = Canny_Image;
-			My_Form.emgu_Image_Panel_Right.Im_Label.Text = "Canny_Image";
-
-			My_Form.emgu_Image_Panel_Left.Emgu_Im_Box.Image = My_Image.Canny(255, 200).Canny(255, 200);
-			My_Form.emgu_Image_Panel_Left.Im_Label.Text = "My_Image.Canny(255, 200).Canny(255, 200)";
+			My_Form.emgu_Image_Panel_Left.Emgu_Im_Box.Image = My_Image.Canny(255, 250 / 4).Canny(255, 250 / 4);
+			My_Form.emgu_Image_Panel_Left.Im_Label.Text = "Canny(255, 250 / 4).Canny(255, 250 / 4)";
 
 			My_Form.emgu_Image_Panel_Left.Emgu_Im_Box.Image.MinMax(
 				out double[] minValues, 
 				out double[] maxValues, 
 				out Point[] minLocations, 
 				out Point[] maxLocations);
-
-			//My_Form.Im_Box_Right.Image = Canny_Image;
-			//My_Form.Label_Right.Text = "Canny_Image";
-
-			//My_Form.Im_Box_Left.Image = My_Image.Canny(255, 200).Canny(255, 200);
-			//My_Form.Label_Left.Text = "My_Image.Canny(255, 200).Canny(255, 200)";
-
-			//My_Form.Im_Box_Left.Image.MinMax(out double[] minValues, out double[] maxValues, out Point[] minLocations, out Point[] maxLocations);
 
 			My_Form.Append_Output_TextBox_Same_Line("minValues: ");
 			foreach (var item in minValues) {
@@ -116,6 +111,7 @@ namespace Using_Emgu {
 				using (AKAZEFeaturesFinder finder = new AKAZEFeaturesFinder()) {
 
 					stitcher.SetFeaturesFinder(finder);
+					stitcher.CompositingResol = -1; // Use -1 for original resolution
 
 					using (VectorOfMat vm = new VectorOfMat()) {
 
@@ -125,6 +121,19 @@ namespace Using_Emgu {
 							Pano_Image_Box.Image = null;
 							return;
 						};
+
+						//Console.WriteLine("Please Enter Parameter for RegistrationResol");
+						//double parameter = double.Parse(Console.ReadLine());
+						//Console.WriteLine("You Entered: " + parameter);
+
+
+						//stitcher.PanoConfidenceThresh = parameter;
+						//stitcher.RegistrationResol = parameter;
+						//stitcher.SeamEstimationResol =
+ 						//stitcher.WaveCorrection = true;
+ 						//stitcher.WaveCorrectionKind = Stitcher.WaveCorrectionType.Vert;
+						//stitcher.WorkScale =
+
 
 						foreach (string fileName in Open_File.FileNames) {
 							vm.Push(new Mat(fileName));
@@ -137,6 +146,7 @@ namespace Using_Emgu {
 						Console.WriteLine("Stitching");
 						Stitcher.Status stitchStatus = stitcher.Stitch(vm, result);
 						watch.Stop();
+
 
 						if (stitchStatus == Stitcher.Status.Ok) {
 							Pano_Image_Box.Image = result;
@@ -158,6 +168,123 @@ namespace Using_Emgu {
 			}
 		}
 
+		private void Crop_To_Edges() {
+
+			if (Open_File.ShowDialog() != DialogResult.OK) {
+				MessageBox.Show(String.Format("User Error: No Images Were Selected"));
+				Pano_Image_Box.Image = null;
+				return;
+			};
+
+			Mat pano_mat = new Mat(Open_File.FileNames[0]);
+
+			Stopwatch watch = Stopwatch.StartNew();
+
+			Bitmap bitmap = pano_mat.Bitmap;
+			bool[] bool_array = new bool[bitmap.Width * bitmap.Height];
+
+			PixelFormat pixel_format = bitmap.PixelFormat;
+
+			Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
+
+			var bitmap_data = bitmap.LockBits(rect, ImageLockMode.ReadWrite, pixel_format);
+			int single_pixel_num_of_byte = Image.GetPixelFormatSize(pixel_format) / 8;
+			int stride = bitmap.Width * single_pixel_num_of_byte;
+			int padding = (stride % 4);
+			stride += padding == 0 ? 0 : 4 - padding; // pad out to multiple of 4 - CRITICAL
+			int im_num_of_bytes = bitmap.Height * Math.Abs(stride);
+
+			IntPtr pointer = bitmap_data.Scan0;
+			byte[] bitmap_byte_array = new byte[im_num_of_bytes];
+
+			Marshal.Copy(pointer, bitmap_byte_array, 0, im_num_of_bytes);
+
+			int min = 0;
+			int max = (bitmap.Width / 2);
+			//int max = bitmap.Width - 1;
+			while (min <= max) {
+				int mid = (min + max) / 2;
+				int intersection = 0;
+				int index = Byte_Index(mid, 0);
+				bool current = bitmap_byte_array[index] == 0 && bitmap_byte_array[index + 1] == 0 && bitmap_byte_array[index + 2] == 0;
+
+				for (int y = 0; y < bitmap.Height; y++) {
+					index = Byte_Index(mid, y);
+					if (current != (bitmap_byte_array[index] == 0 && 
+									bitmap_byte_array[index + 1] == 0 &&
+									bitmap_byte_array[index + 2] == 0)) {
+						intersection++;
+						current = !current;
+					}
+				}
+
+				for (int y = 0; y < bitmap.Height; y++) {
+					index = Byte_Index(mid, y);
+					bitmap_byte_array[index] = 0;
+					bitmap_byte_array[index + 1] = 0;
+					bitmap_byte_array[index + 2] = 255;
+				}
+
+				if (intersection > 2) { min = mid + 1; } 
+				else if (intersection == 2) { max = mid - 1; } 
+				else { MessageBox.Show("Error: intersection < 2 ..."); }
+			}
+
+			//for (int y = 0; y < bitmap.Height; y++) {
+			//	int index = Byte_Index(max, y);
+			//	bitmap_byte_array[index]		= 0;
+			//	bitmap_byte_array[index + 1]	= 0;
+			//	bitmap_byte_array[index + 2]	= 255;
+			//}
+
+			//for (int x = 0; x < bitmap.Width; x++) {
+			//	for (int y = 0; y < bitmap.Height; y++) {
+			//		int index = Byte_Index(x, y);
+			//		if (bitmap_byte_array[index] == 0 && bitmap_byte_array[index + 1] == 0 && bitmap_byte_array[index + 2] == 0) {
+			//			bool_array[Bool_Index(x, y)] = true;
+			//		}
+			//	}
+			//}
+
+			//watch.Stop();
+			//var elapsed_time = watch.Elapsed;
+			//Thread thread = new Thread(() => find_crop_bounds(0,0), 1000000000);
+			//thread.Start();
+			//thread.Join();
+
+			//List<Tuple<int,int>> index_array = new List<Tuple<int,int>>();
+
+			void find_crop_bounds(int x, int y) {
+
+				if (!bool_array[Bool_Index(x, y)]) { return; }
+
+				bool_array[Bool_Index(x, y)] = false;
+				bool is_bound = true;
+
+				if (Bool_Index(x + 1, y) < bool_array.Length)	{ if (!bool_array[Bool_Index(x + 1, y)]) { is_bound = false; }; }
+				if (Bool_Index(x - 1, y) > 0)					{ if (!bool_array[Bool_Index(x - 1, y)]) { is_bound = false; }; }
+				if (Bool_Index(x, y + 1) < bool_array.Length)	{ if (!bool_array[Bool_Index(x, y + 1)]) { is_bound = false; }; }
+				if (Bool_Index(x, y - 1) < 0)					{ if (!bool_array[Bool_Index(x, y - 1)]) { is_bound = false; }; }
+
+				if (is_bound) { Tuple.Create(x, y); }
+
+				if (Bool_Index(x + 1, y) < bool_array.Length)	{ find_crop_bounds(x + 1, y); }
+				if (Bool_Index(x - 1, y) > 0)					{ find_crop_bounds(x - 1, y); }
+				if (Bool_Index(x, y + 1) < bool_array.Length)	{ find_crop_bounds(x, y + 1); }
+				if (Bool_Index(x, y - 1) < 0)					{ find_crop_bounds(x, y - 1); }
+			}
+
+			Marshal.Copy(bitmap_byte_array, 0, pointer, im_num_of_bytes);
+			bitmap.UnlockBits(bitmap_data);
+
+			int Byte_Index(int x, int y) { return x * single_pixel_num_of_byte + (bitmap.Height - y - 1) * stride; }
+			int Bool_Index(int x, int y) { return x + (bitmap.Height - y - 1) * bitmap.Width; }
+
+			Pano_Image_Box.Image = pano_mat;
+
+			//return null;
+		}
+
 		void Init_Pano() {
 			Pano_Form.Height = Screen.PrimaryScreen.Bounds.Height;
 			Pano_Form.Width = Screen.PrimaryScreen.Bounds.Width;
@@ -166,10 +293,10 @@ namespace Using_Emgu {
 
 			Pano_Image_Box.SizeMode = PictureBoxSizeMode.Zoom;
 			Pano_Image_Box.Size = Pano_Form.Size;
-			Pano_Image_Box.MouseClick += new MouseEventHandler(Pano_MouseMove);
+			Pano_Image_Box.MouseDoubleClick += new MouseEventHandler(Pano_MouseDoubleClick);
 		}
 
-		void Pano_MouseMove(object sender, MouseEventArgs e) {
+		void Pano_MouseDoubleClick(object sender, MouseEventArgs e) {
 			if (e.Button == MouseButtons.Left) {
 				Create_Pano();
 				Pano_Form.Refresh();
