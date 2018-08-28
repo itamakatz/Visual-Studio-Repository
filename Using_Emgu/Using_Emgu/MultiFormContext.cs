@@ -10,7 +10,6 @@ namespace Using_Emgu {
 	public class MultiFormContext : ApplicationContext {
 		private int openForms;
 		public MultiFormContext(params Form[] forms) {
-			//openForms = forms.Length;
 			openForms = 2;
 
 
@@ -36,21 +35,6 @@ namespace Using_Emgu {
 			};
 
 			second_form.Show();
-
-			//pano_form.Show();
-
-			//foreach (var form in forms) {
-			//	form.FormClosed += (s, args) =>
-			//	{
-			//		//When we have closed the last of the "starting" forms, 
-			//		//end the program.
-			//		if (Interlocked.Decrement(ref openForms) == 0)
-			//			ExitThread();
-			//	};
-
-			//	Program my_program = (Program) form;
-			//	my_program.My_Form.Form.Show();
-			//}
 		}
 	}
 }

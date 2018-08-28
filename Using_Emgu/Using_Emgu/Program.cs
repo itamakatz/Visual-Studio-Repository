@@ -32,19 +32,19 @@ namespace Using_Emgu {
 		static void Main(string[] args) {
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			//Application.Run(new MultiFormContext(new Program(), new Program()));
+			Application.Run(new MultiFormContext(new Program(), new Program()));
 
-			new Program();
+			//new Program();
 		}
 
 		public Program() {
 
-			Init_Pano();
+			//Init_Pano();
 			//Create_Pano();
-			Crop_To_Edges();
-			Pano_Form.ShowDialog();
+			//Crop_To_Edges();
+			//Pano_Form.ShowDialog();
 
-			//Compare_Images();
+			Compare_Images();
 			//My_Form.Form_ShowDialog();
 			//My_Form_2.Form.Show();
 			//My_Form.Form.ShowDialog();
@@ -53,13 +53,18 @@ namespace Using_Emgu {
 		}
 
 		void Compare_Images() {
-			Image<Bgr, Byte> My_Image = new Image<Bgr, byte>(@"C:\Users\admin\Desktop\COM_Integration\Panorama Stiching\Image Sets\Set_7\Results\All_Images_pano.jpg");
+			Image<Bgr, Byte> My_Image = new Image<Bgr, byte>(@"C:\Users\admin\Desktop\COM_Integration\Panorama Stiching\Image Sets\Set_7\Results\UL_DL_pano.jpg");
 
-			My_Form.emgu_Image_Panel_Right.Emgu_Im_Box.Image = My_Image.Canny(255, 250 / 4);
-			My_Form.emgu_Image_Panel_Right.Im_Label.Text = "Canny(255, 250 / 4)";
+			//My_Form.emgu_Image_Panel_Right.Emgu_Im_Box.Image = My_Image.Canny(255, 250 / 4);
+			//My_Form.emgu_Image_Panel_Right.Im_Label.Text = "Canny(255, 250 / 4)";
 
-			My_Form.emgu_Image_Panel_Left.Emgu_Im_Box.Image = My_Image.Canny(255, 250 / 4).Canny(255, 250 / 4);
-			My_Form.emgu_Image_Panel_Left.Im_Label.Text = "Canny(255, 250 / 4).Canny(255, 250 / 4)";
+			//My_Form.emgu_Image_Panel_Left.Emgu_Im_Box.Image = My_Image.Canny(255, 250 / 4).Canny(255, 250 / 4);
+			//My_Form.emgu_Image_Panel_Left.Im_Label.Text = "Canny(255, 250 / 4).Canny(255, 250 / 4)";
+
+			My_Form.emgu_Image_Panel_Right.Emgu_Im_Box.Image = My_Image;
+			My_Form.emgu_Image_Panel_Right.Im_Label.Text = "My_Image";
+			My_Form.emgu_Image_Panel_Left.Emgu_Im_Box.Image = Crop_To_Edges(ref My_Image);
+			My_Form.emgu_Image_Panel_Left.Im_Label.Text = "Crop_To_Edges(ref My_Image)";
 
 			My_Form.emgu_Image_Panel_Left.Emgu_Im_Box.Image.MinMax(
 				out double[] minValues, 
@@ -168,121 +173,106 @@ namespace Using_Emgu {
 			}
 		}
 
-		private void Crop_To_Edges() {
+		private Image<Bgr, Byte> Crop_To_Edges(ref Image<Bgr, Byte> pano_image) {
 
-			if (Open_File.ShowDialog() != DialogResult.OK) {
-				MessageBox.Show(String.Format("User Error: No Images Were Selected"));
-				Pano_Image_Box.Image = null;
-				return;
-			};
+			//if (Open_File.ShowDialog() != DialogResult.OK) {
+			//	MessageBox.Show(String.Format("User Error: No Images Were Selected"));
+			//	Pano_Image_Box.Image = null;
+			//	return;
+			//};
 
-			Mat pano_mat = new Mat(Open_File.FileNames[0]);
+			//Mat pano_mat = new Mat(Open_File.FileNames[0]);
+			Image<Gray, Byte> pano_gray = new Image<Gray, Byte>(pano_image.Bitmap);
 
-			Stopwatch watch = Stopwatch.StartNew();
+			Bitmap bitmap_gray = pano_gray.Bitmap;
 
-			Bitmap bitmap = pano_mat.Bitmap;
-			bool[] bool_array = new bool[bitmap.Width * bitmap.Height];
+			int height = pano_gray.Height;
+			int width = pano_gray.Width;
 
-			PixelFormat pixel_format = bitmap.PixelFormat;
+			PixelFormat pixel_format = pano_gray.Bitmap.PixelFormat;
 
-			Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
+			Rectangle rect = new Rectangle(0, 0, width, height);
 
-			var bitmap_data = bitmap.LockBits(rect, ImageLockMode.ReadWrite, pixel_format);
+			var bitmap_data = bitmap_gray.LockBits(rect, ImageLockMode.ReadOnly, pixel_format);
 			int single_pixel_num_of_byte = Image.GetPixelFormatSize(pixel_format) / 8;
-			int stride = bitmap.Width * single_pixel_num_of_byte;
+			int stride = width * single_pixel_num_of_byte;
 			int padding = (stride % 4);
 			stride += padding == 0 ? 0 : 4 - padding; // pad out to multiple of 4 - CRITICAL
-			int im_num_of_bytes = bitmap.Height * Math.Abs(stride);
+			int im_num_of_bytes = height * Math.Abs(stride);
 
 			IntPtr pointer = bitmap_data.Scan0;
 			byte[] bitmap_byte_array = new byte[im_num_of_bytes];
 
 			Marshal.Copy(pointer, bitmap_byte_array, 0, im_num_of_bytes);
 
-			int min = 0;
-			int max = (bitmap.Width / 2);
-			//int max = bitmap.Width - 1;
-			while (min <= max) {
-				int mid = (min + max) / 2;
-				int intersection = 0;
-				int index = Byte_Index(mid, 0);
-				bool current = bitmap_byte_array[index] == 0 && bitmap_byte_array[index + 1] == 0 && bitmap_byte_array[index + 2] == 0;
+			bool Right_Edge_Black	= true;
+			bool Left_Edge_Black	= true;
+			bool Top_Edge_Black		= true;
+			bool Bottom_Edge_Black	= true;
 
-				for (int y = 0; y < bitmap.Height; y++) {
-					index = Byte_Index(mid, y);
-					if (current != (bitmap_byte_array[index] == 0 && 
-									bitmap_byte_array[index + 1] == 0 &&
-									bitmap_byte_array[index + 2] == 0)) {
-						intersection++;
-						current = !current;
-					}
+			int x_start = 0;
+			int y_start = 0;
+
+			int x_end = width - 1;
+			int y_end = height - 1;
+
+			int BLACK_VALUE_THRESHOLD = 5;
+			//double BLACK_COUNT_THRESHOLD_AVERAGE = 0.05;
+			double BLACK_COUNT_THRESHOLD_AVERAGE = 0.02;
+			
+			while (true) {
+
+				Left_Edge_Black		=	Check_Right_Left(x_start);
+				Top_Edge_Black		=	Check_Top_Bottom(y_start);
+
+				Right_Edge_Black	=	Check_Right_Left(x_end); 
+				Bottom_Edge_Black	=	Check_Top_Bottom(y_end);
+
+				if (!(Right_Edge_Black || Left_Edge_Black || Top_Edge_Black || Bottom_Edge_Black)) { break; }
+
+				if (Left_Edge_Black) {
+					x_start++;
+				}
+				if (Right_Edge_Black) {
+					x_end--;
 				}
 
-				for (int y = 0; y < bitmap.Height; y++) {
-					index = Byte_Index(mid, y);
-					bitmap_byte_array[index] = 0;
-					bitmap_byte_array[index + 1] = 0;
-					bitmap_byte_array[index + 2] = 255;
+				if (Top_Edge_Black) {
+					y_start++;
 				}
-
-				if (intersection > 2) { min = mid + 1; } 
-				else if (intersection == 2) { max = mid - 1; } 
-				else { MessageBox.Show("Error: intersection < 2 ..."); }
+				if (Bottom_Edge_Black) {
+					y_end--;
+				}
 			}
 
-			//for (int y = 0; y < bitmap.Height; y++) {
-			//	int index = Byte_Index(max, y);
-			//	bitmap_byte_array[index]		= 0;
-			//	bitmap_byte_array[index + 1]	= 0;
-			//	bitmap_byte_array[index + 2]	= 255;
-			//}
-
-			//for (int x = 0; x < bitmap.Width; x++) {
-			//	for (int y = 0; y < bitmap.Height; y++) {
-			//		int index = Byte_Index(x, y);
-			//		if (bitmap_byte_array[index] == 0 && bitmap_byte_array[index + 1] == 0 && bitmap_byte_array[index + 2] == 0) {
-			//			bool_array[Bool_Index(x, y)] = true;
-			//		}
-			//	}
-			//}
-
-			//watch.Stop();
-			//var elapsed_time = watch.Elapsed;
-			//Thread thread = new Thread(() => find_crop_bounds(0,0), 1000000000);
-			//thread.Start();
-			//thread.Join();
-
-			//List<Tuple<int,int>> index_array = new List<Tuple<int,int>>();
-
-			void find_crop_bounds(int x, int y) {
-
-				if (!bool_array[Bool_Index(x, y)]) { return; }
-
-				bool_array[Bool_Index(x, y)] = false;
-				bool is_bound = true;
-
-				if (Bool_Index(x + 1, y) < bool_array.Length)	{ if (!bool_array[Bool_Index(x + 1, y)]) { is_bound = false; }; }
-				if (Bool_Index(x - 1, y) > 0)					{ if (!bool_array[Bool_Index(x - 1, y)]) { is_bound = false; }; }
-				if (Bool_Index(x, y + 1) < bool_array.Length)	{ if (!bool_array[Bool_Index(x, y + 1)]) { is_bound = false; }; }
-				if (Bool_Index(x, y - 1) < 0)					{ if (!bool_array[Bool_Index(x, y - 1)]) { is_bound = false; }; }
-
-				if (is_bound) { Tuple.Create(x, y); }
-
-				if (Bool_Index(x + 1, y) < bool_array.Length)	{ find_crop_bounds(x + 1, y); }
-				if (Bool_Index(x - 1, y) > 0)					{ find_crop_bounds(x - 1, y); }
-				if (Bool_Index(x, y + 1) < bool_array.Length)	{ find_crop_bounds(x, y + 1); }
-				if (Bool_Index(x, y - 1) < 0)					{ find_crop_bounds(x, y - 1); }
-			}
+			int new_width = x_end - x_start;
+			int new_height = y_end - y_start;
 
 			Marshal.Copy(bitmap_byte_array, 0, pointer, im_num_of_bytes);
-			bitmap.UnlockBits(bitmap_data);
+			bitmap_gray.UnlockBits(bitmap_data);
 
-			int Byte_Index(int x, int y) { return x * single_pixel_num_of_byte + (bitmap.Height - y - 1) * stride; }
-			int Bool_Index(int x, int y) { return x + (bitmap.Height - y - 1) * bitmap.Width; }
+			return pano_image.Copy(new Rectangle(x_start, y_start, new_width, new_height));
 
-			Pano_Image_Box.Image = pano_mat;
 
-			//return null;
+			int Byte_Index(int x, int y) { return x * single_pixel_num_of_byte + (height - y - 1) * stride; }
+
+			bool Check_Right_Left(int fixed_x) {
+				int zeroCount = 0;
+				for (int j = y_start; j <= y_end; j++) {
+					if (bitmap_byte_array[Byte_Index(fixed_x, j)] < BLACK_VALUE_THRESHOLD) { zeroCount++; }
+				}
+				if ((zeroCount / (float) (y_end- y_start)) > BLACK_COUNT_THRESHOLD_AVERAGE) { return true; }
+				return false;
+			}
+
+			bool Check_Top_Bottom(int fixed_y) {
+				int zeroCount = 0;
+				for (int i = x_start; i <= x_end; i++) {
+					if (bitmap_byte_array[Byte_Index(i, fixed_y)] < BLACK_VALUE_THRESHOLD) { zeroCount++; }
+				}
+				if ((zeroCount / (float) (x_end - x_start)) > BLACK_COUNT_THRESHOLD_AVERAGE) { return true; }
+				return false;
+			}
 		}
 
 		void Init_Pano() {
