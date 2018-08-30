@@ -87,6 +87,7 @@
 			this.Backwards_Y = new System.Windows.Forms.Button();
 			this.Status_TextBox = new System.Windows.Forms.TextBox();
 			this.panel1 = new System.Windows.Forms.Panel();
+			this.Take_Panorama_Button = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.DisplayWindow)).BeginInit();
 			this.outer_panel.SuspendLayout();
 			this.panel9.SuspendLayout();
@@ -187,6 +188,7 @@
 			// outer_panel
 			// 
 			this.outer_panel.AccessibleName = "";
+			this.outer_panel.Controls.Add(this.Take_Panorama_Button);
 			this.outer_panel.Controls.Add(this.panel9);
 			this.outer_panel.Controls.Add(this.panel8);
 			this.outer_panel.Controls.Add(this.panel4);
@@ -830,6 +832,16 @@
 			this.panel1.Size = new System.Drawing.Size(891, 110);
 			this.panel1.TabIndex = 11;
 			// 
+			// Take_Panorama_Button
+			// 
+			this.Take_Panorama_Button.Location = new System.Drawing.Point(11, 701);
+			this.Take_Panorama_Button.Name = "Take_Panorama_Button";
+			this.Take_Panorama_Button.Size = new System.Drawing.Size(161, 23);
+			this.Take_Panorama_Button.TabIndex = 14;
+			this.Take_Panorama_Button.Text = "Take Panorama";
+			this.Take_Panorama_Button.UseVisualStyleBackColor = true;
+			this.Take_Panorama_Button.Click += new System.EventHandler(this.Take_Panorama_Button_Click);
+			// 
 			// Get_Panorama_Images
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -922,6 +934,7 @@
 		private System.Windows.Forms.Panel panel9;
 		private System.Windows.Forms.Label Motors_Label;
 		private System.Windows.Forms.Label Camera_Label;
+		private System.Windows.Forms.Button Take_Panorama_Button;
 	}
 }
 

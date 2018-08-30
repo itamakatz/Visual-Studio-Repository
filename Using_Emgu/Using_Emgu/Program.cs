@@ -40,7 +40,7 @@ namespace Using_Emgu {
 
 			Program my_program;
 
-			RUN_MODE MODE = RUN_MODE.CROP;
+			RUN_MODE MODE = RUN_MODE.PANO;
 
 			switch (MODE) {
 
@@ -101,33 +101,9 @@ namespace Using_Emgu {
 			My_Form.emgu_Image_Panel_Left.Emgu_Im_Box.Image = Crop_To_Edges(ref My_Image);
 			My_Form.emgu_Image_Panel_Left.Im_Label.Text = "Crop_To_Edges(ref My_Image)";
 
-			My_Form.emgu_Image_Panel_Left.Emgu_Im_Box.Image.MinMax(
-				out double[] minValues, 
-				out double[] maxValues, 
-				out Point[] minLocations, 
-				out Point[] maxLocations);
-
-			My_Form.Append_Output_TextBox_Same_Line("minValues: ");
-			foreach (var item in minValues) {
-				My_Form.Append_Output_TextBox_Same_Line(item + ", ");
-			}
-			My_Form.Append_Output_TextBox_Same_Line("maxValues: ");
-			foreach (var item in maxValues) {
-				My_Form.Append_Output_TextBox_Same_Line(item + ", ");
-			}
-			My_Form.Append_Output_TextBox_Same_Line("minLocations: ");
-			foreach (var item in minLocations) {
-				My_Form.Append_Output_TextBox_Same_Line("X: "+ item.X + ", Y: "+ item.Y + ", ");
-			}
-			My_Form.Append_Output_TextBox_Same_Line("maxLocations: ");
-			foreach (var item in maxLocations) {
-				My_Form.Append_Output_TextBox_Same_Line("X: "+ item.X + ", Y: "+ item.Y + ", ");
-			}
-
-
-			Single[,] Edge_Detection_Kernel = new Single[,] { { -1, -1, -1 }, { -1,  8, -1 }, { -1, -1, -1 } };
-			Single[,] Sharpen_Kernel = new Single[,] { { 0, -1, 0 }, { -1,  5, -1 }, { 0, -1, 0 } };
-			Single[,] Blur_Kernel = new Single[,] { { 1,1,1 }, { 1,1,1 }, { 1,1,1 } };
+			Single[,] Edge_Detection_Kernel =	new Single[,] { { -1, -1, -1 }, { -1,  8, -1 }, { -1, -1, -1 } };
+			Single[,] Sharpen_Kernel =			new Single[,] { { 0, -1, 0 }, { -1,  5, -1 }, { 0, -1, 0 } };
+			Single[,] Blur_Kernel =				new Single[,] { { 1, 1, 1 }, { 1,1,1 }, { 1,1,1 } };
 
 			ConvolutionKernelF convolutionKernelF_Edge_Detection = new ConvolutionKernelF(Edge_Detection_Kernel);
 			ConvolutionKernelF convolutionKernelF_Sharpening = new ConvolutionKernelF(Edge_Detection_Kernel);
@@ -159,9 +135,7 @@ namespace Using_Emgu {
 			var destImage = new Bitmap(width, height);
 
 			destImage.SetResolution(image.Bitmap.HorizontalResolution, image.Bitmap.VerticalResolution);
-			//destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
 
-			//using (var graphics = Graphics.FromImage(destImage)) {
 			using (var graphics = Graphics.FromImage(destImage)) {
 				graphics.CompositingMode = CompositingMode.SourceCopy;
 				graphics.CompositingQuality = CompositingQuality.HighQuality;
@@ -171,7 +145,6 @@ namespace Using_Emgu {
 
 				using (var wrapMode = new ImageAttributes()) {
 					wrapMode.SetWrapMode(WrapMode.TileFlipXY);
-					//graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
 					graphics.DrawImage(image.Bitmap, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
 				}
 			}
@@ -221,13 +194,13 @@ namespace Using_Emgu {
 
 
 						if (stitchStatus == Stitcher.Status.Ok) {
-							Pano_Image_Box.Image = Crop_To_Edges( ref result);
+							Pano_Image_Box.Image = Crop_To_Edges(ref result);
 							Console.WriteLine(String.Format("Stitched in {0} milliseconds.", watch.ElapsedMilliseconds));
 						} else if (stitchStatus == Stitcher.Status.ErrNeedMoreImgs) {
 							MessageBox.Show("Stiching Error: Need more images..");
 							Pano_Image_Box.Image = null;
 						} else if (stitchStatus == Stitcher.Status.ErrHomographyEstFail) {
-							MessageBox.Show("Stiching Error: Homography estimateion failed.");
+							MessageBox.Show("Stiching Error: Homography estimation failed.");
 							Pano_Image_Box.Image = null;
 						} else if (stitchStatus == Stitcher.Status.ErrCameraParamsAdjustFail) {
 							MessageBox.Show("Stiching Error: Camera parameters adjustment failed.");

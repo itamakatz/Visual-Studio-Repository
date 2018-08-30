@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading;
 using System.Windows.Forms;
 
 namespace Using_Emgu {
@@ -14,11 +9,11 @@ namespace Using_Emgu {
 		public MultiFormContext(params Form[] Forms) {
 			openForms = Forms.Length;
 			foreach (Form form in Forms) {
-				form.FormClosed += (s, args) => {
-					//When we have closed the last of the "starting" forms, 
-					//end the program.
-					if (Interlocked.Decrement(ref openForms) == 0) { ExitThread(); }
-				};
+				//form.FormClosed += (s, args) => {
+				//	//When we have closed the last of the "starting" forms, 
+				//	//end the program.
+				//	if (Interlocked.Decrement(ref openForms) == 0) { ExitThread(); }
+				//};
 				form.Show();
 			}
 		}

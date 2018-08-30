@@ -16,7 +16,7 @@ namespace Get_Panorama_Images
 		private uEye.Camera cam;
 		private IntPtr Display_Handle { get; set; } = IntPtr.Zero;
 
-		const string SAVE_PATH = @"C:\Users\admin\Desktop\COM_Integration\uEye\";
+		const string SAVE_PATH = @"C:\Users\admin\Desktop\COM_Integration\Panorama Stiching\Image Sets\Set_8" + @"\";
 		const string SAVE_PATH_SUFFIX = @".PNG";
 		ImageFormat IMAGE_FORMAT = ImageFormat.Png;
 

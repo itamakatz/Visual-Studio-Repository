@@ -149,5 +149,14 @@ namespace Get_Panorama_Images {
 		private void Z_Current_Position_Click(object sender, EventArgs e) {
 			Update_Status_TextBox("Motor Axis Z: Current Position = " + Motors[(int) Axis.Z].Current_Position);
 		}
+
+		private void Take_Panorama_Button_Click(object sender, EventArgs e) {
+
+			for (int i = 0; i < 10; i++) {
+				Camera.Save_Image();
+				Motors[(int) Axis.X].Move_Relative(true);
+				System.Threading.Thread.Sleep(500);
+			}
+		}
 	}
 }
