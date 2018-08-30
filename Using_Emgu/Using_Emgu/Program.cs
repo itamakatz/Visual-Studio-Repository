@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -87,7 +88,7 @@ namespace Using_Emgu {
 		}
 
 		void Compare_Images() {
-			Image<Bgr, Byte> My_Image = new Image<Bgr, byte>(@"C:\Users\admin\Desktop\COM_Integration\Panorama Stiching\Image Sets\Set_7\Results\UL_DL_pano.jpg");
+			Image<Bgr, Byte> My_Image = new Image<Bgr, byte>(@"C:\Users\admin\Desktop\COM_Integration\Panorama Stiching\Image Sets\Set_7\Results\All_Images_pano.jpg");
 
 			//My_Form.emgu_Image_Panel_Right.Emgu_Im_Box.Image = My_Image.Canny(255, 250 / 4);
 			//My_Form.emgu_Image_Panel_Right.Im_Label.Text = "Canny(255, 250 / 4)";
@@ -95,8 +96,8 @@ namespace Using_Emgu {
 			//My_Form.emgu_Image_Panel_Left.Emgu_Im_Box.Image = My_Image.Canny(255, 250 / 4).Canny(255, 250 / 4);
 			//My_Form.emgu_Image_Panel_Left.Im_Label.Text = "Canny(255, 250 / 4).Canny(255, 250 / 4)";
 
-			My_Form.emgu_Image_Panel_Right.Emgu_Im_Box.Image = My_Image;
-			My_Form.emgu_Image_Panel_Right.Im_Label.Text = "My_Image";
+			My_Form.emgu_Image_Panel_Right.Emgu_Im_Box.Image = ResizeImage(My_Image, My_Image.Width / 4, My_Image.Height / 4);
+			My_Form.emgu_Image_Panel_Right.Im_Label.Text = "ResizeImage";
 			My_Form.emgu_Image_Panel_Left.Emgu_Im_Box.Image = Crop_To_Edges(ref My_Image);
 			My_Form.emgu_Image_Panel_Left.Im_Label.Text = "Crop_To_Edges(ref My_Image)";
 
@@ -143,6 +144,39 @@ namespace Using_Emgu {
 
 			My_Form_2.emgu_Image_Panel_Left.Emgu_Im_Box.Image = My_Image.Sobel(1,0,3);
 			My_Form_2.emgu_Image_Panel_Left.Im_Label.Text = "My_Image.Sobel(1,0,3)";
+		}
+
+		/// <summary>
+		/// Resize the image to the specified width and height.
+		/// </summary>
+		/// <param name="image">The image to resize.</param>
+		/// <param name="width">The width to resize to.</param>
+		/// <param name="height">The height to resize to.</param>
+		/// <returns>The resized image.</returns>
+		public static Image<Bgr, Byte> ResizeImage(Image<Bgr, Byte> image, int width, int height) {
+		//public static Bitmap ResizeImage(Image image, int width, int height) {
+			var destRect = new Rectangle(0, 0, width, height);
+			var destImage = new Bitmap(width, height);
+
+			destImage.SetResolution(image.Bitmap.HorizontalResolution, image.Bitmap.VerticalResolution);
+			//destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+
+			//using (var graphics = Graphics.FromImage(destImage)) {
+			using (var graphics = Graphics.FromImage(destImage)) {
+				graphics.CompositingMode = CompositingMode.SourceCopy;
+				graphics.CompositingQuality = CompositingQuality.HighQuality;
+				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+				graphics.SmoothingMode = SmoothingMode.None;
+				graphics.PixelOffsetMode = PixelOffsetMode.None;
+
+				using (var wrapMode = new ImageAttributes()) {
+					wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+					//graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
+					graphics.DrawImage(image.Bitmap, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
+				}
+			}
+
+			return new Image<Bgr, byte>(destImage);
 		}
 
 		void Create_Pano() {
@@ -208,11 +242,6 @@ namespace Using_Emgu {
 
 		private void Crop_To_Edges_Caller() { Pano_Image_Box.Image = Crop_To_Edges(); }
 
-		private Image<Bgr, Byte> Crop_To_Edges(ref Mat pano_image) {
-			Image<Bgr, Byte> crom_image = pano_image.ToImage<Bgr, Byte>();
-			return Crop_To_Edges(ref crom_image);
-		}
-
 		private Image<Bgr, Byte> Crop_To_Edges() {
 
 			if (Open_File.ShowDialog() != DialogResult.OK) {
@@ -225,10 +254,14 @@ namespace Using_Emgu {
 			return Crop_To_Edges(ref pano_image);
 		}
 
+		private Image<Bgr, Byte> Crop_To_Edges(ref Mat pano_image) {
+			Image<Bgr, Byte> crom_image = pano_image.ToImage<Bgr, Byte>();
+			return Crop_To_Edges(ref crom_image);
+		}
+
 		private Image<Bgr, Byte> Crop_To_Edges(ref Image<Bgr, Byte> pano_image) {
 
-
-			Image<Gray, Byte> pano_gray = new Image<Gray, Byte>(pano_image.Bitmap);
+			Image <Gray, Byte> pano_gray = new Image<Gray, Byte>(pano_image.Bitmap);
 
 			Bitmap bitmap_gray = pano_gray.Bitmap;
 
@@ -251,6 +284,13 @@ namespace Using_Emgu {
 
 			Marshal.Copy(pointer, bitmap_byte_array, 0, im_num_of_bytes);
 
+			/* Important Note: Do not forget y_start and y_end  are in fact flipped and each represent the opposite direction 
+				after applaying the formula real_y = height - y - 1. This concept is CRUCIAL to understand the boundry conditions
+				of the program.
+				An exapmle of the is in the line of code:
+				return pano_image.Copy(new Rectangle(x_start, height - y_end - 1, new_width, new_height));
+				which sets the y coordinate at the begining of the Rectangle to: height - y_end - 1 and NOT y_start*/
+
 			int Byte_Index(int x, int y) { return x * single_pixel_num_of_byte + (height - y - 1) * stride; }
 
 			int x_start = 0;
@@ -263,48 +303,48 @@ namespace Using_Emgu {
 			double BLACK_COUNT_THRESHOLD_AVERAGE = 0.02;
 
 
-			//bool TL_Corner_Black   = true;
-			//bool TR_Corner_Black   = true;
-			//bool BL_Corner_Black   = true;
-			//bool BR_Corner_Black   = true;
+			bool TL_Corner_Black   = true;
+			bool TR_Corner_Black   = true;
+			bool BL_Corner_Black   = true;
+			bool BR_Corner_Black   = true;
 
-			//while(TL_Corner_Black || TR_Corner_Black || BL_Corner_Black || BR_Corner_Black) {
+			while (TL_Corner_Black || TR_Corner_Black || BL_Corner_Black || BR_Corner_Black) {
 
-			//	var index = 0;
-			//	int value = 0;
+				var index = 0;
+				int value = 0;
 
-			//	index = Byte_Index(x_start, y_start);
-			//	value = bitmap_byte_array[index];
-			//	if (TL_Corner_Black && bitmap_byte_array[Byte_Index(x_start, y_start)] < BLACK_VALUE_THRESHOLD) {
-			//		if(Check_Right_Left(x_start) > Check_Top_Bottom(y_start))	{ x_start++; } 
-			//		else														{ y_start++; }
-			//	} else {
-			//		TL_Corner_Black = false; }
+				index = Byte_Index(x_start, y_start);
+				value = bitmap_byte_array[index];
+				if (TL_Corner_Black && bitmap_byte_array[Byte_Index(x_start, y_start)] < BLACK_VALUE_THRESHOLD) {
+					if (Check_Right_Left(x_start) > Check_Top_Bottom(y_start)) { x_start++; } else { y_start++; }
+				} else {
+					TL_Corner_Black = false;
+				}
 
-			//	index = Byte_Index(x_end, y_start);
-			//	value = bitmap_byte_array[index];
-			//	if (TR_Corner_Black && bitmap_byte_array[Byte_Index(x_end, y_start)] < BLACK_VALUE_THRESHOLD) {
-			//		if (Check_Right_Left(x_end) > Check_Top_Bottom(y_start))	{ x_end--; } 
-			//		else														{ y_start++; }
-			//	} else {
-			//		TR_Corner_Black = false; }
+				index = Byte_Index(x_end, y_start);
+				value = bitmap_byte_array[index];
+				if (TR_Corner_Black && bitmap_byte_array[Byte_Index(x_end, y_start)] < BLACK_VALUE_THRESHOLD) {
+					if (Check_Right_Left(x_end) > Check_Top_Bottom(y_start)) { x_end--; } else { y_start++; }
+				} else {
+					TR_Corner_Black = false;
+				}
 
-			//	index = Byte_Index(x_start, y_end);
-			//	value = bitmap_byte_array[index];
-			//	if (BL_Corner_Black && bitmap_byte_array[Byte_Index(x_start, y_end)] < BLACK_VALUE_THRESHOLD) {
-			//		if (Check_Right_Left(x_start) > Check_Top_Bottom(y_end))	{ x_start++; } 
-			//		else														{ y_end--; }
-			//	} else {
-			//		BL_Corner_Black = false; }
+				index = Byte_Index(x_start, y_end);
+				value = bitmap_byte_array[index];
+				if (BL_Corner_Black && bitmap_byte_array[Byte_Index(x_start, y_end)] < BLACK_VALUE_THRESHOLD) {
+					if (Check_Right_Left(x_start) > Check_Top_Bottom(y_end)) { x_start++; } else { y_end--; }
+				} else {
+					BL_Corner_Black = false;
+				}
 
-			//	index = Byte_Index(x_end, y_end);
-			//	value = bitmap_byte_array[index];
-			//	if (BR_Corner_Black && bitmap_byte_array[Byte_Index(x_end, y_end)] < BLACK_VALUE_THRESHOLD) {
-			//		if (Check_Right_Left(x_end) > Check_Top_Bottom(y_end))		{ x_end--; } 
-			//		else														{ y_end--; }
-			//	} else {
-			//		BR_Corner_Black = false; }
-			//}
+				index = Byte_Index(x_end, y_end);
+				value = bitmap_byte_array[index];
+				if (BR_Corner_Black && bitmap_byte_array[Byte_Index(x_end, y_end)] < BLACK_VALUE_THRESHOLD) {
+					if (Check_Right_Left(x_end) > Check_Top_Bottom(y_end)) { x_end--; } else { y_end--; }
+				} else {
+					BR_Corner_Black = false;
+				}
+			}
 
 
 			bool Right_Edge_Black   = true;
@@ -343,8 +383,8 @@ namespace Using_Emgu {
 			Marshal.Copy(bitmap_byte_array, 0, pointer, im_num_of_bytes);
 			bitmap_gray.UnlockBits(bitmap_data);
 
-			return pano_image.Copy(new Rectangle(x_start, y_start, new_width, new_height));
-
+			return pano_image.Copy(new Rectangle(x_start, height - y_end - 1, new_width, new_height));
+			
 
 			float Check_Right_Left(int fixed_x) {
 				int zeroCount = 0;
