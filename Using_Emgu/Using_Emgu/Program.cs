@@ -18,7 +18,11 @@ using Emgu.CV.UI;
 using Emgu.CV.Util;
 
 namespace Using_Emgu {
-	class Program : Form {
+	internal class Program : Form {
+
+		public enum RUN_MODE { COMPARE, PANO , CROP};
+
+		RUN_MODE Mode;
 
 		public OpenFileDialog Open_File = new OpenFileDialog();
 
@@ -32,24 +36,54 @@ namespace Using_Emgu {
 		static void Main(string[] args) {
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			//Application.Run(new MultiFormContext(new Program(), new Program()));
 
-			new Program();
+			Program my_program;
+
+			RUN_MODE MODE = RUN_MODE.CROP;
+
+			switch (MODE) {
+
+				case RUN_MODE.COMPARE:
+					my_program = new Program(RUN_MODE.COMPARE);
+					Application.Run(new MultiFormContext(my_program.My_Form.Form, my_program.My_Form_2.Form));
+					break;
+
+				case RUN_MODE.PANO:
+					my_program = new Program(RUN_MODE.PANO);
+					Application.Run(new MultiFormContext(my_program.Pano_Form));
+					break;
+				case RUN_MODE.CROP:
+					my_program = new Program(RUN_MODE.CROP);
+					Application.Run(new MultiFormContext(my_program.Pano_Form));
+					break;
+				default:
+					break;
+			}
 		}
 
-		public Program() {
+		public Program(RUN_MODE mode) {
 
-			Init_Pano();
-			//Create_Pano();
-			Pano_Image_Box.Image = Crop_To_Edges();
-			Pano_Form.ShowDialog();
+			Mode = mode;
 
-			//Compare_Images();
-			//My_Form.Form_ShowDialog();
-			//My_Form_2.Form.Show();
-			//My_Form.Form.ShowDialog();
-			//Console.ReadKey();
-			//Compare_Form.ShowDialog();
+			switch (mode) {
+
+				case RUN_MODE.COMPARE:
+					Compare_Images();
+					break;
+
+				case RUN_MODE.PANO:
+					Init_Pano();
+					Create_Pano();
+					break;
+
+				case RUN_MODE.CROP:
+					Init_Pano();
+					Crop_To_Edges_Caller();
+					break;
+
+				default:
+					break;
+			}
 		}
 
 		void Compare_Images() {
@@ -123,7 +157,6 @@ namespace Using_Emgu {
 						Open_File.Multiselect = true;
 						if (Open_File.ShowDialog() != DialogResult.OK) {
 							MessageBox.Show(String.Format("User Error: No Images Were Selected"));
-							Pano_Image_Box.Image = null;
 							return;
 						};
 
@@ -172,6 +205,8 @@ namespace Using_Emgu {
 				}
 			}
 		}
+
+		private void Crop_To_Edges_Caller() { Pano_Image_Box.Image = Crop_To_Edges(); }
 
 		private Image<Bgr, Byte> Crop_To_Edges(ref Mat pano_image) {
 			Image<Bgr, Byte> crom_image = pano_image.ToImage<Bgr, Byte>();
@@ -341,8 +376,19 @@ namespace Using_Emgu {
 
 		void Pano_MouseDoubleClick(object sender, MouseEventArgs e) {
 			if (e.Button == MouseButtons.Left) {
-				Create_Pano();
-				Pano_Form.Refresh();
+
+				switch (Mode) {
+					case RUN_MODE.PANO:
+						Create_Pano();
+						Pano_Form.Refresh();
+						break;
+					case RUN_MODE.CROP:
+						Crop_To_Edges_Caller();
+						Pano_Form.Refresh();
+						break;
+					default:
+						break;
+				}
 			}
 		}
 	}

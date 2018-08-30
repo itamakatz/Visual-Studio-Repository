@@ -50,6 +50,7 @@ namespace Using_Emgu {
 		public void Set_Panel_Size(Size size) { Im_Panel.Size = size; }
 
 		private void Attach_Events(Action<object, MouseEventArgs>[] Picture_Box_Delegates, Action<object, MouseEventArgs> Panel_Delegate) {
+
 			Emgu_Im_Box.MouseDoubleClick += new MouseEventHandler(Picture_Box_Delegates[0]);
 			Emgu_Im_Box.MouseDown += new MouseEventHandler(Picture_Box_Delegates[1]);
 			Emgu_Im_Box.MouseMove += new MouseEventHandler(Picture_Box_Delegates[2]);
