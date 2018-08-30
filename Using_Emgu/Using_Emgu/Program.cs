@@ -265,6 +265,8 @@ namespace Using_Emgu {
 
 			Bitmap bitmap_gray = pano_gray.Bitmap;
 
+			// Locking bits of the image for better performance //
+
 			int height = pano_gray.Height;
 			int width = pano_gray.Width;
 
@@ -284,122 +286,106 @@ namespace Using_Emgu {
 
 			Marshal.Copy(pointer, bitmap_byte_array, 0, im_num_of_bytes);
 
-			/* Important Note: Do not forget y_start and y_end  are in fact flipped and each represent the opposite direction 
+			/* Important Note: Do not forget y_min and y_max  are in fact flipped and each represent the opposite direction 
 				after applaying the formula real_y = height - y - 1. This concept is CRUCIAL to understand the boundry conditions
 				of the program.
 				An exapmle of the is in the line of code:
-				return pano_image.Copy(new Rectangle(x_start, height - y_end - 1, new_width, new_height));
-				which sets the y coordinate at the begining of the Rectangle to: height - y_end - 1 and NOT y_start*/
+				return pano_image.Copy(new Rectangle(x_min, height - y_max - 1, new_width, new_height));
+				which sets the y coordinate at the begining of the Rectangle to: height - y_max - 1 and NOT y_min
+				Given the above, I will name the bool variables according to the real representation*/
 
-			int Byte_Index(int x, int y) { return x * single_pixel_num_of_byte + (height - y - 1) * stride; }
+			int x_min = 0;
+			int y_min = 0;
 
-			int x_start = 0;
-			int y_start = 0;
-
-			int x_end = width - 1;
-			int y_end = height - 1;
+			int x_max = width - 1;
+			int y_max = height - 1;
 
 			int BLACK_VALUE_THRESHOLD = 10;
 			double BLACK_COUNT_THRESHOLD_AVERAGE = 0.02;
 
-
-			bool TL_Corner_Black   = true;
-			bool TR_Corner_Black   = true;
 			bool BL_Corner_Black   = true;
 			bool BR_Corner_Black   = true;
+			bool TL_Corner_Black   = true;
+			bool TR_Corner_Black   = true;
 
-			while (TL_Corner_Black || TR_Corner_Black || BL_Corner_Black || BR_Corner_Black) {
+			while (BL_Corner_Black || BR_Corner_Black || TL_Corner_Black || TR_Corner_Black) {
 
 				var index = 0;
 				int value = 0;
 
-				index = Byte_Index(x_start, y_start);
+				index = Byte_Index(x_min, y_min);
 				value = bitmap_byte_array[index];
-				if (TL_Corner_Black && bitmap_byte_array[Byte_Index(x_start, y_start)] < BLACK_VALUE_THRESHOLD) {
-					if (Check_Right_Left(x_start) > Check_Top_Bottom(y_start)) { x_start++; } else { y_start++; }
-				} else {
-					TL_Corner_Black = false;
-				}
+				if (BL_Corner_Black && bitmap_byte_array[Byte_Index(x_min, y_min)] < BLACK_VALUE_THRESHOLD) {
+					if (Check_Right_Left(x_min) > Check_Top_Bottom(y_min)) { x_min++; } else { y_min++; }
+				} else { BL_Corner_Black = false; }
 
-				index = Byte_Index(x_end, y_start);
+				index = Byte_Index(x_max, y_min);
 				value = bitmap_byte_array[index];
-				if (TR_Corner_Black && bitmap_byte_array[Byte_Index(x_end, y_start)] < BLACK_VALUE_THRESHOLD) {
-					if (Check_Right_Left(x_end) > Check_Top_Bottom(y_start)) { x_end--; } else { y_start++; }
-				} else {
-					TR_Corner_Black = false;
-				}
+				if (BR_Corner_Black && bitmap_byte_array[Byte_Index(x_max, y_min)] < BLACK_VALUE_THRESHOLD) {
+					if (Check_Right_Left(x_max) > Check_Top_Bottom(y_min)) { x_max--; } else { y_min++; }
+				} else { BR_Corner_Black = false; }
 
-				index = Byte_Index(x_start, y_end);
+				index = Byte_Index(x_min, y_max);
 				value = bitmap_byte_array[index];
-				if (BL_Corner_Black && bitmap_byte_array[Byte_Index(x_start, y_end)] < BLACK_VALUE_THRESHOLD) {
-					if (Check_Right_Left(x_start) > Check_Top_Bottom(y_end)) { x_start++; } else { y_end--; }
-				} else {
-					BL_Corner_Black = false;
-				}
+				if (TL_Corner_Black && bitmap_byte_array[Byte_Index(x_min, y_max)] < BLACK_VALUE_THRESHOLD) {
+					if (Check_Right_Left(x_min) > Check_Top_Bottom(y_max)) { x_min++; } else { y_max--; }
+				} else { TL_Corner_Black = false; }
 
-				index = Byte_Index(x_end, y_end);
+				index = Byte_Index(x_max, y_max);
 				value = bitmap_byte_array[index];
-				if (BR_Corner_Black && bitmap_byte_array[Byte_Index(x_end, y_end)] < BLACK_VALUE_THRESHOLD) {
-					if (Check_Right_Left(x_end) > Check_Top_Bottom(y_end)) { x_end--; } else { y_end--; }
-				} else {
-					BR_Corner_Black = false;
-				}
+				if (TR_Corner_Black && bitmap_byte_array[Byte_Index(x_max, y_max)] < BLACK_VALUE_THRESHOLD) {
+					if (Check_Right_Left(x_max) > Check_Top_Bottom(y_max)) { x_max--; } else { y_max--; }
+				} else { TR_Corner_Black = false; }
 			}
-
 
 			bool Right_Edge_Black   = true;
 			bool Left_Edge_Black    = true;
-			bool Top_Edge_Black     = true;
-			bool Bottom_Edge_Black  = true;
+			bool Bottom_Edge_Black	= true;
+			bool Top_Edge_Black		= true;
 
 			while (true) {
 
-				Left_Edge_Black		=	Check_Right_Left(x_start) > BLACK_COUNT_THRESHOLD_AVERAGE;
-				Top_Edge_Black		=	Check_Top_Bottom(y_start) > BLACK_COUNT_THRESHOLD_AVERAGE;
+				Left_Edge_Black		=	Check_Right_Left(x_min) > BLACK_COUNT_THRESHOLD_AVERAGE;
+				Bottom_Edge_Black	=	Check_Top_Bottom(y_min) > BLACK_COUNT_THRESHOLD_AVERAGE;
 
-				Right_Edge_Black	=	Check_Right_Left(x_end) > BLACK_COUNT_THRESHOLD_AVERAGE; 
-				Bottom_Edge_Black	=	Check_Top_Bottom(y_end) > BLACK_COUNT_THRESHOLD_AVERAGE;
+				Right_Edge_Black	=	Check_Right_Left(x_max) > BLACK_COUNT_THRESHOLD_AVERAGE; 
+				Top_Edge_Black		=	Check_Top_Bottom(y_max) > BLACK_COUNT_THRESHOLD_AVERAGE;
 
-				if (!(Right_Edge_Black || Left_Edge_Black || Top_Edge_Black || Bottom_Edge_Black)) { break; }
+				if (!(Right_Edge_Black || Left_Edge_Black || Bottom_Edge_Black || Top_Edge_Black)) { break; }
 
-				if (Left_Edge_Black) {
-					x_start++;
-				}
-				if (Right_Edge_Black) {
-					x_end--;
-				}
-
-				if (Top_Edge_Black) {
-					y_start++;
-				}
-				if (Bottom_Edge_Black) {
-					y_end--;
-				}
+				if (Left_Edge_Black)	{ x_min++; }
+				if (Right_Edge_Black)	{ x_max--; }
+				if (Bottom_Edge_Black)	{ y_min++; }
+				if (Top_Edge_Black)		{ y_max--; }
 			}
-
-			int new_width = x_end - x_start;
-			int new_height = y_end - y_start;
 
 			Marshal.Copy(bitmap_byte_array, 0, pointer, im_num_of_bytes);
 			bitmap_gray.UnlockBits(bitmap_data);
 
-			return pano_image.Copy(new Rectangle(x_start, height - y_end - 1, new_width, new_height));
-			
+			int new_width = x_max - x_min;
+			int new_height = y_max - y_min;
+
+			return pano_image.Copy(new Rectangle(x_min, height - y_max - 1, new_width, new_height));
+
+
+			// Defining a few methods to perform the crop //
+
+			int Byte_Index(int x, int y) { return x * single_pixel_num_of_byte + (height - y - 1) * stride; }
 
 			float Check_Right_Left(int fixed_x) {
 				int zeroCount = 0;
-				for (int j = y_start; j <= y_end; j++) {
+				for (int j = y_min; j <= y_max; j++) {
 					if (bitmap_byte_array[Byte_Index(fixed_x, j)] < BLACK_VALUE_THRESHOLD) { zeroCount++; }
 				}
-				return (zeroCount / (float) (y_end - y_start));
+				return (zeroCount / (float) (y_max - y_min));
 			}
 
 			float Check_Top_Bottom(int fixed_y) {
 				int zeroCount = 0;
-				for (int i = x_start; i <= x_end; i++) {
+				for (int i = x_min; i <= x_max; i++) {
 					if (bitmap_byte_array[Byte_Index(i, fixed_y)] < BLACK_VALUE_THRESHOLD) { zeroCount++; }
 				}
-				return (zeroCount / (float) (x_end - x_start));
+				return (zeroCount / (float) (x_max - x_min));
 			}
 		}
 
