@@ -17,6 +17,7 @@ using Emgu.CV.Stitching;
 using Emgu.CV.Structure;
 using Emgu.CV.UI;
 using Emgu.CV.Util;
+using Emgu.CV.XFeatures2D;
 
 namespace Using_Emgu {
 	internal class Program : Form {
@@ -215,7 +216,13 @@ namespace Using_Emgu {
 
 		private void Crop_To_Edges_Caller() { Pano_Image_Box.Image = Panorama_Tools.Crop_To_Edges(); }
 
-		
+		public static void find_features(ref Image<Bgr, Byte> pano_image) {
+			SIFT sift = new SIFT();
+			VectorOfKeyPoint vectorOfKeyPoint = new VectorOfKeyPoint();
+			Image<Bgr, Byte> _IOutputArray_Image = new Image<Bgr, Byte>(pano_image.Size);
+			sift.DetectAndCompute(pano_image, null, vectorOfKeyPoint, _IOutputArray_Image, false);
+
+		}
 
 		void Init_Pano() {
 			Pano_Form.Height = Screen.PrimaryScreen.Bounds.Height;

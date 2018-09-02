@@ -158,5 +158,6 @@ namespace Using_Emgu {
 				return (zeroCount / (float) (x_max - x_min));
 			}
 		}
+
 	}
 }
