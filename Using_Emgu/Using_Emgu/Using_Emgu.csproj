@@ -58,6 +58,7 @@
     <Compile Include="Compare_Images_GUI.cs" />
     <Compile Include="Emgu_Image.cs" />
     <Compile Include="MultiFormContext.cs" />
+    <Compile Include="Panorama_Tools.cs" />
     <Compile Include="Program.cs">
       <SubType>Form</SubType>
     </Compile>

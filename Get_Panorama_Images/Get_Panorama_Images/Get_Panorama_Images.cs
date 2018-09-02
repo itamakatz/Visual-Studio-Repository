@@ -154,6 +154,7 @@ namespace Get_Panorama_Images {
 
 			for (int i = 0; i < 10; i++) {
 				Camera.Save_Image();
+				System.Threading.Thread.Sleep(500);
 				Motors[(int) Axis.X].Move_Relative(true);
 				System.Threading.Thread.Sleep(500);
 			}
